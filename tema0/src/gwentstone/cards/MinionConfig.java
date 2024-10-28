@@ -1,16 +1,27 @@
 package gwentstone.cards;
 
-import lombok.Getter;
-
-import java.util.function.BiConsumer;
-
-@Getter
 public class MinionConfig {
 
     private final String name;
     private final MinionPlacement placement;
     private final MinionAbility ability;
     private final boolean isTank;
+
+    public String getName() {
+        return name;
+    }
+
+    public MinionPlacement getPlacement() {
+        return placement;
+    }
+
+    public MinionAbility getAbility() {
+        return ability;
+    }
+
+    public boolean isTank() {
+        return isTank;
+    }
 
     MinionConfig(String name, MinionPlacement placement, MinionAbility ability, boolean isTank) {
         this.name = name;

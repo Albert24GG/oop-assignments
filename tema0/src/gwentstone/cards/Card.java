@@ -1,19 +1,37 @@
 package gwentstone.cards;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 
-@Getter
 public abstract class Card {
     private final int mana;
-    @Setter
     private int health;
     private final String description;
     private final List<String> colors;
     private final String name;
 
+    public int getMana() {
+        return mana;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<String> getColors() {
+        return colors;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     protected Card(int mana, int health, String description, List<String> colors, String name) {
         this.description = description;

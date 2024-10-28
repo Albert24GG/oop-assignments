@@ -1,12 +1,18 @@
 package gwentstone.cards;
 
-import lombok.Getter;
 
-@Getter
 public class HeroConfig {
 
     private final String name;
     private final HeroAbility ability;
+
+    public String getName() {
+        return name;
+    }
+
+    public HeroAbility getAbility() {
+        return ability;
+    }
 
     HeroConfig(String name, HeroAbility ability) {
         this.name = name;

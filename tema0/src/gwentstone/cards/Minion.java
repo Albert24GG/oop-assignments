@@ -1,8 +1,5 @@
 package gwentstone.cards;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -10,13 +7,25 @@ import java.util.function.BiConsumer;
 public class Minion extends Card {
 
     private final MinionConfig config;
-    @Getter
-    @Setter
     private int attackDamage;
-    @Getter
-    @Setter
     private boolean frozen = false;
     private BiConsumer<Minion, Minion> ability;
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackDamage(int attackDamage) {
+        this.attackDamage = attackDamage;
+    }
+
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
 
     public static Minion create(int mana, int health, int attackDamage, String description, List<String> colors, String name)
             throws IllegalArgumentException {
