@@ -1,14 +1,14 @@
 package gwentstone.cards;
 
+import gwentstone.cards.impl.Minion;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Deck {
-    private List<Minion> minions;
-
-    public Deck(List<Minion> minions) {
-        this.minions = minions;
-    }
+@RequiredArgsConstructor
+public final class Deck {
+    private final List<Minion> minions;
 
     public Stream<Minion> stream() {
         return minions.stream();
