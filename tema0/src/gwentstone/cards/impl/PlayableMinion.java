@@ -1,7 +1,11 @@
 package gwentstone.cards.impl;
 
 import gwentstone.cards.PlayableCard;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 public final class PlayableMinion extends PlayableCard<Minion> {
     @Setter(value = AccessLevel.PACKAGE)
@@ -10,12 +14,17 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     @NonNull
     private final Config config;
 
-    public PlayableMinion(@NonNull Minion minion) {
+    public PlayableMinion(@NonNull final Minion minion) {
         super(minion);
         config = Config.getConfig(minion.getType());
     }
 
-    public void useAbility(PlayableMinion target) {
+    /**
+     * Use the ability on a target minion
+     *
+     * @param target Target minion
+     */
+    public void useAbility(final PlayableMinion target) {
         if (isFrozen || this.config.getAbility() == null) {
             return;
         }
@@ -24,12 +33,12 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     }
 
     @Override
-    protected void setCurrentHealth(int value) {
+    protected void setCurrentHealth(final int value) {
         super.setCurrentHealth(value);
     }
 
     @Override
-    protected void setCurrentAttackDamage(int value) {
+    protected void setCurrentAttackDamage(final int value) {
         super.setCurrentAttackDamage(value);
     }
 
@@ -46,23 +55,27 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     }
 
     private static final class Abilities {
-        public static void weakKnees(PlayableMinion attacker, @NonNull PlayableMinion target) {
+        public static void weakKnees(final PlayableMinion attacker,
+                                     @NonNull final PlayableMinion target) {
             target.setCurrentAttackDamage(Math.max(0, target.getCurrentAttackDamage() - 2));
         }
 
-        public static void skyjack(@NonNull PlayableMinion attacker, @NonNull PlayableMinion target) {
+        public static void skyjack(@NonNull final PlayableMinion attacker,
+                                   @NonNull final PlayableMinion target) {
             int attackerHealth = attacker.getCurrentHealth();
             attacker.setCurrentHealth(target.getCurrentHealth());
             target.setCurrentHealth(attackerHealth);
         }
 
-        public static void shapeshift(PlayableMinion attacker, @NonNull PlayableMinion target) {
+        public static void shapeshift(final PlayableMinion attacker,
+                                      @NonNull final PlayableMinion target) {
             int targetHealth = target.getCurrentHealth();
             target.setCurrentHealth(target.getCurrentAttackDamage());
             target.setCurrentAttackDamage(targetHealth);
         }
 
-        public static void godsPlan(PlayableMinion attacker, @NonNull PlayableMinion target) {
+        public static void godsPlan(final PlayableMinion attacker,
+                                    @NonNull final PlayableMinion target) {
             target.setCurrentHealth(target.getCurrentHealth() + 2);
         }
     }
@@ -83,7 +96,7 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         private final Placement placement;
         private final PlayableMinionAbility ability;
 
-        public static Config getConfig(Minion.Type type)
+        public static Config getConfig(final Minion.Type type)
                 throws IllegalArgumentException {
             return Config.valueOf(type.name());
         }

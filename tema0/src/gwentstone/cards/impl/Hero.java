@@ -4,7 +4,6 @@ import gwentstone.cards.Card;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -15,7 +14,8 @@ public final class Hero extends Card {
     private final Type type;
 
     @Builder
-    Hero(int mana, int attackDamage, String description, List<String> colors, @NonNull String name) {
+    Hero(final int mana, final int attackDamage, final String description,
+         final List<String> colors, @NonNull final String name) {
         super(mana, HEALTH, attackDamage, description, colors, name);
         this.type = Type.fromString(name);
     }
@@ -26,7 +26,14 @@ public final class Hero extends Card {
         KING_MUDFACE,
         GENERAL_KOCIORAW;
 
-        public static Type fromString(String s)
+        /**
+         * Convert a string to the appropriate hero type
+         *
+         * @param s String to convert
+         * @return The corresponding hero type
+         * @throws IllegalArgumentException If a string cannot be converted to a hero type
+         */
+        public static Type fromString(final String s)
                 throws IllegalArgumentException {
             return valueOf(s.trim().replace(" ", "_").toUpperCase());
         }

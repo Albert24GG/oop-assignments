@@ -12,7 +12,9 @@ public final class Minion extends Card {
     private final Type type;
 
     @Builder
-    Minion(int mana, int health, int attackDamage, String description, List<String> colors, @NonNull String name) {
+    Minion(final int mana, final int health, final int attackDamage, final String description,
+           final List<String> colors,
+           @NonNull final String name) {
         super(mana, health, attackDamage, description, colors, name);
         this.type = Type.fromString(name);
     }
@@ -27,7 +29,15 @@ public final class Minion extends Card {
         THE_CURSED_ONE,
         DISCIPLE;
 
-        public static Type fromString(String s)
+
+        /**
+         * Convert a string to the appropriate minion type
+         *
+         * @param s String to convert
+         * @return The corresponding minion type
+         * @throws IllegalArgumentException If a string cannot be converted to a minion type
+         */
+        public static Type fromString(final String s)
                 throws IllegalArgumentException {
             return valueOf(s.trim().replace(" ", "_").toUpperCase());
         }
