@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.List;
+
 public abstract class PlayableCard<T extends Card> {
     @NonNull
     @Getter(value = AccessLevel.PROTECTED)
@@ -24,7 +26,31 @@ public abstract class PlayableCard<T extends Card> {
         currentAttackDamage = card.getAttackDamage();
     }
 
-    public void attack(@NonNull PlayableCard<? extends Card> target){
+    public void attack(@NonNull PlayableCard<? extends Card> target) {
         target.currentHealth = Math.max(0, target.currentHealth - this.card.getAttackDamage());
+    }
+
+    public int getMana() {
+        return this.card.getMana();
+    }
+
+    public int getHealth() {
+        return this.card.getHealth();
+    }
+
+    public int getAttackDamage() {
+        return this.card.getAttackDamage();
+    }
+
+    public String getDescription() {
+        return this.card.getDescription();
+    }
+
+    public List<String> getColors() {
+        return this.card.getColors();
+    }
+
+    public String getName() {
+        return this.card.getName();
     }
 }

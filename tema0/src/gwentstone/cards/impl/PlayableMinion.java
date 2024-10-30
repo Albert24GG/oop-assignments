@@ -15,22 +15,30 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         config = Config.getConfig(minion.getType());
     }
 
-    public void useAbility(PlayableMinion target){
-        if(isFrozen || this.config.getAbility() == null){
+    public void useAbility(PlayableMinion target) {
+        if (isFrozen || this.config.getAbility() == null) {
             return;
         }
 
-       this.config.getAbility().use(this, target);
+        this.config.getAbility().use(this, target);
     }
 
     @Override
-    protected void setCurrentHealth(int value){
-       super.setCurrentHealth(value);
+    protected void setCurrentHealth(int value) {
+        super.setCurrentHealth(value);
     }
 
     @Override
-    protected void setCurrentAttackDamage(int value){
+    protected void setCurrentAttackDamage(int value) {
         super.setCurrentAttackDamage(value);
+    }
+
+    public PlayableMinion.Placement getPlacement() {
+        return this.config.getPlacement();
+    }
+
+    public boolean isTank() {
+        return this.config.isTank();
     }
 
     public enum Placement {
