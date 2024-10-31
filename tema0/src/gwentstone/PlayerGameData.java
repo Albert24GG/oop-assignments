@@ -1,26 +1,54 @@
 package gwentstone;
 
 import gwentstone.cards.Deck;
-import gwentstone.cards.Hero;
-import gwentstone.cards.Minion;
+import gwentstone.cards.impl.Hero;
+import gwentstone.cards.impl.PlayableHero;
+import gwentstone.cards.impl.PlayableMinion;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class PlayerGameData {
     private final int deckIdx;
-    private List<Minion> remCards;
-    private List<Minion> hand = new ArrayList<Minion>();
-    private Hero hero;
+    private List<PlayableMinion> remCards;
+    private List<PlayableMinion> hand = new ArrayList<>();
+    private final PlayableHero hero;
+    @Getter
+    private int mana = 1;
+    private int manaIncrement = 1;
+    private static final int MAX_MANA_INCREMENT = 10;
 
-    PlayerGameData(int deckIdx, int shuffleSeed, Deck deck, Hero hero){
+    PlayerGameData(final int deckIdx, final int shuffleSeed, final Deck deck, final Hero hero) {
         this.deckIdx = deckIdx;
-        remCards = deck.stream().map(Minion::copy).collect(Collectors.toList());
+        remCards = deck.stream().map(PlayableMinion::new).toList();
         Collections.shuffle(remCards, new Random(shuffleSeed));
-        // This copy may not be needed
-        this.hero = Hero.copy(hero);
+        this.hero = new PlayableHero(hero);
     }
+
+    /**
+     * Get the minion in hand at a certain index
+     *
+     * @param cardIdx index of the minion in hand
+     * @return the minion
+     */
+    public PlayableMinion getMinionInHand(final int cardIdx) {
+        return remCards.get(cardIdx);
+    }
+
+    /**
+     * Remove a minion from the current hand
+     *
+     * @param cardIdx index of the card to remove
+     */
+    public void removeMinionFromHand(final int cardIdx) {
+        hand.remove(cardIdx);
+    }
+
+    public void roundStartRoutine() {
+
+    }
+
 }
