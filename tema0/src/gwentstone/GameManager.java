@@ -14,4 +14,31 @@ public final class GameManager {
     public GameManager(final List<Player> players, final StartGameInput input) {
         gameState = new GameState(players, input);
     }
+
+    /**
+     * Check if a round is already in progress
+     *
+     * @return True if the round started, False otherwise
+     */
+    public boolean isRoundStarted() {
+        return gameState.isRoundStarted();
+    }
+
+    /**
+     * Signal the start of a new round.
+     * This method invokes the routines that must run at the beginning of a round.
+     *
+     */
+    public void startRound(){
+        gameState.startRoundRoutine();
+    }
+
+    /**
+     * Get the index of the active player.
+     *
+     * @return The index of the player (1 or 2)
+     */
+    public int getPlayerTurn(){
+        return gameState.getTurnManager().getCurrentPlayerIdx();
+    }
 }

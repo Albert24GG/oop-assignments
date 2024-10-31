@@ -2,12 +2,15 @@ package gwentstone;
 
 import fileio.StartGameInput;
 import gwentstone.utils.InputParser;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.List;
 
 public final class GameState {
     private final List<Player> players;
+
+    @Getter(AccessLevel.PACKAGE)
     private TurnManager turnManager;
     private GameBoard gameBoard;
     @Getter
