@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class PlayerGameData {
     private final int deckIdx;
@@ -23,7 +24,7 @@ public class PlayerGameData {
 
     PlayerGameData(final int deckIdx, final int shuffleSeed, final Deck deck, final Hero hero) {
         this.deckIdx = deckIdx;
-        remCards = deck.stream().map(PlayableMinion::new).toList();
+        remCards = deck.stream().map(PlayableMinion::new).collect(Collectors.toList());
         Collections.shuffle(remCards, new Random(shuffleSeed));
         this.hero = new PlayableHero(hero);
     }
