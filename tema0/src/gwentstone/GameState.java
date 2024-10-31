@@ -32,7 +32,7 @@ public final class GameState {
         players.get(1).initializeGameData(input.getPlayerTwoDeckIdx(), input.getShuffleSeed(),
                 InputParser.parseHero(input.getPlayerTwoHero()));
 
-        turnManager = new TurnManager(input.getStartingPlayer(), players);
+        turnManager = new TurnManager(input.getStartingPlayer() - 1, players);
         gameBoard = new GameBoard();
     }
 }

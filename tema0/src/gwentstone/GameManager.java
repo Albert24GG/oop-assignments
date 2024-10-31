@@ -39,6 +39,7 @@ public final class GameManager {
      * @return The index of the player (1 or 2)
      */
     public int getPlayerTurn(){
-        return gameState.getTurnManager().getCurrentPlayerIdx();
+        // internally, we store the player index starting from zero
+        return gameState.getTurnManager().getCurrentPlayerIdx() + 1;
     }
 }
