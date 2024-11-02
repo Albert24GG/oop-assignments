@@ -1,6 +1,7 @@
 package gwentstone.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import fileio.ActionsInput;
@@ -18,6 +19,7 @@ public final class ActionFactory {
             "getPlayerHero", GetPlayerHero::new,
             "endPlayerTurn", EndPlayerTurn::new,
             "getCardsInHand", GetCardsInHand::new,
+            "getCardsOnTable", GetCardsOnTable::new,
             "placeCard", PlaceCard::new
     );
 
@@ -116,6 +118,30 @@ public final class ActionFactory {
                     .actionOutput(JsonMapper.mapCardList(
                             gameManager.getCardsInHand(getInput().getPlayerIdx())
                     ))
+                    .build();
+        }
+    }
+
+    private static final class GetCardsOnTable extends Action {
+        GetCardsOnTable(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            ArrayNode actionOutput = MAPPER.createArrayNode();
+            gameManager.getCardsOnTable().forEach(row -> {
+                        ArrayNode rowNode = MAPPER.valueToTree(row.stream()
+                                .map(JsonMapper::mapPlayableCard)
+                                .toList()
+                        );
+                        actionOutput.add(rowNode);
+                    }
+            );
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(actionOutput)
                     .build();
         }
     }

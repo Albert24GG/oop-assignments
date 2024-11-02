@@ -8,6 +8,7 @@ import gwentstone.cards.impl.Minion;
 import gwentstone.cards.impl.PlayableMinion;
 import gwentstone.utils.GameMessage;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -123,6 +124,20 @@ public final class GameManager {
                 .getHand()
                 .stream()
                 .map(PlayableMinion::getUnderlyingCard)
+                .toList();
+    }
+
+    /**
+     * Get the cards present on the game board.
+     *
+     * @return An immutable 3D list containing the minions placed on the game board
+     */
+    public List<List<PlayableMinion>> getCardsOnTable(){
+        return gameState
+                .getGameBoard()
+                .getBoard()
+                .stream()
+                .map(Collections::unmodifiableList)
                 .toList();
     }
 

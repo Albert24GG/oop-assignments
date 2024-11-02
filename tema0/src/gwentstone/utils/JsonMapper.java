@@ -3,9 +3,11 @@ package gwentstone.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gwentstone.cards.Card;
 import gwentstone.cards.Deck;
+import gwentstone.cards.PlayableCard;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -36,6 +38,20 @@ public final class JsonMapper {
     }
 
     /**
+     * Serialize a {@code PlayableCard} to a json {@code ObjectNode}
+     *
+     * @param card The {@code PlayableCard} object to serialize
+     * @return The {@code ObjectNode} containing the serialized PlayableCard
+     */
+    public static ObjectNode mapPlayableCard(final PlayableCard<? extends Card> card) {
+        ObjectNode jsonCard = mapCard(card.getUnderlyingCard());
+        jsonCard.replace("health", JsonNodeFactory.instance.numberNode(card.getCurrentHealth()));
+        jsonCard.replace("attackDamage",
+                JsonNodeFactory.instance.numberNode(card.getCurrentAttackDamage()));
+        return jsonCard;
+    }
+
+    /**
      * Serialize a {@code Deck} to a json {@code ArrayNode}
      *
      * @param deck The {@code Deck} object to serialize
@@ -53,7 +69,7 @@ public final class JsonMapper {
      * @param cards The {@code List<Card>} object to serialize
      * @return The {@code ArrayNode} containing the serialized cards from the deck
      */
-    public static ArrayNode mapCardList(final List<? extends Card> cards){
+    public static ArrayNode mapCardList(final List<? extends Card> cards) {
         ArrayNode arrayNode = MAPPER.createArrayNode();
         cards.forEach(card -> arrayNode.add(mapCard(card)));
         return arrayNode;

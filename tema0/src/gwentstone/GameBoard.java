@@ -1,6 +1,8 @@
 package gwentstone;
 
 import gwentstone.cards.impl.PlayableMinion;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.stream.IntStream;
 public class GameBoard {
     private static final int BOARD_WIDTH = 5;
     private static final int BOARD_HEIGHT = 4;
+    @Getter(AccessLevel.PACKAGE)
     private List<List<PlayableMinion>> board =
             IntStream.range(0, BOARD_HEIGHT)
                     .mapToObj(i -> new ArrayList<PlayableMinion>(BOARD_WIDTH))
