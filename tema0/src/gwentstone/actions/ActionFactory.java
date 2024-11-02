@@ -21,7 +21,8 @@ public final class ActionFactory {
             "getCardsInHand", GetCardsInHand::new,
             "getCardsOnTable", GetCardsOnTable::new,
             "getPlayerMana", GetPlayerMana::new,
-            "placeCard", PlaceCard::new
+            "placeCard", PlaceCard::new,
+            "cardUsesAttack", CardUsesAttack::new
     );
 
     private ActionFactory() {
@@ -48,6 +49,28 @@ public final class ActionFactory {
             var actionOutput = ActionOutput.builder();
             try {
                 gameManager.placeCard(getInput().getHandIdx());
+                return actionOutput.type(ActionOutput.Type.NONE).build();
+            } catch (final ActionException err) {
+                return actionOutput
+                        .type(ActionOutput.Type.ERROR)
+                        .actionInput(getInput())
+                        .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
+                        .build();
+            }
+        }
+    }
+
+    private static final class CardUsesAttack extends Action {
+        CardUsesAttack(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            var actionOutput = ActionOutput.builder();
+            try {
+                gameManager.cardUsesAtack(getInput().getCardAttacker(),
+                        getInput().getCardAttacked());
                 return actionOutput.type(ActionOutput.Type.NONE).build();
             } catch (final ActionException err) {
                 return actionOutput

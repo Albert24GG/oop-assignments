@@ -28,6 +28,7 @@ public final class GameState {
 
     public void endRoundRoutine() {
         gameBoard.unfreezeAllCards();
+        gameBoard.resetAttackHistory();
     }
 
     public GameState(final List<Player> players, final StartGameInput input) {

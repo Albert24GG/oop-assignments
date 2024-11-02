@@ -28,12 +28,16 @@ public final class TurnManager {
         return currentPlayer;
     }
 
+    public int getInactivePlayerIdx() {
+        return (currentPlayer + 1) % players.size();
+    }
+
     /**
      * Check if the round can be ended
      *
      * @return Boolean indicating whether the current round can be ended
      */
-    boolean isRoundEndable(){
+    boolean isRoundEndable() {
         return currentPlayer == (startingPlayer + players.size() - 1) % players.size();
     }
 }

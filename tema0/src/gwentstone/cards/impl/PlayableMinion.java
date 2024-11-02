@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 public final class PlayableMinion extends PlayableCard<Minion> {
+    @Getter
     private boolean isFrozen = false;
 
     @NonNull
