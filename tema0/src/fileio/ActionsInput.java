@@ -2,13 +2,13 @@ package fileio;
 
 public final class ActionsInput {
     private String command;
-    private int handIdx;
+    private Integer handIdx;
     private Coordinates cardAttacker;
     private Coordinates cardAttacked;
-    private int affectedRow;
-    private int playerIdx;
-    private int x;
-    private int y;
+    private Integer affectedRow;
+    private Integer playerIdx;
+    private Integer x;
+    private Integer y;
 
     public ActionsInput() {
     }
@@ -21,7 +21,7 @@ public final class ActionsInput {
         this.command = command;
     }
 
-    public int getHandIdx() {
+    public Integer getHandIdx() {
         return handIdx;
     }
 
@@ -45,7 +45,7 @@ public final class ActionsInput {
         this.cardAttacked = cardAttacked;
     }
 
-    public int getAffectedRow() {
+    public Integer getAffectedRow() {
         return affectedRow;
     }
 
@@ -53,7 +53,7 @@ public final class ActionsInput {
         this.affectedRow = affectedRow;
     }
 
-    public int getPlayerIdx() {
+    public Integer getPlayerIdx() {
         return playerIdx;
     }
 
@@ -61,7 +61,7 @@ public final class ActionsInput {
         this.playerIdx = playerIdx;
     }
 
-    public int getX() {
+    public Integer getX() {
         return x;
     }
 
@@ -69,7 +69,7 @@ public final class ActionsInput {
         this.x = x;
     }
 
-    public int getY() {
+    public Integer getY() {
         return y;
     }
 
