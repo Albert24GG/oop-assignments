@@ -52,7 +52,7 @@ public final class GameManager {
      */
     public Deck getPlayerDeck(final int playerIdx) {
         // internally, we store the player index starting from zero
-        return gameState.getPlayers().get(playerIdx - 1).getCurrentDeck();
+        return gameState.getPlayers().get(playerIdx - 1).getGameData().getCurrentDeck();
     }
 
     /**
@@ -63,7 +63,7 @@ public final class GameManager {
      */
     public Hero getPlayerHero(final int playerIdx) {
         // internally, we store the player index starting from zero
-        return gameState.getPlayers().get(playerIdx - 1).getCurrentHero();
+        return gameState.getPlayers().get(playerIdx - 1).getGameData().getCurrentHero();
     }
 
     /**

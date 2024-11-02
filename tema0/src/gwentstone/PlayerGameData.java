@@ -34,12 +34,30 @@ public final class PlayerGameData {
     }
 
     /**
+     * Get player's remaining cards in deck in the current game.
+     *
+     * @return Deck made of the remaining cards that the player can draw
+     */
+    Deck getCurrentDeck() {
+        return new Deck(remCards.stream().map(PlayableMinion::getUnderlyingCard).toList());
+    }
+
+    /**
+     * Get player's hero in the current game
+     *
+     * @return Player's hero
+     */
+    Hero getCurrentHero() {
+        return hero.getUnderlyingCard();
+    }
+
+    /**
      * Get the minion in hand at a certain index
      *
      * @param cardIdx index of the minion in hand
      * @return the minion
      */
-    public PlayableMinion getMinionInHand(final int cardIdx) {
+    PlayableMinion getMinionInHand(final int cardIdx) {
         return remCards.get(cardIdx);
     }
 
@@ -48,19 +66,27 @@ public final class PlayerGameData {
      *
      * @param cardIdx index of the card to remove
      */
-    public void removeMinionFromHand(final int cardIdx) {
+    void removeMinionFromHand(final int cardIdx) {
         hand.remove(cardIdx);
     }
 
-    void addMana() {
+    private void addMana() {
         mana += manaIncrement;
         manaIncrement = Math.min(MAX_MANA_INCREMENT, manaIncrement + 1);
     }
 
-    void drawNextCard() {
+    private void drawNextCard() {
         if (remCards.isEmpty()) {
             return;
         }
         hand.add(remCards.remove(0));
+    }
+
+    /**
+     * Routine called at the start of a round.
+     */
+    void startRoundRoutine() {
+        addMana();
+        drawNextCard();
     }
 }

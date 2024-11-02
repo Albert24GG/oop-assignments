@@ -22,11 +22,11 @@ public final class GameState {
      */
     public void startRoundRoutine() {
         roundStarted = true;
-        players.forEach(Player::startRoundRoutine);
+        players.forEach(p -> p.getGameData().startRoundRoutine());
     }
 
     public void endRoundRoutine() {
-       gameBoard.unfreezeAllCards();
+        gameBoard.unfreezeAllCards();
     }
 
     public GameState(final List<Player> players, final StartGameInput input) {
