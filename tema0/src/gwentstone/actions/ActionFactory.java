@@ -80,11 +80,16 @@ public final class ActionFactory {
 
         @Override
         public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            ArrayNode actionOutput = MAPPER.valueToTree(
+                    gameManager.getPlayerDeck(getInput().getPlayerIdx())
+                            .stream()
+                            .map(JsonMapper::mapCard)
+                            .toList()
+            );
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
-                    .actionOutput(JsonMapper.mapDeck(
-                            gameManager.getPlayerDeck(getInput().getPlayerIdx())))
+                    .actionOutput(actionOutput)
                     .build();
         }
     }
@@ -112,12 +117,16 @@ public final class ActionFactory {
 
         @Override
         public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            ArrayNode actionOutput = MAPPER.valueToTree(
+                    gameManager.getCardsInHand(getInput().getPlayerIdx())
+                            .stream()
+                            .map(JsonMapper::mapCard)
+                            .toList()
+            );
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
-                    .actionOutput(JsonMapper.mapCardList(
-                            gameManager.getCardsInHand(getInput().getPlayerIdx())
-                    ))
+                    .actionOutput(actionOutput)
                     .build();
         }
     }
