@@ -2,7 +2,6 @@ package gwentstone;
 
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
-import gwentstone.cards.impl.PlayableHero;
 import gwentstone.cards.impl.PlayableMinion;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -49,5 +48,14 @@ public class Player {
     Hero getCurrentHero() {
         // this should be called from GameManager, so gameData should be initialized
         return gameData.getHero().getUnderlyingCard();
+    }
+
+    /**
+     * Routine called at the start of a round.
+     */
+    void startRoundRoutine() {
+        // this should be called after a game started, so gameData should be initialized
+        gameData.addMana();
+        gameData.drawNextCard();
     }
 }

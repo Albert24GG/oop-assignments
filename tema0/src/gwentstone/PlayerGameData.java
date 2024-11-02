@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class PlayerGameData {
+public final class PlayerGameData {
     @Getter
     private final int deckIdx;
     @Getter(AccessLevel.PACKAGE)
@@ -22,7 +22,7 @@ public class PlayerGameData {
     @Getter(AccessLevel.PACKAGE)
     private final PlayableHero hero;
     @Getter
-    private int mana = 1;
+    private int mana = 0;
     private int manaIncrement = 1;
     private static final int MAX_MANA_INCREMENT = 10;
 
@@ -52,8 +52,15 @@ public class PlayerGameData {
         hand.remove(cardIdx);
     }
 
-    public void roundStartRoutine() {
-
+    void addMana() {
+        mana += manaIncrement;
+        manaIncrement = Math.min(MAX_MANA_INCREMENT, manaIncrement + 1);
     }
 
+    void drawNextCard() {
+        if (remCards.isEmpty()) {
+            return;
+        }
+        hand.add(remCards.remove(0));
+    }
 }

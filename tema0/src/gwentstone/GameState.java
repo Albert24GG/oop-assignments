@@ -22,6 +22,7 @@ public final class GameState {
      */
     public void startRoundRoutine() {
         roundStarted = true;
+        players.forEach(Player::startRoundRoutine);
     }
 
     public GameState(final List<Player> players, final StartGameInput input) {
@@ -35,5 +36,8 @@ public final class GameState {
 
         turnManager = new TurnManager(input.getStartingPlayer() - 1, players);
         gameBoard = new GameBoard();
+
+        // start the round
+        startRoundRoutine();
     }
 }
