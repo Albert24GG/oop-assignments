@@ -1,14 +1,11 @@
 package gwentstone.cards.impl;
 
 import gwentstone.cards.PlayableCard;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 public final class PlayableMinion extends PlayableCard<Minion> {
-    @Setter(value = AccessLevel.PACKAGE)
     private boolean isFrozen = false;
 
     @NonNull
@@ -30,6 +27,20 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         }
 
         this.config.getAbility().use(this, target);
+    }
+
+    /**
+     * Freeze minion
+     */
+    public void freeze(){
+        isFrozen = true;
+    }
+
+    /**
+     * Unfreeze minion
+     */
+    public void unfreeze(){
+        isFrozen = false;
     }
 
     @Override

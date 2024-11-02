@@ -29,7 +29,7 @@ public final class PlayableHero extends PlayableCard<Hero> {
 
     private static final class Abilities {
         public static void subZero(@NonNull final List<@NonNull PlayableMinion> targetRow) {
-            targetRow.forEach(m -> m.setFrozen(true));
+            targetRow.forEach(PlayableMinion::freeze);
         }
 
         public static void lowBlood(@NonNull final List<@NonNull PlayableMinion> targetRow) {
