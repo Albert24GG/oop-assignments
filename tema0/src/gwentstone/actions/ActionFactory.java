@@ -20,6 +20,7 @@ public final class ActionFactory {
             "endPlayerTurn", EndPlayerTurn::new,
             "getCardsInHand", GetCardsInHand::new,
             "getCardsOnTable", GetCardsOnTable::new,
+            "getPlayerMana", GetPlayerMana::new,
             "placeCard", PlaceCard::new
     );
 
@@ -151,6 +152,22 @@ public final class ActionFactory {
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
                     .actionOutput(actionOutput)
+                    .build();
+        }
+    }
+
+    private static final class GetPlayerMana extends Action {
+        GetPlayerMana(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(JsonNodeFactory.instance.numberNode(gameManager.getPlayerMana(
+                            getInput().getPlayerIdx())))
                     .build();
         }
     }

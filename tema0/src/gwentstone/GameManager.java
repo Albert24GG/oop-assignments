@@ -132,13 +132,23 @@ public final class GameManager {
      *
      * @return An immutable 3D list containing the minions placed on the game board
      */
-    public List<List<PlayableMinion>> getCardsOnTable(){
+    public List<List<PlayableMinion>> getCardsOnTable() {
         return gameState
                 .getGameBoard()
                 .getBoard()
                 .stream()
                 .map(Collections::unmodifiableList)
                 .toList();
+    }
+
+    /**
+     * Get player's mana level
+     *
+     * @param playerIdx Player's index
+     * @return The level of mana the player has
+     */
+    public int getPlayerMana(final int playerIdx) {
+        return gameState.getPlayers().get(playerIdx - 1).getGameData().getMana();
     }
 
 }
