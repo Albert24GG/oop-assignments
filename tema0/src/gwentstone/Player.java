@@ -2,13 +2,14 @@ package gwentstone;
 
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.List;
 
 public class Player {
     private int wins = 0;
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private PlayerGameData gameData;
     private final List<Deck> decks;
 
@@ -25,5 +26,16 @@ public class Player {
      */
     public void initializeGameData(final int deckIdx, final int shuffleSeed, final Hero hero) {
         gameData = new PlayerGameData(deckIdx, shuffleSeed, decks.get(deckIdx), hero);
+    }
+
+    /**
+     * Return player's deck in the current game
+     *
+     * @return An {@code Optional} containing the current deck, or an empty {@code Optional} if
+     * there is no running game
+     */
+    Deck getCurrentDeck() {
+        // this should be called from GameManager, so gameData should be initialized
+        return decks.get(gameData.getDeckIdx());
     }
 }

@@ -8,6 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 public final class GameState {
+    @Getter(AccessLevel.PACKAGE)
     private final List<Player> players;
 
     @Getter(AccessLevel.PACKAGE)

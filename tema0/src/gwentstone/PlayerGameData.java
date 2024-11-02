@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class PlayerGameData {
+    @Getter
     private final int deckIdx;
     private List<PlayableMinion> remCards;
     private List<PlayableMinion> hand = new ArrayList<>();

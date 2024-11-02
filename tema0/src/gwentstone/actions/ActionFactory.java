@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import fileio.ActionsInput;
 import gwentstone.GameManager;
+import gwentstone.utils.JsonMapper;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -12,7 +13,8 @@ import java.util.function.Function;
 public final class ActionFactory {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, Function<ActionsInput, Action>> ACTIONS = Map.of(
-            "getPlayerTurn", GetPlayerTurn::new
+            "getPlayerTurn", GetPlayerTurn::new,
+            "getPlayerDeck", GetPlayerDeck::new
     );
 
     private ActionFactory() {
@@ -41,6 +43,22 @@ public final class ActionFactory {
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
                     .actionOutput(JsonNodeFactory.instance.numberNode(gameManager.getPlayerTurn()))
+                    .build();
+        }
+    }
+
+    private static final class GetPlayerDeck extends Action {
+        GetPlayerDeck(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(JsonMapper.mapDeck(
+                            gameManager.getPlayerDeck(getInput().getPlayerIdx())))
                     .build();
         }
     }

@@ -1,6 +1,7 @@
 package gwentstone;
 
 import fileio.StartGameInput;
+import gwentstone.cards.Deck;
 
 import java.util.List;
 
@@ -27,9 +28,8 @@ public final class GameManager {
     /**
      * Signal the start of a new round.
      * This method invokes the routines that must run at the beginning of a round.
-     *
      */
-    public void startRound(){
+    public void startRound() {
         gameState.startRoundRoutine();
     }
 
@@ -38,8 +38,19 @@ public final class GameManager {
      *
      * @return The index of the player (1 or 2)
      */
-    public int getPlayerTurn(){
+    public int getPlayerTurn() {
         // internally, we store the player index starting from zero
         return gameState.getTurnManager().getCurrentPlayerIdx() + 1;
+    }
+
+    /**
+     * Get the deck assigned to a player in the current game
+     *
+     * @param playerIdx The player index (1 or 2)
+     * @return The specified player's deck
+     */
+    public Deck getPlayerDeck(final int playerIdx) {
+        // internally, we store the player index starting from zero
+        return gameState.getPlayers().get(playerIdx - 1).getCurrentDeck();
     }
 }
