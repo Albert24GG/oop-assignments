@@ -18,6 +18,7 @@ public final class PlayerGameData {
     private final int deckIdx;
     @Getter(AccessLevel.PACKAGE)
     private List<PlayableMinion> remCards;
+    @Getter(AccessLevel.PACKAGE)
     private List<PlayableMinion> hand = new ArrayList<>();
     @Getter(AccessLevel.PACKAGE)
     private final PlayableHero hero;

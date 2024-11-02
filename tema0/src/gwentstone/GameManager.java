@@ -4,6 +4,7 @@ import fileio.StartGameInput;
 import gwentstone.actions.ActionException;
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
+import gwentstone.cards.impl.Minion;
 import gwentstone.cards.impl.PlayableMinion;
 import gwentstone.utils.GameMessage;
 
@@ -86,7 +87,7 @@ public final class GameManager {
      *
      * @param handIdx The index of the card in the current hand.
      * @throws ActionException If the action cannot be completed, an exception with the
-     * appropriate message is thrown
+     *                         appropriate message is thrown
      */
     public void placeCard(final int handIdx) throws ActionException {
         PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer()
@@ -95,17 +96,34 @@ public final class GameManager {
         PlayableMinion minionInHand = playerGameData.getMinionInHand(handIdx);
         GameBoard gameBoard = gameState.getGameBoard();
 
-        if(minionInHand.getMana() > playerGameData.getMana()){
+        if (minionInHand.getMana() > playerGameData.getMana()) {
             throw new ActionException(GameMessage.NOT_ENOUGH_MANA.getMessage());
         }
 
-        if(!gameBoard.canPlace(playerIndex, minionInHand)) {
+        if (!gameBoard.canPlace(playerIndex, minionInHand)) {
             throw new ActionException(GameMessage.ROW_FULL.getMessage());
         }
 
         gameBoard.placeMinion(playerIndex, minionInHand);
         playerGameData.removeMinionFromHand(handIdx);
         playerGameData.useMana(minionInHand.getMana());
+    }
+
+    /**
+     * Get hands of a player by its index.
+     *
+     * @param playerIdx Index of the queried player (1 or 2)
+     * @return The list of minions that the player has in hand.
+     */
+    public List<Minion> getCardsInHand(final int playerIdx) {
+        return gameState
+                .getPlayers()
+                .get(playerIdx - 1)
+                .getGameData()
+                .getHand()
+                .stream()
+                .map(PlayableMinion::getUnderlyingCard)
+                .toList();
     }
 
 }

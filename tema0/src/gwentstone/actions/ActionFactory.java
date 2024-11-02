@@ -17,6 +17,7 @@ public final class ActionFactory {
             "getPlayerDeck", GetPlayerDeck::new,
             "getPlayerHero", GetPlayerHero::new,
             "endPlayerTurn", EndPlayerTurn::new,
+            "getCardsInHand", GetCardsInHand::new,
             "placeCard", PlaceCard::new
     );
 
@@ -98,6 +99,23 @@ public final class ActionFactory {
                     .actionInput(getInput())
                     .actionOutput(JsonMapper.mapCard(
                             gameManager.getPlayerHero(getInput().getPlayerIdx())))
+                    .build();
+        }
+    }
+
+    private static final class GetCardsInHand extends Action {
+        GetCardsInHand(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(JsonMapper.mapCardList(
+                            gameManager.getCardsInHand(getInput().getPlayerIdx())
+                    ))
                     .build();
         }
     }
