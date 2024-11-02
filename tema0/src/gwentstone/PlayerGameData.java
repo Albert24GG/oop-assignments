@@ -58,7 +58,7 @@ public final class PlayerGameData {
      * @return the minion
      */
     PlayableMinion getMinionInHand(final int cardIdx) {
-        return remCards.get(cardIdx);
+        return hand.get(cardIdx);
     }
 
     /**
@@ -88,5 +88,15 @@ public final class PlayerGameData {
     void startRoundRoutine() {
         addMana();
         drawNextCard();
+    }
+
+    /**
+     * Use player's mana.
+     * This should be used when executing different actions that require mana.
+     *
+     * @param amount  The amount of mana to be used
+     */
+    void useMana(final int amount) {
+        mana = Math.max(mana - amount, 0);
     }
 }

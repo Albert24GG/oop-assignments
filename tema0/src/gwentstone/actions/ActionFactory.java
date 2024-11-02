@@ -16,7 +16,8 @@ public final class ActionFactory {
             "getPlayerTurn", GetPlayerTurn::new,
             "getPlayerDeck", GetPlayerDeck::new,
             "getPlayerHero", GetPlayerHero::new,
-            "endPlayerTurn", EndPlayerTurn::new
+            "endPlayerTurn", EndPlayerTurn::new,
+            "placeCard", PlaceCard::new
     );
 
     private ActionFactory() {
@@ -33,6 +34,26 @@ public final class ActionFactory {
         return action != null ? action.apply(input) : null;
     }
 
+    private static final class PlaceCard extends Action {
+        PlaceCard(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            var actionOutput = ActionOutput.builder();
+            try {
+                gameManager.placeCard(getInput().getHandIdx());
+                return actionOutput.type(ActionOutput.Type.NONE).build();
+            } catch (final ActionException err) {
+                return actionOutput
+                        .type(ActionOutput.Type.ERROR)
+                        .actionInput(getInput())
+                        .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
+                        .build();
+            }
+        }
+    }
 
     private static final class GetPlayerTurn extends Action {
         GetPlayerTurn(final ActionsInput input) {

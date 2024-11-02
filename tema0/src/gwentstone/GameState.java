@@ -13,6 +13,7 @@ public final class GameState {
 
     @Getter(AccessLevel.PACKAGE)
     private TurnManager turnManager;
+    @Getter(AccessLevel.PACKAGE)
     private GameBoard gameBoard;
     @Getter
     private boolean roundStarted = false;

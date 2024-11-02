@@ -1,8 +1,11 @@
 package gwentstone;
 
 import fileio.StartGameInput;
+import gwentstone.actions.ActionException;
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
+import gwentstone.cards.impl.PlayableMinion;
+import gwentstone.utils.GameMessage;
 
 import java.util.List;
 
@@ -77,4 +80,32 @@ public final class GameManager {
         }
         turnManager.endTurn();
     }
+
+    /**
+     * Place the card at a given index on the game board.
+     *
+     * @param handIdx The index of the card in the current hand.
+     * @throws ActionException If the action cannot be completed, an exception with the
+     * appropriate message is thrown
+     */
+    public void placeCard(final int handIdx) throws ActionException {
+        PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer()
+                .getGameData();
+        int playerIndex = gameState.getTurnManager().getCurrentPlayerIdx();
+        PlayableMinion minionInHand = playerGameData.getMinionInHand(handIdx);
+        GameBoard gameBoard = gameState.getGameBoard();
+
+        if(minionInHand.getMana() > playerGameData.getMana()){
+            throw new ActionException(GameMessage.NOT_ENOUGH_MANA.getMessage());
+        }
+
+        if(!gameBoard.canPlace(playerIndex, minionInHand)) {
+            throw new ActionException(GameMessage.ROW_FULL.getMessage());
+        }
+
+        gameBoard.placeMinion(playerIndex, minionInHand);
+        playerGameData.removeMinionFromHand(handIdx);
+        playerGameData.useMana(minionInHand.getMana());
+    }
+
 }
