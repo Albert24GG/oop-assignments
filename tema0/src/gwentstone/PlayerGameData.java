@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class PlayerGameData {
     @Getter
     private final int deckIdx;
+    @Getter(AccessLevel.PACKAGE)
     private List<PlayableMinion> remCards;
     private List<PlayableMinion> hand = new ArrayList<>();
     @Getter(AccessLevel.PACKAGE)

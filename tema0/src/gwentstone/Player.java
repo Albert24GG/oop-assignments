@@ -3,6 +3,7 @@ package gwentstone;
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.PlayableHero;
+import gwentstone.cards.impl.PlayableMinion;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -30,14 +31,14 @@ public class Player {
     }
 
     /**
-     * Return player's deck in the current game
+     * Get player's remaining cards in deck in the current game.
      *
-     * @return An {@code Optional} containing the current deck, or an empty {@code Optional} if
-     * there is no running game
+     * @return Deck made of the remaining cards that the player can draw
      */
     Deck getCurrentDeck() {
         // this should be called from GameManager, so gameData should be initialized
-        return decks.get(gameData.getDeckIdx());
+        return new Deck(
+                gameData.getRemCards().stream().map(PlayableMinion::getUnderlyingCard).toList());
     }
 
     /**
