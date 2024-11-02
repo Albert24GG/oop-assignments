@@ -14,7 +14,7 @@ public final class Hero extends Card {
     private final Type type;
 
     @Builder
-    Hero(final int mana, final int attackDamage, final String description,
+    Hero(final Integer mana, final Integer attackDamage, final String description,
          final List<String> colors, @NonNull final String name) {
         super(mana, HEALTH, attackDamage, description, colors, name);
         this.type = Type.fromString(name);

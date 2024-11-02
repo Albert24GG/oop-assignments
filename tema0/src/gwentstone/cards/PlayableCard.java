@@ -9,8 +9,16 @@ import java.util.List;
 
 public abstract class PlayableCard<T extends Card> {
     @NonNull
-    @Getter(value = AccessLevel.PROTECTED)
     private final T card;
+
+    /**
+     * Return the underlying card that represents this playable card
+     *
+     * @return The underlying card
+     */
+    public final T getUnderlyingCard() {
+        return card;
+    }
 
     @Getter
     @Setter(value = AccessLevel.PROTECTED)
@@ -23,7 +31,9 @@ public abstract class PlayableCard<T extends Card> {
     protected PlayableCard(@NonNull final T card) {
         this.card = card;
         currentHealth = card.getHealth();
-        currentAttackDamage = card.getAttackDamage();
+
+        Integer cardAttackDamage = card.getAttackDamage();
+        currentAttackDamage = cardAttackDamage == null ? 0 : cardAttackDamage;
     }
 
     /**

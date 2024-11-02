@@ -12,7 +12,8 @@ public final class Minion extends Card {
     private final Type type;
 
     @Builder
-    Minion(final int mana, final int health, final int attackDamage, final String description,
+    Minion(final Integer mana, final Integer health, final Integer attackDamage,
+           final String description,
            final List<String> colors,
            @NonNull final String name) {
         super(mana, health, attackDamage, description, colors, name);
