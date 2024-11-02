@@ -192,4 +192,20 @@ public final class GameManager {
         }
         gameBoard.markAttacker(attackerCoords);
     }
+
+    /**
+     * Get the minion at some given coordinates on the game board.
+     *
+     * @param coords Card's coordinates on the game board
+     * @return The minion
+     * @throws ActionException If no minion is present at the specified location, an exception is
+     *                         thrown
+     */
+    public PlayableMinion getCardAtPosition(final Coordinates coords) throws ActionException {
+        try {
+            return gameState.getGameBoard().getCard(coords);
+        } catch (Exception e) {
+            throw new ActionException(GameMessage.NO_CARD_AT_POS.getMessage());
+        }
+    }
 }

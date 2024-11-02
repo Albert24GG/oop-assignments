@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import fileio.ActionsInput;
+import fileio.Coordinates;
 import gwentstone.GameManager;
 import gwentstone.utils.JsonMapper;
 
@@ -21,6 +22,7 @@ public final class ActionFactory {
             "getCardsInHand", GetCardsInHand::new,
             "getCardsOnTable", GetCardsOnTable::new,
             "getPlayerMana", GetPlayerMana::new,
+            "getCardAtPosition", GetCardAtPosition::new,
             "placeCard", PlaceCard::new,
             "cardUsesAttack", CardUsesAttack::new
     );
@@ -192,6 +194,31 @@ public final class ActionFactory {
                     .actionOutput(JsonNodeFactory.instance.numberNode(gameManager.getPlayerMana(
                             getInput().getPlayerIdx())))
                     .build();
+        }
+    }
+
+    private static final class GetCardAtPosition extends Action {
+        GetCardAtPosition(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            var output =
+                    ActionOutput.builder().type(ActionOutput.Type.OUTPUT).actionInput(getInput());
+            try {
+                Coordinates coords = new Coordinates();
+                coords.setX(getInput().getX());
+                coords.setY(getInput().getY());
+                return output
+                        .actionOutput(
+                                JsonMapper.mapPlayableCard(gameManager.getCardAtPosition(coords)))
+                        .build();
+            } catch (final ActionException err) {
+                return output
+                        .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
+                        .build();
+            }
         }
     }
 
