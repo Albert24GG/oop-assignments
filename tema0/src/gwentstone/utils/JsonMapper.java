@@ -20,10 +20,6 @@ public final class JsonMapper {
                     .map(Field::getName)
                     .collect(Collectors.toUnmodifiableSet());
 
-    static {
-        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
-
     private JsonMapper() {
     }
 

@@ -2,6 +2,7 @@ package gwentstone;
 
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
+import gwentstone.cards.impl.PlayableHero;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -37,5 +38,15 @@ public class Player {
     Deck getCurrentDeck() {
         // this should be called from GameManager, so gameData should be initialized
         return decks.get(gameData.getDeckIdx());
+    }
+
+    /**
+     * Get player's hero in the current game
+     *
+     * @return Player's hero
+     */
+    Hero getCurrentHero() {
+        // this should be called from GameManager, so gameData should be initialized
+        return gameData.getHero().getUnderlyingCard();
     }
 }

@@ -4,6 +4,7 @@ import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.PlayableHero;
 import gwentstone.cards.impl.PlayableMinion;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class PlayerGameData {
     private final int deckIdx;
     private List<PlayableMinion> remCards;
     private List<PlayableMinion> hand = new ArrayList<>();
+    @Getter(AccessLevel.PACKAGE)
     private final PlayableHero hero;
     @Getter
     private int mana = 1;

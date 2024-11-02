@@ -2,6 +2,7 @@ package gwentstone;
 
 import fileio.StartGameInput;
 import gwentstone.cards.Deck;
+import gwentstone.cards.impl.Hero;
 
 import java.util.List;
 
@@ -52,5 +53,16 @@ public final class GameManager {
     public Deck getPlayerDeck(final int playerIdx) {
         // internally, we store the player index starting from zero
         return gameState.getPlayers().get(playerIdx - 1).getCurrentDeck();
+    }
+
+    /**
+     * Get the hero assigned to a player in the current game
+     *
+     * @param playerIdx The player index (1 or 2)
+     * @return The specified player in the current game
+     */
+    public Hero getPlayerHero(final int playerIdx) {
+        // internally, we store the player index starting from zero
+        return gameState.getPlayers().get(playerIdx - 1).getCurrentHero();
     }
 }
