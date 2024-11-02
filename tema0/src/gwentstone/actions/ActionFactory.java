@@ -88,6 +88,7 @@ public final class ActionFactory {
 
         @Override
         public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            gameManager.endTurn();
             return ActionOutput.builder()
                     .type(ActionOutput.Type.NONE)
                     .build();

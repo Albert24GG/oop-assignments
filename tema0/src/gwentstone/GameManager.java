@@ -73,6 +73,7 @@ public final class GameManager {
         TurnManager turnManager = gameState.getTurnManager();
         if (turnManager.isRoundEndable()) {
             gameState.endRoundRoutine();
+            gameState.startRoundRoutine();
         }
         turnManager.endTurn();
     }
