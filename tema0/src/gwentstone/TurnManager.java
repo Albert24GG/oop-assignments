@@ -4,10 +4,12 @@ import java.util.List;
 
 public final class TurnManager {
     private int currentPlayer;
+    private final int startingPlayer;
     private final List<Player> players;
 
     public TurnManager(final int startingPlayer, final List<Player> players) {
         this.currentPlayer = startingPlayer;
+        this.startingPlayer = startingPlayer;
         this.players = players;
     }
 
@@ -24,5 +26,14 @@ public final class TurnManager {
 
     public int getCurrentPlayerIdx() {
         return currentPlayer;
+    }
+
+    /**
+     * Check if the round can be ended
+     *
+     * @return Boolean indicating whether the current round can be ended
+     */
+    boolean isRoundEndable(){
+        return currentPlayer == (startingPlayer + players.size() - 1) % players.size();
     }
 }

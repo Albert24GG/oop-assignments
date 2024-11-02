@@ -65,4 +65,15 @@ public final class GameManager {
         // internally, we store the player index starting from zero
         return gameState.getPlayers().get(playerIdx - 1).getCurrentHero();
     }
+
+    /**
+     * End current's player turn
+     */
+    public void endTurn() {
+        TurnManager turnManager = gameState.getTurnManager();
+        if (turnManager.isRoundEndable()) {
+            gameState.endRoundRoutine();
+        }
+        turnManager.endTurn();
+    }
 }

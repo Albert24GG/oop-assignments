@@ -15,7 +15,8 @@ public final class ActionFactory {
     private static final Map<String, Function<ActionsInput, Action>> ACTIONS = Map.of(
             "getPlayerTurn", GetPlayerTurn::new,
             "getPlayerDeck", GetPlayerDeck::new,
-            "getPlayerHero", GetPlayerHero::new
+            "getPlayerHero", GetPlayerHero::new,
+            "endPlayerTurn", EndPlayerTurn::new
     );
 
     private ActionFactory() {
@@ -76,6 +77,19 @@ public final class ActionFactory {
                     .actionInput(getInput())
                     .actionOutput(JsonMapper.mapCard(
                             gameManager.getPlayerHero(getInput().getPlayerIdx())))
+                    .build();
+        }
+    }
+
+    private static final class EndPlayerTurn extends Action {
+        EndPlayerTurn(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.NONE)
                     .build();
         }
     }

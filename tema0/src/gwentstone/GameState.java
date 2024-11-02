@@ -25,6 +25,10 @@ public final class GameState {
         players.forEach(Player::startRoundRoutine);
     }
 
+    public void endRoundRoutine() {
+       gameBoard.unfreezeAllCards();
+    }
+
     public GameState(final List<Player> players, final StartGameInput input) {
         this.players = players;
 

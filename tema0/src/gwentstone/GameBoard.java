@@ -59,4 +59,11 @@ public class GameBoard {
         }
         board.get(getRowIdx(playerIdx, minion.getPlacement())).add(minion);
     }
+
+    /**
+     * Unfreeze all cards on the game board
+     */
+    public void unfreezeAllCards() {
+        board.forEach(row -> row.forEach(PlayableMinion::unfreeze));
+    }
 }

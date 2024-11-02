@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fileio.ActionsInput;
 import lombok.Builder;
-import lombok.NonNull;
 
 import java.util.Optional;
 
@@ -17,7 +16,6 @@ public final class ActionOutput<T extends BaseJsonNode> {
     @Builder.Default
     private final Type type = Type.NONE;
     private final T actionOutput;
-    @NonNull
     private final ActionsInput actionInput;
 
     protected enum Type {
