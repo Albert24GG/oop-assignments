@@ -44,7 +44,7 @@ public abstract class PlayableCard<T extends Card> {
      * @param target Target card
      */
     public final void attack(@NonNull final PlayableCard<? extends Card> target) {
-        target.currentHealth = Math.max(0, target.currentHealth - this.card.getAttackDamage());
+        target.currentHealth = Math.max(0, target.currentHealth - this.currentAttackDamage);
     }
 
     public final int getMana() {
