@@ -20,7 +20,7 @@ public class GameBoard {
             IntStream.range(0, BOARD_HEIGHT)
                     .mapToObj(i -> new ArrayList<PlayableMinion>(BOARD_WIDTH))
                     .collect(Collectors.toList());
-    // 2D List that indicates if a card has attacked this round
+    // 2D List that indicates if a card has attacked/used its ability this round
     private List<List<Boolean>> attackedThisRound =
             IntStream.range(0, BOARD_HEIGHT)
                     .mapToObj(i -> new ArrayList<Boolean>(Collections.nCopies(BOARD_WIDTH, false)))

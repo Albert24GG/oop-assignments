@@ -7,6 +7,7 @@ public enum GameMessage {
     ATTACKER_ALREADY_ATTACKED("Attacker card has already attacked this turn."),
     ATTACKER_FROZEN("Attacker card is frozen."),
     ATTACKED_CARD_NOT_TANK("Attacked card is not of type 'Tank'."),
+    ATTACKED_CARD_NOT_PLAYER("Attacked card does not belong to the current player."),
     NO_CARD_AT_POS("No card available at that position.");
 
 

@@ -4,6 +4,7 @@ import fileio.Coordinates;
 import fileio.StartGameInput;
 import gwentstone.actions.ActionException;
 import gwentstone.cards.Deck;
+import gwentstone.cards.impl.AbilityTarget;
 import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.Minion;
 import gwentstone.cards.impl.PlayableMinion;
@@ -207,5 +208,67 @@ public final class GameManager {
         } catch (Exception e) {
             throw new ActionException(GameMessage.NO_CARD_AT_POS.getMessage());
         }
+    }
+
+    /**
+     * Use a card's ability on another card.
+     *
+     * @param attackerCoords The coordinates (row, column) of the attacker card
+     * @param targetCoords   The coordinates (row, column) of the attacked card
+     * @throws ActionException If the action fails, an exception with the appropriate message
+     *                         is thrown
+     */
+    public void cardUsesAbility(final Coordinates attackerCoords, final Coordinates targetCoords)
+            throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+
+        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
+
+        if (attacker.isFrozen()) {
+            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
+        }
+
+        if (gameBoard.attackedThisRound(attackerCoords)) {
+            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
+        }
+
+        AbilityTarget attackerTarget = attacker.getAbilityTarget().orElse(null);
+
+        // This should not happen
+        if (attackerTarget == null) {
+            return;
+        }
+
+        // check if the attacked card is either ally or enemy
+        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingCard(targetCoords) !=
+                gameState.getTurnManager().getCurrentPlayerIdx();
+        PlayableMinion target = gameBoard.getCard(targetCoords);
+
+        // we assume that the attacker has an ability
+        if (attackerTarget == AbilityTarget.PLAYER && isTargetEnemy) {
+            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_PLAYER.getMessage());
+        }
+
+        if (attackerTarget == AbilityTarget.ENEMY) {
+
+            if (!isTargetEnemy) {
+                throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+            }
+
+            if (!target.isTank() &&
+                    gameBoard.hasTanksOnBoard(gameState.getTurnManager().getInactivePlayerIdx())) {
+                throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
+            }
+
+        }
+
+
+        attacker.useAbility(target);
+
+        if (target.getCurrentHealth() == 0) {
+            gameBoard.removeCard(targetCoords);
+        }
+
+        gameBoard.markAttacker(attackerCoords);
     }
 }
