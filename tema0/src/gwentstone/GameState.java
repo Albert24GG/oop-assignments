@@ -16,19 +16,28 @@ public final class GameState {
     @Getter(AccessLevel.PACKAGE)
     private GameBoard gameBoard;
     @Getter
-    private boolean roundStarted = false;
+    private boolean gameEnded = false;
 
     /**
      * Routine called at the start of the round.
      */
     public void startRoundRoutine() {
-        roundStarted = true;
+        if(gameEnded){
+            return;
+        }
         players.forEach(p -> p.getGameData().startRoundRoutine());
     }
 
     public void endRoundRoutine() {
+        if(gameEnded){
+            return;
+        }
         gameBoard.unfreezeAllCards();
         gameBoard.resetAttackHistory();
+    }
+
+    public void endGame(){
+        gameEnded = true;
     }
 
     public GameState(final List<Player> players, final StartGameInput input) {

@@ -25,7 +25,8 @@ public final class ActionFactory {
             Map.entry("getCardAtPosition", GetCardAtPosition::new),
             Map.entry("placeCard", PlaceCard::new),
             Map.entry("cardUsesAttack", CardUsesAttack::new),
-            Map.entry("cardUsesAbility", CardUsesAbility::new)
+            Map.entry("cardUsesAbility", CardUsesAbility::new),
+            Map.entry("useAttackHero", UseAttackHero::new)
     );
 
     private ActionFactory() {
@@ -97,6 +98,34 @@ public final class ActionFactory {
                 gameManager.cardUsesAbility(getInput().getCardAttacker(),
                         getInput().getCardAttacked());
                 return actionOutput.type(ActionOutput.Type.NONE).build();
+            } catch (final ActionException err) {
+                return actionOutput
+                        .type(ActionOutput.Type.ERROR)
+                        .actionInput(getInput())
+                        .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
+                        .build();
+            }
+        }
+    }
+
+    private static final class UseAttackHero extends Action {
+        UseAttackHero(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            var actionOutput = ActionOutput.builder();
+            try {
+                actionOutput.type(ActionOutput.Type.NONE);
+                gameManager.useAttackHero(getInput().getCardAttacker()).ifPresent(winner -> {
+                            String outputString =
+                                    "Player " + (winner == 0 ? "one" : "two") + " killed the enemy hero.";
+                            actionOutput.type(ActionOutput.Type.GAME_ENDED)
+                                    .actionOutput(JsonNodeFactory.instance.textNode(outputString));
+                        }
+                );
+                return actionOutput.build();
             } catch (final ActionException err) {
                 return actionOutput
                         .type(ActionOutput.Type.ERROR)

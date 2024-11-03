@@ -2,13 +2,13 @@ package gwentstone;
 
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
-import gwentstone.cards.impl.PlayableMinion;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.List;
 
 public class Player {
+    @Getter()
     private int wins = 0;
     @Getter(AccessLevel.PACKAGE)
     private PlayerGameData gameData;
@@ -27,5 +27,9 @@ public class Player {
      */
     public void initializeGameData(final int deckIdx, final int shuffleSeed, final Hero hero) {
         gameData = new PlayerGameData(deckIdx, shuffleSeed, decks.get(deckIdx), hero);
+    }
+
+    void addWin(){
+        ++wins;
     }
 }

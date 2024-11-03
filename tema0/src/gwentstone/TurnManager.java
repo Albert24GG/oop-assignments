@@ -24,6 +24,10 @@ public final class TurnManager {
         return players.get(currentPlayer);
     }
 
+    public Player getInactivePlayer() {
+        return players.get(getInactivePlayerIdx());
+    }
+
     public int getCurrentPlayerIdx() {
         return currentPlayer;
     }

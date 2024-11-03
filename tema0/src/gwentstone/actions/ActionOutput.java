@@ -3,11 +3,14 @@ package gwentstone.actions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.BaseJsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fileio.ActionsInput;
 import lombok.Builder;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Builder
 public final class ActionOutput<T extends BaseJsonNode> {
@@ -16,14 +19,19 @@ public final class ActionOutput<T extends BaseJsonNode> {
     @Builder.Default
     private final Type type = Type.NONE;
     private final T actionOutput;
-    private final ActionsInput actionInput;
+    @Builder.Default
+    private final ActionsInput actionInput = null;
 
     protected enum Type {
-        OUTPUT, ERROR, NONE;
+        OUTPUT, ERROR, GAME_ENDED, NONE;
 
         @Override
         public String toString() {
-            return name().toLowerCase();
+            return Arrays.stream(name().toLowerCase().split("_"))
+                    .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+                    .collect(Collectors.joining())
+                    .replaceFirst("^.",
+                            Character.toString(Character.toLowerCase(name().charAt(0))));
         }
     }
 
@@ -34,10 +42,14 @@ public final class ActionOutput<T extends BaseJsonNode> {
      * output
      */
     public Optional<JsonNode> toJson() {
-        if (type == Type.NONE || actionOutput == null) {
+        if (type == Type.NONE) {
             return Optional.empty();
         }
-        return Optional.of(MAPPER.convertValue(actionInput, ObjectNode.class)
-                .set(type.toString(), actionOutput));
+
+        ObjectNode outputNode =
+                actionInput == null ? MAPPER.createObjectNode() : MAPPER.valueToTree(actionInput);
+
+        return Optional.of(outputNode.set(type.toString(), actionOutput));
+
     }
 }

@@ -7,11 +7,13 @@ import gwentstone.cards.Deck;
 import gwentstone.cards.impl.AbilityTarget;
 import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.Minion;
+import gwentstone.cards.impl.PlayableHero;
 import gwentstone.cards.impl.PlayableMinion;
 import gwentstone.utils.GameMessage;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class containing the main API for interacting with the GameState.
@@ -22,23 +24,6 @@ public final class GameManager {
 
     public GameManager(final List<Player> players, final StartGameInput input) {
         gameState = new GameState(players, input);
-    }
-
-    /**
-     * Check if a round is already in progress
-     *
-     * @return True if the round started, False otherwise
-     */
-    public boolean isRoundStarted() {
-        return gameState.isRoundStarted();
-    }
-
-    /**
-     * Signal the start of a new round.
-     * This method invokes the routines that must run at the beginning of a round.
-     */
-    public void startRound() {
-        gameState.startRoundRoutine();
     }
 
     /**
@@ -271,4 +256,47 @@ public final class GameManager {
 
         gameBoard.markAttacker(attackerCoords);
     }
+
+    /**
+     * Attack the enemy hero using a card.
+     *
+     * @param attackerCoords The coordinates (row, column) of the attacker card
+     * @return An {@code Optional} containing the index of the player who won, or an empty
+     * {@code Optional} if the game did not end
+     * @throws ActionException If the action fails, an exception with the appropriate message
+     *                         is thrown
+     */
+    public Optional<Integer> useAttackHero(final Coordinates attackerCoords)
+            throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+
+        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
+
+        if (attacker.isFrozen()) {
+            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
+        }
+
+        if (gameBoard.attackedThisRound(attackerCoords)) {
+            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
+        }
+
+        if (gameBoard.hasTanksOnBoard(gameState.getTurnManager().getInactivePlayerIdx())) {
+            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
+        }
+
+        TurnManager turnManager = gameState.getTurnManager();
+        PlayableHero enemyHero = turnManager.getInactivePlayer().getGameData().getHero();
+
+        attacker.attack(enemyHero);
+        if (enemyHero.getCurrentHealth() == 0) {
+            gameState.endGame();
+            turnManager.getCurrentPlayer().addWin();
+            return Optional.of(turnManager.getCurrentPlayerIdx());
+        }
+        gameBoard.markAttacker(attackerCoords);
+
+        return Optional.empty();
+    }
 }
+
+
