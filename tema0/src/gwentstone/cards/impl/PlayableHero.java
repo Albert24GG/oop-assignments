@@ -27,32 +27,72 @@ public final class PlayableHero extends PlayableCard<Hero> {
         config.getAbility().use(target);
     }
 
+    /**
+     * Get the ability target of the hero.
+     * The target can be either ENEMY (cards belonging to the enemy)
+     * or PLAYER (cards belonging to the player).
+     *
+     * @return The ability target of the hero
+     */
+    public AbilityTarget getAbilityTarget() {
+        return config.getAbility().getAbilityTarget();
+    }
+
     private static final class Abilities {
-        public static void subZero(@NonNull final List<@NonNull PlayableMinion> targetRow) {
-            targetRow.forEach(PlayableMinion::freeze);
+
+        public static final class SubZero extends PlayableHeroAbility {
+            public SubZero() {
+                super(AbilityTarget.ENEMY);
+            }
+
+            @Override
+            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+                targetRow.forEach(PlayableMinion::freeze);
+            }
         }
 
-        public static void lowBlood(@NonNull final List<@NonNull PlayableMinion> targetRow) {
-            Collections.max(targetRow, Comparator.comparingInt(PlayableCard::getCurrentHealth))
-                    .setCurrentHealth(0);
+        public static final class LowBlood extends PlayableHeroAbility {
+            public LowBlood() {
+                super(AbilityTarget.ENEMY);
+            }
+
+            @Override
+            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+                Collections.max(targetRow, Comparator.comparingInt(PlayableCard::getCurrentHealth))
+                        .setCurrentHealth(0);
+            }
         }
 
-        public static void earthBorn(@NonNull final List<@NonNull PlayableMinion> targetRow) {
-            targetRow.forEach(m -> m.setCurrentHealth(m.getCurrentHealth() + 1));
+        public static final class EarthBorn extends PlayableHeroAbility {
+            public EarthBorn() {
+                super(AbilityTarget.PLAYER);
+            }
+
+            @Override
+            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+                targetRow.forEach(m -> m.setCurrentHealth(m.getCurrentHealth() + 1));
+            }
         }
 
-        public static void bloodThirst(@NonNull final List<@NonNull PlayableMinion> targetRow) {
-            targetRow.forEach(m -> m.setCurrentAttackDamage(m.getCurrentAttackDamage() + 1));
+        public static final class BloodThirst extends PlayableHeroAbility {
+            public BloodThirst() {
+                super(AbilityTarget.PLAYER);
+            }
+
+            @Override
+            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+                targetRow.forEach(m -> m.setCurrentAttackDamage(m.getCurrentAttackDamage() + 1));
+            }
         }
     }
 
     @RequiredArgsConstructor
     @Getter
     private enum Config {
-        LORD_ROYCE(Abilities::subZero),
-        EMPRESS_THORINA(Abilities::lowBlood),
-        KING_MUDFACE(Abilities::earthBorn),
-        GENERAL_KOCIORAW(Abilities::bloodThirst);
+        LORD_ROYCE(new Abilities.SubZero()),
+        EMPRESS_THORINA(new Abilities.LowBlood()),
+        KING_MUDFACE(new Abilities.EarthBorn()),
+        GENERAL_KOCIORAW(new Abilities.BloodThirst());
 
         @NonNull
         private final PlayableHeroAbility ability;

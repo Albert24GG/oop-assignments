@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 public final class PlayableMinion extends PlayableCard<Minion> {
     @Getter
     private boolean isFrozen = false;
@@ -33,15 +35,30 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     /**
      * Freeze minion
      */
-    public void freeze(){
+    public void freeze() {
         isFrozen = true;
     }
 
     /**
      * Unfreeze minion
      */
-    public void unfreeze(){
+    public void unfreeze() {
         isFrozen = false;
+    }
+
+    /**
+     * Get the ability target of the minion.
+     * The target can be either ENEMY (cards belonging to the enemy)
+     * or PLAYER (cards belonging to the player).
+     *
+     * @return An {@code Optional} containing the ability target, or an empty {@code Optional} if
+     * the minion has no ability
+     */
+    public Optional<AbilityTarget> getAbilityTarget() {
+        if (config.getAbility() == null) {
+            return Optional.empty();
+        }
+        return Optional.of(config.getAbility().getAbilityTarget());
     }
 
     @Override
@@ -67,28 +84,58 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     }
 
     private static final class Abilities {
-        public static void weakKnees(final PlayableMinion attacker,
-                                     @NonNull final PlayableMinion target) {
-            target.setCurrentAttackDamage(Math.max(0, target.getCurrentAttackDamage() - 2));
+
+        public static final class WeakKnees extends PlayableMinionAbility {
+            public WeakKnees() {
+                super(AbilityTarget.ENEMY);
+            }
+
+            @Override
+            public void use(final PlayableMinion attacker,
+                            @NonNull final PlayableMinion target) {
+                target.setCurrentAttackDamage(Math.max(0, target.getCurrentAttackDamage() - 2));
+            }
         }
 
-        public static void skyjack(@NonNull final PlayableMinion attacker,
-                                   @NonNull final PlayableMinion target) {
-            int attackerHealth = attacker.getCurrentHealth();
-            attacker.setCurrentHealth(target.getCurrentHealth());
-            target.setCurrentHealth(attackerHealth);
+        public static final class Skyjack extends PlayableMinionAbility {
+            public Skyjack() {
+                super(AbilityTarget.ENEMY);
+            }
+
+            @Override
+            public void use(@NonNull final PlayableMinion attacker,
+                            @NonNull final PlayableMinion target) {
+                int attackerHealth = attacker.getCurrentHealth();
+                attacker.setCurrentHealth(target.getCurrentHealth());
+                target.setCurrentHealth(attackerHealth);
+            }
+
         }
 
-        public static void shapeshift(final PlayableMinion attacker,
-                                      @NonNull final PlayableMinion target) {
-            int targetHealth = target.getCurrentHealth();
-            target.setCurrentHealth(target.getCurrentAttackDamage());
-            target.setCurrentAttackDamage(targetHealth);
+        public static final class ShapeShift extends PlayableMinionAbility {
+            public ShapeShift() {
+                super(AbilityTarget.ENEMY);
+            }
+
+            @Override
+            public void use(final PlayableMinion attacker,
+                            @NonNull final PlayableMinion target) {
+                int targetHealth = target.getCurrentHealth();
+                target.setCurrentHealth(target.getCurrentAttackDamage());
+                target.setCurrentAttackDamage(targetHealth);
+            }
         }
 
-        public static void godsPlan(final PlayableMinion attacker,
-                                    @NonNull final PlayableMinion target) {
-            target.setCurrentHealth(target.getCurrentHealth() + 2);
+        public static final class GodsPlan extends PlayableMinionAbility {
+            public GodsPlan() {
+                super(AbilityTarget.PLAYER);
+            }
+
+            @Override
+            public void use(final PlayableMinion attacker,
+                            @NonNull final PlayableMinion target) {
+                target.setCurrentHealth(target.getCurrentHealth() + 2);
+            }
         }
     }
 
@@ -99,10 +146,10 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         BERSERKER(false, Placement.BACK, null),
         GOLIATH(true, Placement.FRONT, null),
         WARDEN(true, Placement.FRONT, null),
-        THE_RIPPER(false, Placement.FRONT, Abilities::weakKnees),
-        MIRAJ(false, Placement.FRONT, Abilities::skyjack),
-        THE_CURSED_ONE(false, Placement.BACK, Abilities::shapeshift),
-        DISCIPLE(false, Placement.BACK, Abilities::godsPlan);
+        THE_RIPPER(false, Placement.FRONT, new Abilities.WeakKnees()),
+        MIRAJ(false, Placement.FRONT, new Abilities.Skyjack()),
+        THE_CURSED_ONE(false, Placement.BACK, new Abilities.ShapeShift()),
+        DISCIPLE(false, Placement.BACK, new Abilities.GodsPlan());
 
         private final boolean isTank;
         private final Placement placement;
