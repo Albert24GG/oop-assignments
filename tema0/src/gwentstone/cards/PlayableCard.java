@@ -22,18 +22,16 @@ public abstract class PlayableCard<T extends Card> {
 
     @Getter
     @Setter(value = AccessLevel.PROTECTED)
-    private int currentHealth;
+    private Integer currentHealth;
 
     @Getter
     @Setter(value = AccessLevel.PROTECTED)
-    private int currentAttackDamage;
+    private Integer currentAttackDamage;
 
     protected PlayableCard(@NonNull final T card) {
         this.card = card;
         currentHealth = card.getHealth();
-
-        Integer cardAttackDamage = card.getAttackDamage();
-        currentAttackDamage = cardAttackDamage == null ? 0 : cardAttackDamage;
+        currentAttackDamage = card.getAttackDamage();
     }
 
     /**
@@ -44,6 +42,9 @@ public abstract class PlayableCard<T extends Card> {
      * @param target Target card
      */
     public final void attack(@NonNull final PlayableCard<? extends Card> target) {
+        if (this.currentAttackDamage == null) {
+            throw new IllegalArgumentException("Attack damage cannot be null");
+        }
         target.currentHealth = Math.max(0, target.currentHealth - this.currentAttackDamage);
     }
 

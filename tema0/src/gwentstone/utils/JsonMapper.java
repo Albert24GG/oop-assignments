@@ -41,9 +41,14 @@ public final class JsonMapper {
      */
     public static ObjectNode mapPlayableCard(final PlayableCard<? extends Card> card) {
         ObjectNode jsonCard = mapCard(card.getUnderlyingCard());
+
         jsonCard.replace("health", JsonNodeFactory.instance.numberNode(card.getCurrentHealth()));
-        jsonCard.replace("attackDamage",
-                JsonNodeFactory.instance.numberNode(card.getCurrentAttackDamage()));
+
+        if (card.getCurrentAttackDamage() != null) {
+            jsonCard.replace("attackDamage",
+                    JsonNodeFactory.instance.numberNode(card.getCurrentAttackDamage()));
+        }
+
         return jsonCard;
     }
 }

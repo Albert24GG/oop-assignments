@@ -62,12 +62,12 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     }
 
     @Override
-    protected void setCurrentHealth(final int value) {
+    protected void setCurrentHealth(final Integer value) {
         super.setCurrentHealth(value);
     }
 
     @Override
-    protected void setCurrentAttackDamage(final int value) {
+    protected void setCurrentAttackDamage(final Integer value) {
         super.setCurrentAttackDamage(value);
     }
 
