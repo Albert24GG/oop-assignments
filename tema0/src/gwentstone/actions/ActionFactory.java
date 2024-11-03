@@ -182,7 +182,7 @@ public final class ActionFactory {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
-                    .actionOutput(JsonMapper.mapCard(
+                    .actionOutput(JsonMapper.mapPlayableCard(
                             gameManager.getPlayerHero(getInput().getPlayerIdx())))
                     .build();
         }

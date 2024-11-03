@@ -44,15 +44,6 @@ public final class PlayerGameData {
     }
 
     /**
-     * Get player's hero in the current game
-     *
-     * @return Player's hero
-     */
-    Hero getCurrentHero() {
-        return hero.getUnderlyingCard();
-    }
-
-    /**
      * Get the minion in hand at a certain index
      *
      * @param cardIdx index of the minion in hand

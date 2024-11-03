@@ -5,7 +5,6 @@ import fileio.StartGameInput;
 import gwentstone.actions.ActionException;
 import gwentstone.cards.Deck;
 import gwentstone.cards.impl.AbilityTarget;
-import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.Minion;
 import gwentstone.cards.impl.PlayableHero;
 import gwentstone.cards.impl.PlayableMinion;
@@ -51,11 +50,11 @@ public final class GameManager {
      * Get the hero assigned to a player in the current game
      *
      * @param playerIdx The player index (1 or 2)
-     * @return The specified player in the current game
+     * @return Player's hero
      */
-    public Hero getPlayerHero(final int playerIdx) {
+    public PlayableHero getPlayerHero(final int playerIdx) {
         // internally, we store the player index starting from zero
-        return gameState.getPlayers().get(playerIdx - 1).getGameData().getCurrentHero();
+        return gameState.getPlayers().get(playerIdx - 1).getGameData().getHero();
     }
 
     /**
