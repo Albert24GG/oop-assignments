@@ -22,21 +22,26 @@ public final class GameState {
      * Routine called at the start of the round.
      */
     public void startRoundRoutine() {
-        if(gameEnded){
+        if (gameEnded) {
             return;
         }
-        players.forEach(p -> p.getGameData().startRoundRoutine());
+        players.forEach(p -> {
+            PlayerGameData gameData = p.getGameData();
+
+            gameData.startRoundRoutine();
+            gameData.resetUsedHeroAbility();
+        });
     }
 
     public void endRoundRoutine() {
-        if(gameEnded){
+        if (gameEnded) {
             return;
         }
         gameBoard.unfreezeAllCards();
         gameBoard.resetAttackHistory();
     }
 
-    public void endGame(){
+    public void endGame() {
         gameEnded = true;
     }
 

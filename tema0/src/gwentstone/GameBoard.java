@@ -46,6 +46,16 @@ public class GameBoard {
     }
 
     /**
+     * Get a row of minions from the game board.
+     *
+     * @param rowIdx The index of the row
+     * @return The row as a list of minions
+     */
+    public List<PlayableMinion> getRow(final int rowIdx) {
+        return board.get(rowIdx);
+    }
+
+    /**
      * Check if a minion can be placed on the board
      *
      * @param playerIdx index of the player (0 / 1)
@@ -100,7 +110,17 @@ public class GameBoard {
      * @return The index of the player
      */
     public int getPlayerIdxHoldingCard(final Coordinates coords) {
-        return coords.getX() < BOARD_HEIGHT / 2 ? 1 : 0;
+        return getPlayerIdxHoldingRow(coords.getX());
+    }
+
+    /**
+     * Find the index of the player that a given row of cards belongs to.
+     *
+     * @param rowIdx The index of the row
+     * @return The index of the player
+     */
+    public int getPlayerIdxHoldingRow(final int rowIdx) {
+        return rowIdx < BOARD_HEIGHT / 2 ? 1 : 0;
     }
 
     /**
@@ -144,4 +164,17 @@ public class GameBoard {
     void removeCard(final Coordinates coords) {
         board.get(coords.getX()).remove(coords.getY());
     }
+
+    /**
+     * Get the list of frozen cards on the table
+     *
+     * @return A list of frozen cards
+     */
+    List<PlayableMinion> getFrozenCards() {
+        return board.stream()
+                .flatMap(List::stream)
+                .filter(PlayableMinion::isFrozen)
+                .collect(Collectors.toList());
+    }
+
 }

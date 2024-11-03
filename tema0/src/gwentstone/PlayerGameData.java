@@ -22,6 +22,11 @@ public final class PlayerGameData {
     private List<PlayableMinion> hand = new ArrayList<>();
     @Getter(AccessLevel.PACKAGE)
     private final PlayableHero hero;
+    /**
+     * Variable indicating if the player used hero's ability in the current round
+     */
+    @Getter(AccessLevel.PACKAGE)
+    private boolean usedHeroAbility = false;
     @Getter
     private int mana = 0;
     private int manaIncrement = 1;
@@ -32,6 +37,20 @@ public final class PlayerGameData {
         remCards = deck.stream().map(PlayableMinion::new).collect(Collectors.toList());
         Collections.shuffle(remCards, new Random(shuffleSeed));
         this.hero = new PlayableHero(hero);
+    }
+
+    /**
+     * Mark the hero ability as used in the current round
+     */
+    void markUsedHeroAbility() {
+        usedHeroAbility = true;
+    }
+
+    /**
+     * Reset the history of used hero ability
+     */
+    void resetUsedHeroAbility() {
+        usedHeroAbility = false;
     }
 
     /**
@@ -86,7 +105,7 @@ public final class PlayerGameData {
      * Use player's mana.
      * This should be used when executing different actions that require mana.
      *
-     * @param amount  The amount of mana to be used
+     * @param amount The amount of mana to be used
      */
     void useMana(final int amount) {
         mana = Math.max(mana - amount, 0);

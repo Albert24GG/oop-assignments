@@ -296,6 +296,64 @@ public final class GameManager {
 
         return Optional.empty();
     }
+
+    /**
+     * Use the ability of the current player's hero on a given row of the game board.
+     *
+     * @param affectedRow The affected row
+     * @throws ActionException If the action fails, an exception with the appropriate message
+     *                         is thrown
+     */
+    public void useHeroAbility(final int affectedRow)
+            throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+        PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
+        PlayableHero hero = playerGameData.getHero();
+
+        if (hero.getMana() > playerGameData.getMana()) {
+            throw new ActionException(GameMessage.HERO_ABILITY_NO_MANA.getMessage());
+        }
+
+        if (playerGameData.isUsedHeroAbility()) {
+            throw new ActionException(GameMessage.HERO_ABILITY_ALREADY_USED.getMessage());
+        }
+
+        AbilityTarget heroAbilityTarget = hero.getAbilityTarget();
+
+        // check if the attacked card is either ally or enemy
+        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingRow(affectedRow) !=
+                gameState.getTurnManager().getCurrentPlayerIdx();
+
+        if (heroAbilityTarget == AbilityTarget.ENEMY && !isTargetEnemy) {
+            throw new ActionException(GameMessage.ROW_NOT_ENEMY.getMessage());
+        }
+
+        if (heroAbilityTarget == AbilityTarget.PLAYER && isTargetEnemy) {
+            throw new ActionException(GameMessage.ROW_NOT_PLAYER.getMessage());
+        }
+
+        List<PlayableMinion> targetRow = gameBoard.getRow(affectedRow);
+
+        hero.useAbility(targetRow);
+
+        // Remove killed cards
+        if (heroAbilityTarget == AbilityTarget.ENEMY) {
+            targetRow.removeIf(m -> m.getCurrentHealth() == 0);
+        }
+
+        playerGameData.markUsedHeroAbility();
+        playerGameData.useMana(hero.getMana());
+    }
+
+    /**
+     * Get a list of the frozen cards on the game board
+     *
+     * @return The list of frozen cards
+     */
+    public List<PlayableMinion> getFrozenCardsOnTable() {
+        return gameState.getGameBoard().getFrozenCards();
+    }
+
 }
 
 

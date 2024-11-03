@@ -26,7 +26,9 @@ public final class ActionFactory {
             Map.entry("placeCard", PlaceCard::new),
             Map.entry("cardUsesAttack", CardUsesAttack::new),
             Map.entry("cardUsesAbility", CardUsesAbility::new),
-            Map.entry("useAttackHero", UseAttackHero::new)
+            Map.entry("useAttackHero", UseAttackHero::new),
+            Map.entry("useHeroAbility", UseHeroAbility::new),
+            Map.entry("getFrozenCardsOnTable", GetFrozenCardsOnTable::new)
     );
 
     private ActionFactory() {
@@ -133,6 +135,45 @@ public final class ActionFactory {
                         .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
                         .build();
             }
+        }
+    }
+
+    private static final class UseHeroAbility extends Action {
+        UseHeroAbility(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            var actionOutput = ActionOutput.builder();
+            try {
+                gameManager.useHeroAbility(getInput().getAffectedRow());
+                return actionOutput.type(ActionOutput.Type.NONE).build();
+            } catch (final ActionException err) {
+                return actionOutput
+                        .type(ActionOutput.Type.ERROR)
+                        .actionInput(getInput())
+                        .actionOutput(JsonNodeFactory.instance.textNode(err.getMessage()))
+                        .build();
+            }
+        }
+    }
+
+    private static final class GetFrozenCardsOnTable extends Action {
+        GetFrozenCardsOnTable(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+            ArrayNode actionOutput = MAPPER.createArrayNode();
+            gameManager.getFrozenCardsOnTable()
+                    .forEach(row -> actionOutput.add(JsonMapper.mapPlayableCard(row)));
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(actionOutput)
+                    .build();
         }
     }
 
