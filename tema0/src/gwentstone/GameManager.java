@@ -358,6 +358,28 @@ public final class GameManager {
         return gameState.getGameBoard().getFrozenCards();
     }
 
+    /**
+     * Get the total number of games played.
+     *
+     * @return The number of games played
+     */
+    public int getTotalGamesPlayed() {
+        return gameState.getPlayers()
+                .stream()
+                .map(Player::getWins)
+                .reduce(0, Integer::sum);
+    }
+
+    /**
+     * Get the number of wins of a given player.
+     *
+     * @param playerIdx The index of the player
+     * @return The number of wins of the specified player
+     */
+    public int getPlayerWins(final int playerIdx) {
+        return gameState.getPlayers().get(playerIdx).getWins();
+    }
+
 }
 
 

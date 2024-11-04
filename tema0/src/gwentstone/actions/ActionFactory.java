@@ -28,7 +28,11 @@ public final class ActionFactory {
             Map.entry("cardUsesAbility", CardUsesAbility::new),
             Map.entry("useAttackHero", UseAttackHero::new),
             Map.entry("useHeroAbility", UseHeroAbility::new),
-            Map.entry("getFrozenCardsOnTable", GetFrozenCardsOnTable::new)
+            Map.entry("getFrozenCardsOnTable", GetFrozenCardsOnTable::new),
+            Map.entry("getTotalGamesPlayed", GetTotalGamesPlayed::new),
+            Map.entry("getPlayerOneWins", actionsInput -> new GetPlayerWins(actionsInput, 0)),
+            Map.entry("getPlayerTwoWins", actionsInput -> new GetPlayerWins(actionsInput, 1))
+
     );
 
     private ActionFactory() {
@@ -325,6 +329,41 @@ public final class ActionFactory {
             gameManager.endTurn();
             return ActionOutput.builder()
                     .type(ActionOutput.Type.NONE)
+                    .build();
+        }
+    }
+
+    private static final class GetTotalGamesPlayed extends Action {
+        GetTotalGamesPlayed(final ActionsInput input) {
+            super(input);
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(
+                            JsonNodeFactory.instance.numberNode(gameManager.getTotalGamesPlayed()))
+                    .build();
+        }
+    }
+
+    private static final class GetPlayerWins extends Action {
+        private final int playerIdx;
+
+        GetPlayerWins(final ActionsInput input, final int playerIdx) {
+            super(input);
+            this.playerIdx = playerIdx;
+        }
+
+        @Override
+        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+            return ActionOutput.builder()
+                    .type(ActionOutput.Type.OUTPUT)
+                    .actionInput(getInput())
+                    .actionOutput(JsonNodeFactory.instance.numberNode(
+                            gameManager.getPlayerWins(playerIdx)))
                     .build();
         }
     }
