@@ -6,13 +6,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import checker.CheckerConstants;
+import fileio.ActionsInput;
+import fileio.GameInput;
 import fileio.Input;
+import gwentstone.GameManager;
+import gwentstone.Player;
+import gwentstone.actions.Action;
+import gwentstone.actions.ActionFactory;
+import gwentstone.utils.InputParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -69,24 +77,24 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
-        /*
-         * TODO Implement your function here
-         *
-         * How to add output to the output array?
-         * There are multiple ways to do this, here is one example:
-         *
-         * ObjectMapper mapper = new ObjectMapper();
-         *
-         * ObjectNode objectNode = mapper.createObjectNode();
-         * objectNode.put("field_name", "field_value");
-         *
-         * ArrayNode arrayNode = mapper.createArrayNode();
-         * arrayNode.add(objectNode);
-         *
-         * output.add(arrayNode);
-         * output.add(objectNode);
-         *
-         */
+        Player playerOne = new Player(
+                InputParser.parseDeckList(inputData.getPlayerOneDecks())
+        );
+        Player playerTwo = new Player(
+                InputParser.parseDeckList(inputData.getPlayerTwoDecks())
+        );
+
+        for (GameInput gameInput : inputData.getGames()) {
+            GameManager gameManager =
+                    new GameManager(List.of(playerOne, playerTwo), gameInput.getStartGame());
+            for (ActionsInput actionsInput : gameInput.getActions()) {
+                Action action = ActionFactory.getAction(actionsInput);
+                if (action == null) {
+                    continue;
+                }
+                action.execute(gameManager).toJson().ifPresent(output::add);
+            }
+        }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
