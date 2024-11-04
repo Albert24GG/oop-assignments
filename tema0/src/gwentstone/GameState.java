@@ -33,14 +33,9 @@ public final class GameState {
         });
     }
 
-    public void endRoundRoutine() {
-        if (gameEnded) {
-            return;
-        }
-        gameBoard.unfreezeAllCards();
-        gameBoard.resetAttackHistory();
-    }
-
+    /**
+     * End the current game
+     */
     public void endGame() {
         gameEnded = true;
     }

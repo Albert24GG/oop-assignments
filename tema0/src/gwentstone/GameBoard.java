@@ -45,6 +45,20 @@ public class GameBoard {
         return ROWS_PLACEMENT.get(placement).get(playerIdx);
     }
 
+
+    /**
+     * Get the rows belonging to a given player.
+     *
+     * @param playerIdx The index of the player
+     * @return The list of rows
+     */
+    private List<List<PlayableMinion>> getPlayerRows(final int playerIdx) {
+        return IntStream.range(0, BOARD_HEIGHT)
+                .filter(i -> getPlayerIdxHoldingRow(i) == playerIdx)
+                .mapToObj(i -> board.get(i))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Get a row of minions from the game board.
      *
@@ -81,17 +95,27 @@ public class GameBoard {
     }
 
     /**
-     * Unfreeze all cards on the game board
+     * Unfreeze the cards of a given player.
+     *
+     * @param playerIdx The index of the player
      */
-    public void unfreezeAllCards() {
-        board.forEach(row -> row.forEach(PlayableMinion::unfreeze));
+    public void unfreezePlayerCards(final int playerIdx) {
+        IntStream.range(0, BOARD_HEIGHT)
+                .filter(i -> getPlayerIdxHoldingRow(i) == playerIdx)
+                .mapToObj(i -> board.get(i))
+                .forEach(row -> row.forEach(PlayableMinion::unfreeze));
     }
 
     /**
-     * Clear the history of attacks (the card that have attacked this round).
+     * Clear the attack history of a given player.
+     *
+     * @param playerIdx The index of the player
      */
-    void resetAttackHistory() {
-        attackedThisRound.forEach(row -> row.replaceAll(e -> false));
+    void resetPlayerAttackHistory(final int playerIdx) {
+        IntStream.range(0, BOARD_HEIGHT)
+                .filter(i -> getPlayerIdxHoldingRow(i) == playerIdx)
+                .mapToObj(i -> attackedThisRound.get(i))
+                .forEach(row -> row.replaceAll(e -> false));
     }
 
     /**

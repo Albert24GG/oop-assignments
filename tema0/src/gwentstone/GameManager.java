@@ -62,10 +62,14 @@ public final class GameManager {
      */
     public void endTurn() {
         TurnManager turnManager = gameState.getTurnManager();
+        GameBoard gameBoard = gameState.getGameBoard();
+
         if (turnManager.isRoundEndable()) {
-            gameState.endRoundRoutine();
             gameState.startRoundRoutine();
         }
+
+        gameBoard.resetPlayerAttackHistory(turnManager.getCurrentPlayerIdx());
+        gameBoard.unfreezePlayerCards(turnManager.getCurrentPlayerIdx());
         turnManager.endTurn();
     }
 
