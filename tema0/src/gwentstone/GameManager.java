@@ -38,23 +38,21 @@ public final class GameManager {
     /**
      * Get the deck assigned to a player in the current game
      *
-     * @param playerIdx The player index (1 or 2)
+     * @param playerIdx The player index (0 or 1)
      * @return The specified player's deck
      */
     public Deck getPlayerDeck(final int playerIdx) {
-        // internally, we store the player index starting from zero
-        return gameState.getPlayers().get(playerIdx - 1).getGameData().getCurrentDeck();
+        return gameState.getPlayers().get(playerIdx).getGameData().getCurrentDeck();
     }
 
     /**
      * Get the hero assigned to a player in the current game
      *
-     * @param playerIdx The player index (1 or 2)
+     * @param playerIdx The player index (0 or 1)
      * @return Player's hero
      */
     public PlayableHero getPlayerHero(final int playerIdx) {
-        // internally, we store the player index starting from zero
-        return gameState.getPlayers().get(playerIdx - 1).getGameData().getHero();
+        return gameState.getPlayers().get(playerIdx).getGameData().getHero();
     }
 
     /**
@@ -103,13 +101,13 @@ public final class GameManager {
     /**
      * Get hands of a player by its index.
      *
-     * @param playerIdx Index of the queried player (1 or 2)
+     * @param playerIdx Index of the queried player (0 or 1)
      * @return The list of minions that the player has in hand.
      */
     public List<Minion> getCardsInHand(final int playerIdx) {
         return gameState
                 .getPlayers()
-                .get(playerIdx - 1)
+                .get(playerIdx)
                 .getGameData()
                 .getHand()
                 .stream()
@@ -138,7 +136,7 @@ public final class GameManager {
      * @return The level of mana the player has
      */
     public int getPlayerMana(final int playerIdx) {
-        return gameState.getPlayers().get(playerIdx - 1).getGameData().getMana();
+        return gameState.getPlayers().get(playerIdx).getGameData().getMana();
     }
 
     /**
