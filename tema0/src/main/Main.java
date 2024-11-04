@@ -36,6 +36,7 @@ public final class Main {
     /**
      * DO NOT MODIFY MAIN METHOD
      * Call the checker
+     *
      * @param args from command line
      * @throws IOException in case of exceptions to reading / writing
      */
@@ -85,8 +86,8 @@ public final class Main {
         );
 
         for (GameInput gameInput : inputData.getGames()) {
-            GameManager gameManager =
-                    new GameManager(List.of(playerOne, playerTwo), gameInput.getStartGame());
+            GameManager gameManager = GameManager.startNewGame(
+                    List.of(playerOne, playerTwo), gameInput.getStartGame());
             for (ActionsInput actionsInput : gameInput.getActions()) {
                 Action action = ActionFactory.getAction(actionsInput);
                 if (action == null) {

@@ -21,8 +21,12 @@ import java.util.Optional;
 public final class GameManager {
     private final GameState gameState;
 
-    public GameManager(final List<Player> players, final StartGameInput input) {
+    private GameManager(final List<Player> players, final StartGameInput input) {
         gameState = new GameState(players, input);
+    }
+
+    public static GameManager startNewGame(final List<Player> players, final StartGameInput input) {
+        return new GameManager(players, input);
     }
 
     /**
