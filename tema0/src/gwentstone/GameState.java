@@ -2,26 +2,22 @@ package gwentstone;
 
 import fileio.StartGameInput;
 import gwentstone.utils.InputParser;
-import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.List;
 
-public final class GameState {
-    @Getter(AccessLevel.PACKAGE)
+@Getter
+final class GameState {
     private final List<Player> players;
 
-    @Getter(AccessLevel.PACKAGE)
-    private TurnManager turnManager;
-    @Getter(AccessLevel.PACKAGE)
-    private GameBoard gameBoard;
-    @Getter
+    private final TurnManager turnManager;
+    private final GameBoard gameBoard;
     private boolean gameEnded = false;
 
     /**
      * Routine called at the start of the round.
      */
-    public void startRoundRoutine() {
+    void startRoundRoutine() {
         if (gameEnded) {
             return;
         }
@@ -36,11 +32,11 @@ public final class GameState {
     /**
      * End the current game
      */
-    public void endGame() {
+    void endGame() {
         gameEnded = true;
     }
 
-    public GameState(final List<Player> players, final StartGameInput input) {
+    GameState(final List<Player> players, final StartGameInput input) {
         this.players = players;
 
         // Initialize the state of the players

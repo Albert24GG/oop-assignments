@@ -40,47 +40,47 @@ public final class PlayableHero extends PlayableCard<Hero> {
 
     private static final class Abilities {
 
-        public static final class SubZero extends PlayableHeroAbility {
-            public SubZero() {
+        static final class SubZero extends PlayableHeroAbility {
+            SubZero() {
                 super(AbilityTarget.ENEMY);
             }
 
             @Override
-            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+            public void use(@NonNull final List<@NonNull PlayableMinion> targetRow) {
                 targetRow.forEach(PlayableMinion::freeze);
             }
         }
 
-        public static final class LowBlood extends PlayableHeroAbility {
-            public LowBlood() {
+        static final class LowBlood extends PlayableHeroAbility {
+            LowBlood() {
                 super(AbilityTarget.ENEMY);
             }
 
             @Override
-            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+            public void use(@NonNull final List<@NonNull PlayableMinion> targetRow) {
                 Collections.max(targetRow, Comparator.comparingInt(PlayableCard::getCurrentHealth))
                         .setCurrentHealth(0);
             }
         }
 
-        public static final class EarthBorn extends PlayableHeroAbility {
-            public EarthBorn() {
+        static final class EarthBorn extends PlayableHeroAbility {
+            EarthBorn() {
                 super(AbilityTarget.PLAYER);
             }
 
             @Override
-            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+            public void use(@NonNull final List<@NonNull PlayableMinion> targetRow) {
                 targetRow.forEach(m -> m.setCurrentHealth(m.getCurrentHealth() + 1));
             }
         }
 
-        public static final class BloodThirst extends PlayableHeroAbility {
-            public BloodThirst() {
+        static final class BloodThirst extends PlayableHeroAbility {
+            BloodThirst() {
                 super(AbilityTarget.PLAYER);
             }
 
             @Override
-            public void use(@NonNull List<@NonNull PlayableMinion> targetRow) {
+            public void use(@NonNull final List<@NonNull PlayableMinion> targetRow) {
                 targetRow.forEach(m -> m.setCurrentAttackDamage(m.getCurrentAttackDamage() + 1));
             }
         }
@@ -97,8 +97,7 @@ public final class PlayableHero extends PlayableCard<Hero> {
         @NonNull
         private final PlayableHeroAbility ability;
 
-        public static Config getConfig(final Hero.Type type)
-                throws IllegalArgumentException {
+        public static Config getConfig(final Hero.Type type) {
             return Config.valueOf(type.name());
         }
     }

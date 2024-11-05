@@ -25,8 +25,13 @@ public final class PlayableMinion extends PlayableCard<Minion> {
      * @param target Target minion
      */
     public void useAbility(final PlayableMinion target) {
-        if (isFrozen || this.config.getAbility() == null) {
+        if (isFrozen) {
             return;
+        }
+
+        PlayableMinionAbility ability = this.config.getAbility();
+        if (ability == null) {
+            throw new IllegalStateException("Minion has no ability");
         }
 
         this.config.getAbility().use(this, target);
@@ -85,8 +90,8 @@ public final class PlayableMinion extends PlayableCard<Minion> {
 
     private static final class Abilities {
 
-        public static final class WeakKnees extends PlayableMinionAbility {
-            public WeakKnees() {
+        static final class WeakKnees extends PlayableMinionAbility {
+            WeakKnees() {
                 super(AbilityTarget.ENEMY);
             }
 
@@ -97,8 +102,8 @@ public final class PlayableMinion extends PlayableCard<Minion> {
             }
         }
 
-        public static final class Skyjack extends PlayableMinionAbility {
-            public Skyjack() {
+        static final class Skyjack extends PlayableMinionAbility {
+            Skyjack() {
                 super(AbilityTarget.ENEMY);
             }
 
@@ -112,8 +117,8 @@ public final class PlayableMinion extends PlayableCard<Minion> {
 
         }
 
-        public static final class ShapeShift extends PlayableMinionAbility {
-            public ShapeShift() {
+        static final class ShapeShift extends PlayableMinionAbility {
+            ShapeShift() {
                 super(AbilityTarget.ENEMY);
             }
 
@@ -126,8 +131,8 @@ public final class PlayableMinion extends PlayableCard<Minion> {
             }
         }
 
-        public static final class GodsPlan extends PlayableMinionAbility {
-            public GodsPlan() {
+        static final class GodsPlan extends PlayableMinionAbility {
+            GodsPlan() {
                 super(AbilityTarget.PLAYER);
             }
 
@@ -155,8 +160,7 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         private final Placement placement;
         private final PlayableMinionAbility ability;
 
-        public static Config getConfig(final Minion.Type type)
-                throws IllegalArgumentException {
+        public static Config getConfig(final Minion.Type type) {
             return Config.valueOf(type.name());
         }
     }

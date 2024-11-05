@@ -25,6 +25,13 @@ public final class GameManager {
         gameState = new GameState(players, input);
     }
 
+    /**
+     * Start a new game
+     *
+     * @param players The list of players
+     * @param input   The StartGame object containing the game parameters
+     * @return The GameManager handler
+     */
     public static GameManager startNewGame(final List<Player> players, final StartGameInput input) {
         return new GameManager(players, input);
     }
@@ -154,9 +161,9 @@ public final class GameManager {
     public void cardUsesAtack(final Coordinates attackerCoords, final Coordinates targetCoords)
             throws ActionException {
         GameBoard gameBoard = gameState.getGameBoard();
+        TurnManager turnManager = gameState.getTurnManager();
 
-        if (gameBoard.getPlayerIdxHoldingCard(targetCoords) ==
-                gameState.getTurnManager().getCurrentPlayerIdx()) {
+        if (gameBoard.getPlayerIdxHoldingCard(targetCoords) == turnManager.getCurrentPlayerIdx()) {
             throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
         }
 
@@ -172,8 +179,7 @@ public final class GameManager {
 
         PlayableMinion target = gameBoard.getCard(targetCoords);
 
-        if (!target.isTank() &&
-                gameBoard.hasTanksOnBoard(gameState.getTurnManager().getInactivePlayerIdx())) {
+        if (!target.isTank() && gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
             throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
         }
 
@@ -229,9 +235,11 @@ public final class GameManager {
             return;
         }
 
+        TurnManager turnManager = gameState.getTurnManager();
+
         // check if the attacked card is either ally or enemy
-        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingCard(targetCoords) !=
-                gameState.getTurnManager().getCurrentPlayerIdx();
+        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingCard(targetCoords)
+                != turnManager.getCurrentPlayerIdx();
         PlayableMinion target = gameBoard.getCard(targetCoords);
 
         // we assume that the attacker has an ability
@@ -245,8 +253,8 @@ public final class GameManager {
                 throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
             }
 
-            if (!target.isTank() &&
-                    gameBoard.hasTanksOnBoard(gameState.getTurnManager().getInactivePlayerIdx())) {
+            if (!target.isTank()
+                    && gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
                 throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
             }
 
@@ -285,11 +293,12 @@ public final class GameManager {
             throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
         }
 
-        if (gameBoard.hasTanksOnBoard(gameState.getTurnManager().getInactivePlayerIdx())) {
+        TurnManager turnManager = gameState.getTurnManager();
+
+        if (gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
             throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
         }
 
-        TurnManager turnManager = gameState.getTurnManager();
         PlayableHero enemyHero = turnManager.getInactivePlayer().getGameData().getHero();
 
         attacker.attack(enemyHero);

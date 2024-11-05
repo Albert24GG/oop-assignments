@@ -1,5 +1,8 @@
 package gwentstone.utils;
 
+import lombok.Getter;
+
+@Getter
 public enum GameMessage {
     NOT_ENOUGH_MANA("Not enough mana to place card on table."),
     ROW_FULL("Cannot place card on table since row is full."),
@@ -21,7 +24,4 @@ public enum GameMessage {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
 }

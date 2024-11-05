@@ -12,10 +12,6 @@ public abstract class Action {
     @Getter(AccessLevel.PROTECTED)
     private final ActionsInput input;
 
-    protected Action() {
-        input = null;
-    }
-
     /**
      * Execute the action in a given game context
      *

@@ -36,10 +36,8 @@ public final class Minion extends Card {
          *
          * @param s String to convert
          * @return The corresponding minion type
-         * @throws IllegalArgumentException If a string cannot be converted to a minion type
          */
-        public static Type fromString(final String s)
-                throws IllegalArgumentException {
+        public static Type fromString(final String s) {
             return valueOf(s.trim().replace(" ", "_").toUpperCase());
         }
     }

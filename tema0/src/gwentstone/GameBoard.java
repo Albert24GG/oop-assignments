@@ -2,7 +2,6 @@ package gwentstone;
 
 import fileio.Coordinates;
 import gwentstone.cards.impl.PlayableMinion;
-import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -12,16 +11,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class GameBoard {
+final class GameBoard {
     private static final int BOARD_WIDTH = 5;
     private static final int BOARD_HEIGHT = 4;
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private List<List<PlayableMinion>> board =
             IntStream.range(0, BOARD_HEIGHT)
                     .mapToObj(i -> new ArrayList<PlayableMinion>(BOARD_WIDTH))
                     .collect(Collectors.toList());
     // 2D List that indicates if a card has attacked/used its ability this round
-    private List<List<Boolean>> attackedThisRound =
+    private final List<List<Boolean>> attackedThisRound =
             IntStream.range(0, BOARD_HEIGHT)
                     .mapToObj(i -> new ArrayList<Boolean>(Collections.nCopies(BOARD_WIDTH, false)))
                     .collect(Collectors.toList());
@@ -65,7 +64,7 @@ public class GameBoard {
      * @param rowIdx The index of the row
      * @return The row as a list of minions
      */
-    public List<PlayableMinion> getRow(final int rowIdx) {
+    List<PlayableMinion> getRow(final int rowIdx) {
         return board.get(rowIdx);
     }
 
@@ -76,7 +75,7 @@ public class GameBoard {
      * @param minion    the minion in question
      * @return whether the card can be placed or not
      */
-    public boolean canPlace(final int playerIdx, final PlayableMinion minion) {
+    boolean canPlace(final int playerIdx, final PlayableMinion minion) {
         return board.get(getRowIdx(playerIdx, minion.getPlacement())).size() != BOARD_WIDTH;
     }
 
@@ -87,7 +86,7 @@ public class GameBoard {
      * @param playerIdx index of the player
      * @param minion    the minion to place
      */
-    public void placeMinion(final int playerIdx, final PlayableMinion minion) {
+    void placeMinion(final int playerIdx, final PlayableMinion minion) {
         if (!canPlace(playerIdx, minion)) {
             return;
         }
@@ -99,7 +98,7 @@ public class GameBoard {
      *
      * @param playerIdx The index of the player
      */
-    public void unfreezePlayerCards(final int playerIdx) {
+    void unfreezePlayerCards(final int playerIdx) {
         IntStream.range(0, BOARD_HEIGHT)
                 .filter(i -> getPlayerIdxHoldingRow(i) == playerIdx)
                 .mapToObj(i -> board.get(i))
@@ -114,7 +113,7 @@ public class GameBoard {
     void resetPlayerAttackHistory(final int playerIdx) {
         IntStream.range(0, BOARD_HEIGHT)
                 .filter(i -> getPlayerIdxHoldingRow(i) == playerIdx)
-                .mapToObj(i -> attackedThisRound.get(i))
+                .mapToObj(attackedThisRound::get)
                 .forEach(row -> row.replaceAll(e -> false));
     }
 
@@ -133,7 +132,7 @@ public class GameBoard {
      * @param coords Card's coordinates on the game board
      * @return The index of the player
      */
-    public int getPlayerIdxHoldingCard(final Coordinates coords) {
+    int getPlayerIdxHoldingCard(final Coordinates coords) {
         return getPlayerIdxHoldingRow(coords.getX());
     }
 
@@ -143,7 +142,7 @@ public class GameBoard {
      * @param rowIdx The index of the row
      * @return The index of the player
      */
-    public int getPlayerIdxHoldingRow(final int rowIdx) {
+    int getPlayerIdxHoldingRow(final int rowIdx) {
         return rowIdx < BOARD_HEIGHT / 2 ? 1 : 0;
     }
 
@@ -153,7 +152,7 @@ public class GameBoard {
      * @param coords Card's coordinates on the game board
      * @return True if the card has attacked, false otherwise
      */
-    public boolean attackedThisRound(final Coordinates coords) {
+    boolean attackedThisRound(final Coordinates coords) {
         return attackedThisRound.get(coords.getX()).get(coords.getY());
     }
 
@@ -200,5 +199,4 @@ public class GameBoard {
                 .filter(PlayableMinion::isFrozen)
                 .collect(Collectors.toList());
     }
-
 }

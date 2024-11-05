@@ -4,7 +4,6 @@ import gwentstone.cards.Deck;
 import gwentstone.cards.impl.Hero;
 import gwentstone.cards.impl.PlayableHero;
 import gwentstone.cards.impl.PlayableMinion;
-import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -13,19 +12,19 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public final class PlayerGameData {
+final class PlayerGameData {
     @Getter
     private final int deckIdx;
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private List<PlayableMinion> remCards;
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private List<PlayableMinion> hand = new ArrayList<>();
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private final PlayableHero hero;
     /**
      * Variable indicating if the player used hero's ability in the current round
      */
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private boolean usedHeroAbility = false;
     @Getter
     private int mana = 0;

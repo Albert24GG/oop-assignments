@@ -126,7 +126,8 @@ public final class ActionFactory {
                 actionOutput.type(ActionOutput.Type.NONE);
                 gameManager.useAttackHero(getInput().getCardAttacker()).ifPresent(winner -> {
                             String outputString =
-                                    "Player " + (winner == 0 ? "one" : "two") + " killed the enemy hero.";
+                                    "Player " + (winner == 0 ? "one" : "two")
+                                            + " killed the enemy hero.";
                             actionOutput.type(ActionOutput.Type.GAME_ENDED)
                                     .actionOutput(JsonNodeFactory.instance.textNode(outputString));
                         }
@@ -202,7 +203,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.valueToTree(
                     gameManager.getPlayerDeck(getInput().getPlayerIdx() - 1)
                             .stream()
@@ -223,7 +224,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -239,7 +240,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.valueToTree(
                     gameManager.getCardsInHand(getInput().getPlayerIdx() - 1)
                             .stream()
@@ -260,7 +261,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.createArrayNode();
             gameManager.getCardsOnTable().forEach(row -> {
                         ArrayNode rowNode = MAPPER.valueToTree(row.stream()
@@ -284,7 +285,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -325,7 +326,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             gameManager.endTurn();
             return ActionOutput.builder()
                     .type(ActionOutput.Type.NONE)
@@ -339,7 +340,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -358,7 +359,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(GameManager gameManager) {
+        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())

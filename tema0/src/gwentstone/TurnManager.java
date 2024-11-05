@@ -2,12 +2,12 @@ package gwentstone;
 
 import java.util.List;
 
-public final class TurnManager {
+final class TurnManager {
     private int currentPlayer;
     private final int startingPlayer;
     private final List<Player> players;
 
-    public TurnManager(final int startingPlayer, final List<Player> players) {
+    TurnManager(final int startingPlayer, final List<Player> players) {
         this.currentPlayer = startingPlayer;
         this.startingPlayer = startingPlayer;
         this.players = players;
@@ -16,23 +16,23 @@ public final class TurnManager {
     /**
      * End the current turn and reset the player who moves next.
      */
-    public void endTurn() {
+    void endTurn() {
         currentPlayer = (currentPlayer + 1) % players.size();
     }
 
-    public Player getCurrentPlayer() {
+    Player getCurrentPlayer() {
         return players.get(currentPlayer);
     }
 
-    public Player getInactivePlayer() {
+    Player getInactivePlayer() {
         return players.get(getInactivePlayerIdx());
     }
 
-    public int getCurrentPlayerIdx() {
+    int getCurrentPlayerIdx() {
         return currentPlayer;
     }
 
-    public int getInactivePlayerIdx() {
+    int getInactivePlayerIdx() {
         return (currentPlayer + 1) % players.size();
     }
 
