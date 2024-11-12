@@ -12,12 +12,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Builder
-public final class ActionOutput<T extends BaseJsonNode> {
+public final class ActionOutput {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Builder.Default
     private final Type type = Type.NONE;
-    private final T actionOutput;
+    private final BaseJsonNode actionOutput;
     @Builder.Default
     private final ActionsInput actionInput = null;
 

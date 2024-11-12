@@ -2,7 +2,6 @@ package org.poo.gwentstone.actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.poo.fileio.ActionsInput;
 import org.poo.fileio.Coordinates;
@@ -55,7 +54,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
                 gameManager.placeCard(getInput().getHandIdx());
@@ -76,7 +75,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
                 gameManager.cardUsesAtack(getInput().getCardAttacker(),
@@ -98,7 +97,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
                 gameManager.cardUsesAbility(getInput().getCardAttacker(),
@@ -120,7 +119,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
                 actionOutput.type(ActionOutput.Type.NONE);
@@ -149,7 +148,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
                 gameManager.useHeroAbility(getInput().getAffectedRow());
@@ -170,7 +169,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.createArrayNode();
             gameManager.getFrozenCardsOnTable()
                     .forEach(row -> actionOutput.add(JsonMapper.mapPlayableCard(row)));
@@ -188,7 +187,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -203,7 +202,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.valueToTree(
                     gameManager.getPlayerDeck(getInput().getPlayerIdx() - 1)
                             .stream()
@@ -224,7 +223,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -240,7 +239,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.valueToTree(
                     gameManager.getCardsInHand(getInput().getPlayerIdx() - 1)
                             .stream()
@@ -261,7 +260,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             ArrayNode actionOutput = MAPPER.createArrayNode();
             gameManager.getCardsOnTable().forEach(row -> {
                         ArrayNode rowNode = MAPPER.valueToTree(row.stream()
@@ -285,7 +284,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -301,7 +300,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             var output =
                     ActionOutput.builder().type(ActionOutput.Type.OUTPUT).actionInput(getInput());
             try {
@@ -326,7 +325,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             gameManager.endTurn();
             return ActionOutput.builder()
                     .type(ActionOutput.Type.NONE)
@@ -340,7 +339,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
@@ -359,7 +358,7 @@ public final class ActionFactory {
         }
 
         @Override
-        public ActionOutput<? extends BaseJsonNode> execute(final GameManager gameManager) {
+        public ActionOutput execute(final GameManager gameManager) {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
