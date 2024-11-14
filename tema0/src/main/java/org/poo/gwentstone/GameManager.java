@@ -40,11 +40,10 @@ public final class GameManager {
     /**
      * Get the index of the active player.
      *
-     * @return The index of the player (1 or 2)
+     * @return The index of the player (0 or 1)
      */
     public int getPlayerTurn() {
-        // internally, we store the player index starting from zero
-        return gameState.getTurnManager().getCurrentPlayerIdx() + 1;
+        return gameState.getTurnManager().getCurrentPlayerIdx();
     }
 
     /**
@@ -260,7 +259,6 @@ public final class GameManager {
             }
 
         }
-
 
         attacker.useAbility(target);
 

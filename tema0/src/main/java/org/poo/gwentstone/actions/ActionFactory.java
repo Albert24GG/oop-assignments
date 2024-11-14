@@ -191,7 +191,8 @@ public final class ActionFactory {
             return ActionOutput.builder()
                     .type(ActionOutput.Type.OUTPUT)
                     .actionInput(getInput())
-                    .actionOutput(JsonNodeFactory.instance.numberNode(gameManager.getPlayerTurn()))
+                    .actionOutput(
+                            JsonNodeFactory.instance.numberNode(gameManager.getPlayerTurn() + 1))
                     .build();
         }
     }
