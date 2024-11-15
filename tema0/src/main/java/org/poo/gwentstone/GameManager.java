@@ -151,46 +151,6 @@ public final class GameManager {
     }
 
     /**
-     * Use a card to attack another card.
-     *
-     * @param attackerCoords The coordinates (row, column) of the attacker card
-     * @param targetCoords   The coordinates (row, column) of the attacked card
-     * @throws ActionException If the action fails, an exception with the appropriate message
-     *                         is thrown
-     */
-    public void cardUsesAtack(final Coordinates attackerCoords, final Coordinates targetCoords)
-            throws ActionException {
-        GameBoard gameBoard = gameState.getGameBoard();
-        TurnManager turnManager = gameState.getTurnManager();
-
-        if (gameBoard.getPlayerIdxHoldingCard(targetCoords) == turnManager.getCurrentPlayerIdx()) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
-        }
-
-        if (gameBoard.attackedThisRound(attackerCoords)) {
-            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
-        }
-
-        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
-
-        if (attacker.isFrozen()) {
-            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
-        }
-
-        PlayableMinion target = gameBoard.getCard(targetCoords);
-
-        if (!target.isTank() && gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
-        }
-
-        attacker.attack(target);
-        if (target.getCurrentHealth() == 0) {
-            gameBoard.removeCard(targetCoords);
-        }
-        gameBoard.markAttacker(attackerCoords);
-    }
-
-    /**
      * Get the minion at some given coordinates on the game board.
      *
      * @param coords Card's coordinates on the game board
@@ -206,6 +166,83 @@ public final class GameManager {
         }
     }
 
+    private void validateCardNotFrozen(final Coordinates attackerCoords) throws ActionException {
+        PlayableMinion attacker = gameState.getGameBoard().getCard(attackerCoords);
+        if (attacker.isFrozen()) {
+            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
+        }
+    }
+
+    private void validateCardNotAttacked(final Coordinates attackerCoords) throws ActionException {
+        if (gameState.getGameBoard().attackedThisRound(attackerCoords)) {
+            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
+        }
+    }
+
+    private void validateTankRule() throws ActionException {
+        validateTankRule(null);
+    }
+
+    private void validateTankRule(final PlayableMinion target) throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+        TurnManager turnManager = gameState.getTurnManager();
+
+        if (Optional.ofNullable(target).map(t -> !t.isTank()).orElse(true) &&
+                gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
+            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
+        }
+    }
+
+    private void validateTargetIsEnemy(final Coordinates targetCoords) throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+        TurnManager turnManager = gameState.getTurnManager();
+
+        if (gameBoard.getPlayerIdxHoldingCard(targetCoords) == turnManager.getCurrentPlayerIdx()) {
+            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+        }
+    }
+
+    private void validateManaAvailable(final int requiredMana) throws ActionException {
+        PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
+        if (requiredMana > playerGameData.getMana()) {
+            throw new ActionException(GameMessage.HERO_ABILITY_NO_MANA.getMessage());
+        }
+    }
+
+    private void validateHeroAbilityUsage() throws ActionException {
+        PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
+        if (playerGameData.isUsedHeroAbility()) {
+            throw new ActionException(GameMessage.HERO_ABILITY_ALREADY_USED.getMessage());
+        }
+    }
+
+    /**
+     * Use a card to attack another card.
+     *
+     * @param attackerCoords The coordinates (row, column) of the attacker card
+     * @param targetCoords   The coordinates (row, column) of the attacked card
+     * @throws ActionException If the action fails, an exception with the appropriate message
+     *                         is thrown
+     */
+    public void cardUsesAttack(final Coordinates attackerCoords, final Coordinates targetCoords)
+            throws ActionException {
+        GameBoard gameBoard = gameState.getGameBoard();
+
+        validateTargetIsEnemy(targetCoords);
+        validateCardNotAttacked(attackerCoords);
+        validateCardNotFrozen(attackerCoords);
+        validateTankRule(gameBoard.getCard(targetCoords));
+
+        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
+        PlayableMinion target = gameBoard.getCard(targetCoords);
+
+        attacker.attack(target);
+        if (target.getCurrentHealth() == 0) {
+            gameBoard.removeCard(targetCoords);
+        }
+        gameBoard.markAttacker(attackerCoords);
+    }
+
     /**
      * Use a card's ability on another card.
      *
@@ -217,55 +254,43 @@ public final class GameManager {
     public void cardUsesAbility(final Coordinates attackerCoords, final Coordinates targetCoords)
             throws ActionException {
         GameBoard gameBoard = gameState.getGameBoard();
+        TurnManager turnManager = gameState.getTurnManager();
+
+        validateCardNotFrozen(attackerCoords);
+        validateCardNotAttacked(attackerCoords);
 
         PlayableMinion attacker = gameBoard.getCard(attackerCoords);
-
-        if (attacker.isFrozen()) {
-            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
-        }
-
-        if (gameBoard.attackedThisRound(attackerCoords)) {
-            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
-        }
+        PlayableMinion target = gameBoard.getCard(targetCoords);
 
         AbilityTarget attackerTarget = attacker.getAbilityTarget().orElse(null);
-
         // This should not happen
         if (attackerTarget == null) {
             return;
         }
 
-        TurnManager turnManager = gameState.getTurnManager();
-
-        // check if the attacked card is either ally or enemy
         boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingCard(targetCoords)
                 != turnManager.getCurrentPlayerIdx();
-        PlayableMinion target = gameBoard.getCard(targetCoords);
 
         // we assume that the attacker has an ability
-        if (attackerTarget == AbilityTarget.PLAYER && isTargetEnemy) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_PLAYER.getMessage());
-        }
-
-        if (attackerTarget == AbilityTarget.ENEMY) {
-
-            if (!isTargetEnemy) {
-                throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+        switch (attackerTarget) {
+            case PLAYER -> {
+                if (isTargetEnemy) {
+                    throw new ActionException(GameMessage.ATTACKED_CARD_NOT_PLAYER.getMessage());
+                }
             }
-
-            if (!target.isTank()
-                    && gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
-                throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
+            case ENEMY -> {
+                if (!isTargetEnemy) {
+                    throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+                } else {
+                    validateTankRule(gameBoard.getCard(targetCoords));
+                }
             }
-
         }
 
         attacker.useAbility(target);
-
         if (target.getCurrentHealth() == 0) {
             gameBoard.removeCard(targetCoords);
         }
-
         gameBoard.markAttacker(attackerCoords);
     }
 
@@ -281,23 +306,13 @@ public final class GameManager {
     public Optional<Integer> useAttackHero(final Coordinates attackerCoords)
             throws ActionException {
         GameBoard gameBoard = gameState.getGameBoard();
-
-        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
-
-        if (attacker.isFrozen()) {
-            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
-        }
-
-        if (gameBoard.attackedThisRound(attackerCoords)) {
-            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
-        }
-
         TurnManager turnManager = gameState.getTurnManager();
 
-        if (gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
-        }
+        validateCardNotFrozen(attackerCoords);
+        validateCardNotAttacked(attackerCoords);
+        validateTankRule();
 
+        PlayableMinion attacker = gameBoard.getCard(attackerCoords);
         PlayableHero enemyHero = turnManager.getInactivePlayer().getGameData().getHero();
 
         attacker.attack(enemyHero);
@@ -318,46 +333,46 @@ public final class GameManager {
      * @throws ActionException If the action fails, an exception with the appropriate message
      *                         is thrown
      */
+
     public void useHeroAbility(final int affectedRow)
             throws ActionException {
         GameBoard gameBoard = gameState.getGameBoard();
-        PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
+        TurnManager turnManager = gameState.getTurnManager();
+        PlayerGameData playerGameData = turnManager.getCurrentPlayer().getGameData();
         PlayableHero hero = playerGameData.getHero();
 
-        if (hero.getMana() > playerGameData.getMana()) {
-            throw new ActionException(GameMessage.HERO_ABILITY_NO_MANA.getMessage());
-        }
+        validateManaAvailable(hero.getMana());
+        validateHeroAbilityUsage();
 
-        if (playerGameData.isUsedHeroAbility()) {
-            throw new ActionException(GameMessage.HERO_ABILITY_ALREADY_USED.getMessage());
-        }
-
-        AbilityTarget heroAbilityTarget = hero.getAbilityTarget();
-
-        // check if the attacked card is either ally or enemy
+        // Validate the row ownership
         boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingRow(affectedRow) !=
-                gameState.getTurnManager().getCurrentPlayerIdx();
+                turnManager.getCurrentPlayerIdx();
 
-        if (heroAbilityTarget == AbilityTarget.ENEMY && !isTargetEnemy) {
-            throw new ActionException(GameMessage.ROW_NOT_ENEMY.getMessage());
+        switch (hero.getAbilityTarget()) {
+            case PLAYER -> {
+                if (isTargetEnemy) {
+                    throw new ActionException(GameMessage.ROW_NOT_PLAYER.getMessage());
+                }
+            }
+            case ENEMY -> {
+                if (!isTargetEnemy) {
+                    throw new ActionException(GameMessage.ROW_NOT_ENEMY.getMessage());
+                }
+            }
         }
 
-        if (heroAbilityTarget == AbilityTarget.PLAYER && isTargetEnemy) {
-            throw new ActionException(GameMessage.ROW_NOT_PLAYER.getMessage());
-        }
 
         List<PlayableMinion> targetRow = gameBoard.getRow(affectedRow);
-
         hero.useAbility(targetRow);
 
-        // Remove killed cards
-        if (heroAbilityTarget == AbilityTarget.ENEMY) {
+        if (hero.getAbilityTarget() == AbilityTarget.ENEMY) {
             targetRow.removeIf(m -> m.getCurrentHealth() == 0);
         }
 
         playerGameData.markUsedHeroAbility();
         playerGameData.useMana(hero.getMana());
     }
+
 
     /**
      * Get a list of the frozen cards on the game board

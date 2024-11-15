@@ -78,7 +78,7 @@ public final class ActionFactory {
         public ActionOutput execute(final GameManager gameManager) {
             var actionOutput = ActionOutput.builder();
             try {
-                gameManager.cardUsesAtack(getInput().getCardAttacker(),
+                gameManager.cardUsesAttack(getInput().getCardAttacker(),
                         getInput().getCardAttacked());
                 return actionOutput.type(ActionOutput.Type.NONE).build();
             } catch (final ActionException err) {
