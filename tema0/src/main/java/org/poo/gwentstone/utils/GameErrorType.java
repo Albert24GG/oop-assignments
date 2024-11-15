@@ -1,9 +1,11 @@
 package org.poo.gwentstone.utils;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-public enum GameMessage {
+@RequiredArgsConstructor
+public enum GameErrorType {
     NOT_ENOUGH_MANA("Not enough mana to place card on table."),
     ROW_FULL("Cannot place card on table since row is full."),
     ATTACKED_CARD_NOT_ENEMY("Attacked card does not belong to the enemy."),
@@ -17,11 +19,5 @@ public enum GameMessage {
     ROW_NOT_ENEMY("Selected row does not belong to the enemy."),
     ROW_NOT_PLAYER("Selected row does not belong to the current player.");
 
-
     private final String message;
-
-    GameMessage(final String message) {
-        this.message = message;
-    }
-
 }

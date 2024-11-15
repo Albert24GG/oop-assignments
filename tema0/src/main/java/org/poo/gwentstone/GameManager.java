@@ -9,7 +9,7 @@ import org.poo.gwentstone.cards.impl.AbilityTarget;
 import org.poo.gwentstone.cards.impl.Minion;
 import org.poo.gwentstone.cards.impl.PlayableHero;
 import org.poo.gwentstone.cards.impl.PlayableMinion;
-import org.poo.gwentstone.utils.GameMessage;
+import org.poo.gwentstone.utils.GameErrorType;
 
 import java.util.Collections;
 import java.util.List;
@@ -97,11 +97,11 @@ public final class GameManager {
         GameBoard gameBoard = gameState.getGameBoard();
 
         if (minionInHand.getMana() > playerGameData.getMana()) {
-            throw new ActionException(GameMessage.NOT_ENOUGH_MANA.getMessage());
+            throw new ActionException(GameErrorType.NOT_ENOUGH_MANA);
         }
 
         if (!gameBoard.canPlace(playerIndex, minionInHand)) {
-            throw new ActionException(GameMessage.ROW_FULL.getMessage());
+            throw new ActionException(GameErrorType.ROW_FULL);
         }
 
         gameBoard.placeMinion(playerIndex, minionInHand);
@@ -156,26 +156,26 @@ public final class GameManager {
      * @param coords Card's coordinates on the game board
      * @return The minion
      * @throws ActionException If no minion is present at the specified location, an exception is
-     *                         thrown
+     *                         with type {@code NO_CARD_AT_POS} is thrown
      */
     public PlayableMinion getCardAtPosition(final Coordinates coords) throws ActionException {
         try {
             return gameState.getGameBoard().getCard(coords);
         } catch (Exception e) {
-            throw new ActionException(GameMessage.NO_CARD_AT_POS.getMessage());
+            throw new ActionException(GameErrorType.NO_CARD_AT_POS);
         }
     }
 
     private void validateCardNotFrozen(final Coordinates attackerCoords) throws ActionException {
         PlayableMinion attacker = gameState.getGameBoard().getCard(attackerCoords);
         if (attacker.isFrozen()) {
-            throw new ActionException(GameMessage.ATTACKER_FROZEN.getMessage());
+            throw new ActionException(GameErrorType.ATTACKER_FROZEN);
         }
     }
 
     private void validateCardNotAttacked(final Coordinates attackerCoords) throws ActionException {
         if (gameState.getGameBoard().attackedThisRound(attackerCoords)) {
-            throw new ActionException(GameMessage.ATTACKER_ALREADY_ATTACKED.getMessage());
+            throw new ActionException(GameErrorType.ATTACKER_ALREADY_ATTACKED);
         }
     }
 
@@ -187,9 +187,9 @@ public final class GameManager {
         GameBoard gameBoard = gameState.getGameBoard();
         TurnManager turnManager = gameState.getTurnManager();
 
-        if (Optional.ofNullable(target).map(t -> !t.isTank()).orElse(true) &&
-                gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_TANK.getMessage());
+        if (Optional.ofNullable(target).map(t -> !t.isTank()).orElse(true)
+                && gameBoard.hasTanksOnBoard(turnManager.getInactivePlayerIdx())) {
+            throw new ActionException(GameErrorType.ATTACKED_CARD_NOT_TANK);
         }
     }
 
@@ -198,21 +198,21 @@ public final class GameManager {
         TurnManager turnManager = gameState.getTurnManager();
 
         if (gameBoard.getPlayerIdxHoldingCard(targetCoords) == turnManager.getCurrentPlayerIdx()) {
-            throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+            throw new ActionException(GameErrorType.ATTACKED_CARD_NOT_ENEMY);
         }
     }
 
     private void validateManaAvailable(final int requiredMana) throws ActionException {
         PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
         if (requiredMana > playerGameData.getMana()) {
-            throw new ActionException(GameMessage.HERO_ABILITY_NO_MANA.getMessage());
+            throw new ActionException(GameErrorType.HERO_ABILITY_NO_MANA);
         }
     }
 
     private void validateHeroAbilityUsage() throws ActionException {
         PlayerGameData playerGameData = gameState.getTurnManager().getCurrentPlayer().getGameData();
         if (playerGameData.isUsedHeroAbility()) {
-            throw new ActionException(GameMessage.HERO_ABILITY_ALREADY_USED.getMessage());
+            throw new ActionException(GameErrorType.HERO_ABILITY_ALREADY_USED);
         }
     }
 
@@ -221,8 +221,10 @@ public final class GameManager {
      *
      * @param attackerCoords The coordinates (row, column) of the attacker card
      * @param targetCoords   The coordinates (row, column) of the attacked card
-     * @throws ActionException If the action fails, an exception with the appropriate message
-     *                         is thrown
+     * @throws ActionException If the action fails, an exception with one of the following types is
+     *                         thrown: {@code ATTACKED_CARD_NOT_ENEMY},
+     *                         {@code ATTACKER_ALREADY_ATTACKED},
+     *                         {@code ATTACKER_FROZEN}, {@code ATTACKED_CARD_NOT_TANK}
      */
     public void cardUsesAttack(final Coordinates attackerCoords, final Coordinates targetCoords)
             throws ActionException {
@@ -248,8 +250,10 @@ public final class GameManager {
      *
      * @param attackerCoords The coordinates (row, column) of the attacker card
      * @param targetCoords   The coordinates (row, column) of the attacked card
-     * @throws ActionException If the action fails, an exception with the appropriate message
-     *                         is thrown
+     * @throws ActionException If the action fails, an exception with one of the following types is
+     *                         thrown: {@code ATTACKED_CARD_NOT_ENEMY},
+     *                         {@code ATTACKER_ALREADY_ATTACKED}, {@code ATTACKER_FROZEN},
+     *                         {@code ATTACKED_CARD_NOT_TANK}, {@code ATTACKED_CARD_NOT_PLAYER}
      */
     public void cardUsesAbility(final Coordinates attackerCoords, final Coordinates targetCoords)
             throws ActionException {
@@ -275,15 +279,18 @@ public final class GameManager {
         switch (attackerTarget) {
             case PLAYER -> {
                 if (isTargetEnemy) {
-                    throw new ActionException(GameMessage.ATTACKED_CARD_NOT_PLAYER.getMessage());
+                    throw new ActionException(GameErrorType.ATTACKED_CARD_NOT_PLAYER);
                 }
             }
             case ENEMY -> {
                 if (!isTargetEnemy) {
-                    throw new ActionException(GameMessage.ATTACKED_CARD_NOT_ENEMY.getMessage());
+                    throw new ActionException(GameErrorType.ATTACKED_CARD_NOT_ENEMY);
                 } else {
                     validateTankRule(gameBoard.getCard(targetCoords));
                 }
+            }
+            default -> {
+                // do nothing
             }
         }
 
@@ -300,8 +307,9 @@ public final class GameManager {
      * @param attackerCoords The coordinates (row, column) of the attacker card
      * @return An {@code Optional} containing the index of the player who won, or an empty
      * {@code Optional} if the game did not end
-     * @throws ActionException If the action fails, an exception with the appropriate message
-     *                         is thrown
+     * @throws ActionException If the action fails, an exception with one of the following types is
+     *                         thrown: {@code ATTACKER_ALREADY_ATTACKED}, {@code ATTACKER_FROZEN},
+     *                         {@code ATTACKED_CARD_NOT_TANK}
      */
     public Optional<Integer> useAttackHero(final Coordinates attackerCoords)
             throws ActionException {
@@ -330,8 +338,9 @@ public final class GameManager {
      * Use the ability of the current player's hero on a given row of the game board.
      *
      * @param affectedRow The affected row
-     * @throws ActionException If the action fails, an exception with the appropriate message
-     *                         is thrown
+     * @throws ActionException If the action fails, an exception with one of the following types is
+     *                         thrown: {@code ROW_NOT_PLAYER}, {@code ROW_NOT_ENEMY},
+     *                         {@code HERO_ABILITY_NO_MANA}, {@code HERO_ABILITY_ALREADY_USED}
      */
 
     public void useHeroAbility(final int affectedRow)
@@ -345,19 +354,22 @@ public final class GameManager {
         validateHeroAbilityUsage();
 
         // Validate the row ownership
-        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingRow(affectedRow) !=
-                turnManager.getCurrentPlayerIdx();
+        boolean isTargetEnemy = gameBoard.getPlayerIdxHoldingRow(affectedRow)
+                != turnManager.getCurrentPlayerIdx();
 
         switch (hero.getAbilityTarget()) {
             case PLAYER -> {
                 if (isTargetEnemy) {
-                    throw new ActionException(GameMessage.ROW_NOT_PLAYER.getMessage());
+                    throw new ActionException(GameErrorType.ROW_NOT_PLAYER);
                 }
             }
             case ENEMY -> {
                 if (!isTargetEnemy) {
-                    throw new ActionException(GameMessage.ROW_NOT_ENEMY.getMessage());
+                    throw new ActionException(GameErrorType.ROW_NOT_ENEMY);
                 }
+            }
+            default -> {
+                // do nothing
             }
         }
 
