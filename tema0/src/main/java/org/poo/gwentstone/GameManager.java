@@ -9,7 +9,6 @@ import org.poo.gwentstone.cards.impl.AbilityTarget;
 import org.poo.gwentstone.cards.impl.Minion;
 import org.poo.gwentstone.cards.impl.PlayableHero;
 import org.poo.gwentstone.cards.impl.PlayableMinion;
-import org.poo.gwentstone.utils.GameErrorType;
 
 import java.util.Collections;
 import java.util.List;

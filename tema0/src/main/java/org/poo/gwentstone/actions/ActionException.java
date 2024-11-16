@@ -1,7 +1,9 @@
 package org.poo.gwentstone.actions;
 
-import org.poo.gwentstone.utils.GameErrorType;
+import lombok.Getter;
+import org.poo.gwentstone.GameErrorType;
 
+@Getter
 public class ActionException extends Exception {
     private final GameErrorType errorType;
 

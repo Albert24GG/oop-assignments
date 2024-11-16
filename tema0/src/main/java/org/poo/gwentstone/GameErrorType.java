@@ -1,4 +1,4 @@
-package org.poo.gwentstone.utils;
+package org.poo.gwentstone;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
