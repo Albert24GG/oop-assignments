@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.util.List;
-
 public abstract class PlayableCard<T extends Card> {
     @NonNull
     private final T card;
