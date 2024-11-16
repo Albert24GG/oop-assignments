@@ -325,7 +325,7 @@ public final class GameManager {
         attacker.attack(enemyHero);
         if (enemyHero.getCurrentHealth() == 0) {
             gameState.endGame();
-            turnManager.getCurrentPlayer().addWin();
+            turnManager.getCurrentPlayer().registerWin();
             return Optional.of(turnManager.getCurrentPlayerIdx());
         }
         gameBoard.markAttacker(attackerCoords);

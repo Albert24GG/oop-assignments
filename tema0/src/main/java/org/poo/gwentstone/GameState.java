@@ -48,7 +48,6 @@ final class GameState {
         turnManager = new TurnManager(input.getStartingPlayer() - 1, players);
         gameBoard = new GameBoard();
 
-        // start the round
         startRoundRoutine();
     }
 }

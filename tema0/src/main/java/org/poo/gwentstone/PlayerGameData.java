@@ -61,21 +61,10 @@ final class PlayerGameData {
         return new Deck(remCards.stream().map(PlayableMinion::getUnderlyingCard).toList());
     }
 
-    /**
-     * Get the minion in hand at a certain index
-     *
-     * @param cardIdx index of the minion in hand
-     * @return the minion
-     */
     PlayableMinion getMinionInHand(final int cardIdx) {
         return hand.get(cardIdx);
     }
 
-    /**
-     * Remove a minion from the current hand
-     *
-     * @param cardIdx index of the card to remove
-     */
     void removeMinionFromHand(final int cardIdx) {
         hand.remove(cardIdx);
     }
@@ -89,7 +78,7 @@ final class PlayerGameData {
         if (remCards.isEmpty()) {
             return;
         }
-        hand.add(remCards.remove(0));
+        hand.add(remCards.removeFirst());
     }
 
     /**

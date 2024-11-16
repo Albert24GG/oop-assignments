@@ -10,7 +10,6 @@ import java.util.Optional;
 public final class PlayableMinion extends PlayableCard<Minion> {
     @Getter
     private boolean isFrozen = false;
-
     @NonNull
     private final Config config;
 
@@ -29,32 +28,26 @@ public final class PlayableMinion extends PlayableCard<Minion> {
             return;
         }
 
-        PlayableMinionAbility ability = this.config.getAbility();
+        PlayableMinionAbility ability = config.getAbility();
         if (ability == null) {
             throw new IllegalStateException("Minion has no ability");
         }
 
-        this.config.getAbility().use(this, target);
+        config.getAbility().use(this, target);
     }
 
-    /**
-     * Freeze minion
-     */
     public void freeze() {
         isFrozen = true;
     }
 
-    /**
-     * Unfreeze minion
-     */
     public void unfreeze() {
         isFrozen = false;
     }
 
     /**
      * Get the ability target of the minion.
-     * The target can be either ENEMY (cards belonging to the enemy)
-     * or PLAYER (cards belonging to the player).
+     * The target can be either {@code ENEMY} (cards belonging to the enemy)
+     * or {@code PLAYER} (cards belonging to the player).
      *
      * @return An {@code Optional} containing the ability target, or an empty {@code Optional} if
      * the minion has no ability
@@ -77,11 +70,11 @@ public final class PlayableMinion extends PlayableCard<Minion> {
     }
 
     public PlayableMinion.Placement getPlacement() {
-        return this.config.getPlacement();
+        return config.getPlacement();
     }
 
     public boolean isTank() {
-        return this.config.isTank();
+        return config.isTank();
     }
 
     public enum Placement {

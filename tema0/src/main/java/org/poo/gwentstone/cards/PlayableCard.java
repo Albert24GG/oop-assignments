@@ -14,7 +14,7 @@ public abstract class PlayableCard<T extends Card> {
     /**
      * Return the underlying card that represents this playable card
      *
-     * @return The underlying card
+     * @return The underlying card derived from {@link Card}
      */
     public final T getUnderlyingCard() {
         return card;
@@ -42,33 +42,22 @@ public abstract class PlayableCard<T extends Card> {
      * @param target Target card
      */
     public final void attack(@NonNull final PlayableCard<? extends Card> target) {
-        if (this.currentAttackDamage == null) {
+        if (currentAttackDamage == null) {
             throw new IllegalArgumentException("Attack damage cannot be null");
         }
-        target.currentHealth = Math.max(0, target.currentHealth - this.currentAttackDamage);
+        target.currentHealth = Math.max(0, target.currentHealth - currentAttackDamage);
     }
 
     public final int getMana() {
-        return this.card.getMana();
+        return card.getMana();
     }
 
+    /**
+     * Get he base health of the card
+     *
+     * @return The base health of the card
+     */
     public final int getHealth() {
-        return this.card.getHealth();
-    }
-
-    public final int getAttackDamage() {
-        return this.card.getAttackDamage();
-    }
-
-    public final String getDescription() {
-        return this.card.getDescription();
-    }
-
-    public final List<String> getColors() {
-        return this.card.getColors();
-    }
-
-    public final String getName() {
-        return this.card.getName();
+        return card.getHealth();
     }
 }

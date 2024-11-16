@@ -29,7 +29,7 @@ public final class Player {
         gameData = new PlayerGameData(deckIdx, shuffleSeed, decks.get(deckIdx), hero);
     }
 
-    void addWin() {
+    void registerWin() {
         ++wins;
     }
 }
