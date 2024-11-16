@@ -28,7 +28,7 @@ details from game-specific state, supporting multiple games with different state
 
 ### GameBoard
 
-The `GameBoard` class manages the layout and interaction of cards on the board. It provides methods for placing and
+The `GameBoard` class manages the layout and state of cards on the board. It provides methods for placing and
 moving cards, interacting with them, and managing spaces. The board is the main arena where cards are played and
 abilities are activated.
 
@@ -43,8 +43,8 @@ The `cards` package defines the card hierarchy. The `Card` class is an abstract 
 subclasses `Minion` and `Hero` providing specific card types. Stateful cards that can be played are derived from the
 `PlayableCard` class, with `PlayableMinion` and `PlayableHero` adding unique behaviors and states. Each card’s abilities
 are defined based on card type and can target either friendly or enemy cards. Because the underlying card of the
-`PlayableCard` had to be retrieved by its type, not the generic `Card` type, I found that a clean `PlayableCard`
-solution was to use a generic type parameter to specify the underlying card type, that extends `Card`.
+`PlayableCard` had to be retrieved by its type, not the base `Card` type, I found that a clean solution was to use a
+generic type parameter to specify the real underlying, that extends `Card`, rather than using an upcast.
 
 ### Action and ActionFactory
 
@@ -53,20 +53,25 @@ type. The `ActionFactory` class generates `Action` objects based on input parame
 creating and executing actions. Each `Action` produces an `ActionOutput`, which can be converted to JSON, making it
 easier to handle and display results.
 
+### GameErrorType
+
+The `GameErrorType` enum defines error types that can occur during gameplay (such as illegal moves or invalid states)
+and maps specific error messages to each type.
+
 ### Utils Package
 
-The `utils` package contains helper classes for parsing input, mapping objects to JSON, and handling common error
-messages. These utilities support various backend functionalities, improving code readability and maintainability.
+The `utils` package contains helper classes for parsing input, mapping objects to JSON, and defining the game error
+types. These utilities support various backend functionalities, improving code readability and maintainability.
 
 ## Game Flow and Interactions
 
 ### Main Game Loop
 
 Initially, the players are created and initialized with their respective decks. For each game, a new `GameManager` is
-created through the `startNewGame` method, which sets up the all game components such as the game state, and the state
-of each player (including their selected deck). The game then progresses by executing each action. When reading an
+constructed through the `startNewGame` method, which sets up the all game components such as the game state, and the
+state of each player (including their selected deck). The game then progresses by executing each action. When reading an
 action from the input, the `ActionFactory` is used to create the corresponding `Action` object, which is then executed.
-This action is just a proxy to the actual action that is executed by the `GameManager`, and that also processes the
+This action is just a proxy to the actual action that is executed by the `GameManager` that also processes the
 output of the action. Finally, the `ActionOutput` resulted from the execution of the action is converted to JSON and
 added to the output list (if the action produced any output).
 
@@ -76,10 +81,17 @@ added to the output list (if the action produced any output).
   and return them as JSON.
 
 - **Attack/Use ability actions**: these actions are not particularly complex, but they require some validation to
-  ensure that the action is legal. Apart from that, the execution of the ability/attack is handled through the methods
-  provided by the `PlayableCard` class and its subclasses. At the end of the action, the card is marked as used, and
-  it is checked if it should be removed from the board. Also, we check if the game has ended after the action and invoke
-  the appropriate routines if it has.
+  ensure that the action is legal. Most common validations are made through separate methods, to avoid code duplication.
+  Apart from those, the execution of the ability/attack is handled through the methods provided by the `PlayableCard`
+  class and its subclasses. At the end of the action, the card is marked as used, and it is checked if it should be
+  removed from the board. Also, we check if the game has ended after the action and invoke the appropriate routines if
+  it has.
 
 - **End turn action**: this action is pretty straightforward, as it just switches the turn to the other player. It also
   invokes some routines associated with the rules of the game, such as unfreezing the cards of the current player.
+
+### Error Handling
+
+The game uses a centralized error handling system through the `ActionException` class. Each game action that cannot be
+performed throws an `ActionException` with a specific `GameErrorType` enum value, allowing for consistent error handling
+and appropriate feedback. This approach ensures that illegal moves and invalid states are caught and handled uniformly.
