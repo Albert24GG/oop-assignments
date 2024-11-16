@@ -36,10 +36,16 @@ public final class PlayableMinion extends PlayableCard<Minion> {
         config.getAbility().use(this, target);
     }
 
+    /**
+     * Freeze minion
+     */
     public void freeze() {
         isFrozen = true;
     }
 
+    /**
+     * Unfreeze minion
+     */
     public void unfreeze() {
         isFrozen = false;
     }
