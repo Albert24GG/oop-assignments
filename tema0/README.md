@@ -1,4 +1,5 @@
 # OOP Assignment - GwentStone
+### Student: Guiman Albert, 325CA
 
 ## Game Overview
 
