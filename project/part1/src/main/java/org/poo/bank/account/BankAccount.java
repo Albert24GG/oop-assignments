@@ -1,5 +1,6 @@
 package org.poo.bank.account;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -8,7 +9,10 @@ import org.poo.utils.Utils;
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public abstract class BankAccount {
     @Getter
-    private final Iban iban = Iban.generate();
+    private final String iban = generateIban();
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
+    private String alias;
     private final Type type;
     private final String currency;
     @Getter
@@ -30,12 +34,6 @@ public abstract class BankAccount {
         }
     }
 
-    public record Iban(String value) {
-        public static Iban generate() {
-            return new Iban(Utils.generateIBAN());
-        }
-    }
-
     /**
      * Creates a new bank account
      *
@@ -53,5 +51,14 @@ public abstract class BankAccount {
             case CLASSIC -> new ClassicBankAcc(owner, currency);
             case null -> null;
         };
+    }
+
+    /**
+     * Generates a new IBAN
+     *
+     * @return the generated IBAN
+     */
+    public static String generateIban() {
+        return Utils.generateIBAN();
     }
 }

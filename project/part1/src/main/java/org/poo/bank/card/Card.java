@@ -12,17 +12,11 @@ public abstract class Card {
     private final BankAccount linkedAccount;
     private final Type type;
     @Getter
-    private final Number number = Number.generate();
+    private final String number = generateNumber();
     private boolean frozen = false;
 
     public enum Type {
         DEBIT, SINGLE_USE;
-    }
-
-    public record Number(String value) {
-        public static Number generate() {
-            return new Number(Utils.generateCardNumber());
-        }
     }
 
     public static Card createCard(Type type, BankAccount account) {
@@ -40,6 +34,15 @@ public abstract class Card {
      */
     public UserAccount getOwner() {
         return linkedAccount.getOwner();
+    }
+
+    /**
+     * Generates a new card number
+     *
+     * @return the generated card number
+     */
+    public static String generateNumber() {
+        return Utils.generateCardNumber();
     }
 
 }
