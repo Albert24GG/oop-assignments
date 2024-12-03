@@ -8,4 +8,16 @@ public class SavingsBankAcc extends BankAccount {
         this.interestRate = interestRate;
     }
 
+    @Override
+    void changeInterestRate(double interestRate) {
+        if (interestRate < 0) {
+            throw new IllegalArgumentException("Interest rate must be positive");
+        }
+        this.interestRate = interestRate;
+    }
+
+    @Override
+    void collectInterest() {
+        setBalance(getBalance() * (1 + interestRate));
+    }
 }
