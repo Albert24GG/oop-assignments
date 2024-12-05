@@ -1,5 +1,6 @@
 package org.poo.bank.card;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
@@ -7,6 +8,7 @@ import org.poo.bank.account.UserAccount;
 import org.poo.utils.Utils;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public abstract class Card {
     @Getter
     private final BankAccount linkedAccount;
@@ -20,11 +22,13 @@ public abstract class Card {
     }
 
     public static Card createCard(Type type, BankAccount account) {
-        return switch (type) {
+        Card card = switch (type) {
             case DEBIT -> new DebitCard(account);
             case SINGLE_USE -> new SingleUseCard(account);
             case null -> null;
         };
+        account.addCard(card);
+        return card;
     }
 
     /**

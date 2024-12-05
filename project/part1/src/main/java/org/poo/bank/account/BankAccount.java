@@ -1,13 +1,19 @@
 package org.poo.bank.account;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.poo.bank.card.Card;
 import org.poo.utils.Utils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public abstract class BankAccount {
     @Getter
     private final String iban = generateIban();
@@ -18,6 +24,8 @@ public abstract class BankAccount {
     private final String currency;
     @Getter
     private final UserAccount owner;
+    @Getter
+    private final Set<Card> cards = new HashSet<>();
     @Setter(AccessLevel.PROTECTED)
     @Getter
     private double balance = 0.0;
@@ -63,6 +71,20 @@ public abstract class BankAccount {
      */
     public static String generateIban() {
         return Utils.generateIBAN();
+    }
+
+    /**
+     * Adds a card to the account
+     *
+     * @param card the card to add
+     * @throws IllegalArgumentException if the card is not linked to this account
+     */
+    public void addCard(final Card card) {
+        if (card.getLinkedAccount() != this) {
+            throw new IllegalArgumentException("Card must be linked to this account");
+        }
+
+        cards.add(card);
     }
 
     void addFunds(final double amount) {
