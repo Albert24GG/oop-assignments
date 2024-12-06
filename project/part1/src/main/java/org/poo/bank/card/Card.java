@@ -9,11 +9,11 @@ import org.poo.utils.Utils;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
+@Getter(lombok.AccessLevel.PACKAGE)
 public abstract class Card {
-    @Getter
+    @Getter(lombok.AccessLevel.PUBLIC)
     private final BankAccount linkedAccount;
     private final Type type;
-    @Getter
     private final String number = generateNumber();
     private boolean frozen = false;
 

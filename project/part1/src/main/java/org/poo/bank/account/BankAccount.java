@@ -14,22 +14,19 @@ import java.util.Set;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
+@Getter(AccessLevel.PACKAGE)
 public abstract class BankAccount {
-    @Getter
+    @Getter(AccessLevel.PUBLIC)
     private final String iban = generateIban();
-    @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
     private String alias;
     private final Type type;
     private final String currency;
-    @Getter
+    @Getter(AccessLevel.PUBLIC)
     private final UserAccount owner;
-    @Getter
     private final Set<Card> cards = new HashSet<>();
     @Setter(AccessLevel.PROTECTED)
-    @Getter
     private double balance = 0.0;
-    @Getter
     private double minBalance = 0.0;
 
     public enum Type {
