@@ -18,14 +18,8 @@ public final class CardService {
      * @param account the bank account of the card
      * @param type    the type of the card
      * @return the created card
-     * @throws IllegalArgumentException if the card already exists
      */
-    public Card createCard(@NonNull final BankAccount account, final Card.Type type)
-            throws IllegalArgumentException {
-        if (cards.containsKey(account.getIban())) {
-            throw new IllegalArgumentException("Card already exists");
-        }
-
+    public Card createCard(@NonNull final BankAccount account, final Card.Type type) {
         Card card = Card.createCard(type, account);
         cards.put(card.getNumber(), card);
         return card;
