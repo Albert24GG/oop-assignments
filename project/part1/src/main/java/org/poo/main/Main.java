@@ -80,6 +80,11 @@ public final class Main {
 
         Bank bank = new Bank();
 
+        // Register the exchange rates
+        Arrays.stream(inputData.getExchangeRates()).toList().forEach(rate -> {
+            bank.registerExchangeRate(rate.getFrom(), rate.getTo(), rate.getRate());
+        });
+
         // Add the users to the bank
         Arrays.stream(inputData.getUsers()).toList().forEach(user -> {
             bank.createUser(user.getFirstName(), user.getLastName(), user.getEmail());

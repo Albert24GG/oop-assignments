@@ -46,6 +46,17 @@ public final class Bank {
     }
 
     /**
+     * Register an exchange rate between two currencies.
+     *
+     * @param from the currency to convert from
+     * @param to   the currency to convert to
+     * @param rate the exchange rate
+     */
+    public void registerExchangeRate(final String from, final String to, final double rate) {
+        currencyExchangeService.updateExchangeRate(from.toLowerCase(), to.toLowerCase(), rate);
+    }
+
+    /**
      * Get a list of views of the users.
      *
      * @return the list of users
