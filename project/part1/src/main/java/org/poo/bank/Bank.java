@@ -14,6 +14,7 @@ import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.transaction.impl.GenericLog;
 
 import java.util.List;
+import java.util.Optional;
 
 public final class Bank {
     private final CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();
@@ -21,6 +22,28 @@ public final class Bank {
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
     private final TransactionService transactionService = new TransactionService();
+
+    private BankAccount getBankAccount(final String accountIban) {
+        return Optional.ofNullable(bankAccService.getAccount(accountIban))
+                .orElseThrow(() -> new IllegalArgumentException("Bank account not found"));
+    }
+
+    private UserAccount getUserAccount(final String email) {
+        return Optional.ofNullable(userService.getUser(email))
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    private Card getCard(final String cardNumber) {
+        return Optional.ofNullable(cardService.getCard(cardNumber))
+                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
+    }
+
+    private void validateOwner(final UserAccount owner, final BankAccount account) {
+        Optional.ofNullable(account.getOwner())
+                .filter(owner::equals)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("User is not the owner of the account"));
+    }
 
     /**
      * Get a list of views of the users.
@@ -58,7 +81,7 @@ public final class Bank {
      */
     public void createAccount(final String ownerEmail, final String currency,
                               final String type, final double interestRate,
-                              int timestamp) {
+                              final int timestamp) {
         BankAccount.Type accountType = BankAccount.Type.fromString(type);
 
         if (accountType == null) {
@@ -95,19 +118,16 @@ public final class Bank {
      */
     public void createCard(final String ownerEmail, final String accountIban, final String type,
                            final int timestamp) {
-        UserAccount userAccount = userService.getUser(ownerEmail);
-        BankAccount bankAccount = bankAccService.getAccount(accountIban);
-        Card.Type cardType = Card.Type.fromString(type);
+        UserAccount userAccount = getUserAccount(ownerEmail);
+        BankAccount bankAccount = getBankAccount(accountIban);
+        validateOwner(userAccount, bankAccount);
 
-        if (userAccount == null || bankAccount == null) {
-            throw new IllegalArgumentException("User or bank account not found");
-        }
+        Card.Type cardType = Card.Type.fromString(type);
         if (cardType == null) {
             throw new IllegalArgumentException("Invalid card type");
         }
 
         TransactionLog transactionLog;
-
         // If the user is not the owner of the account, the card creation fails and an error is
         // logged
         if (userAccount != bankAccount.getOwner()) {
@@ -137,10 +157,7 @@ public final class Bank {
      * @throws IllegalArgumentException if the account does not exist
      */
     public void addFunds(final String accountIban, final double amount, final int timestamp) {
-        BankAccount account = bankAccService.getAccount(accountIban);
-        if (account == null) {
-            throw new IllegalArgumentException("Account not found");
-        }
+        BankAccount account = getBankAccount(accountIban);
         bankAccService.addFunds(account, amount);
     }
 
@@ -159,14 +176,10 @@ public final class Bank {
      */
     public void deleteAccount(final String ownerEmail, final String accountIban,
                               final int timestamp) {
-        UserAccount userAccount = userService.getUser(ownerEmail);
-        BankAccount bankAccount = bankAccService.getAccount(accountIban);
-        if (userAccount == null || bankAccount == null) {
-            throw new IllegalArgumentException("User or bank account not found");
-        }
-        if (userAccount != bankAccount.getOwner()) {
-            throw new IllegalArgumentException("User is not the owner of the account");
-        }
+        UserAccount userAccount = getUserAccount(ownerEmail);
+        BankAccount bankAccount = getBankAccount(accountIban);
+        validateOwner(userAccount, bankAccount);
+
         if (bankAccount.getBalance() != 0) {
             TransactionLog transactionLog = GenericLog.builder()
                     .timestamp(timestamp)
@@ -195,10 +208,7 @@ public final class Bank {
      * @throws IllegalArgumentException if the card does not exist
      */
     public void deleteCard(final String cardNumber, final int timestamp) {
-        Card card = cardService.getCard(cardNumber);
-        if (card == null) {
-            throw new IllegalArgumentException("Card not found");
-        }
+        Card card = getCard(cardNumber);
         cardService.removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
 
