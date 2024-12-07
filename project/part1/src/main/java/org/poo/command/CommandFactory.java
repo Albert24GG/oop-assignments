@@ -12,6 +12,7 @@ public final class CommandFactory {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, BiFunction<Integer, CommandInput, Command>> COMMANDS =
             Map.ofEntries(
+                    Map.entry("printUsers", PrintUsers::new),
                     Map.entry("addAccount", AddAccount::new),
                     Map.entry("createCard", CreateCard::new),
                     Map.entry("addFunds", AddFunds::new)
@@ -31,6 +32,23 @@ public final class CommandFactory {
     public static Command getCommand(final String command, final int timestamp,
                                      final CommandInput input) {
         return COMMANDS.getOrDefault(command, (t, i) -> null).apply(timestamp, input);
+    }
+
+    private static final class PrintUsers extends Command {
+        private PrintUsers(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            var users = bank.getUsers();
+            return Optional.of(
+                    CommandOutput.builder()
+                            .command("printUsers")
+                            .timestamp(getTimestamp())
+                            .output(MAPPER.valueToTree(bank.getUsers()))
+                            .build());
+        }
     }
 
     private static final class AddAccount extends Command {
