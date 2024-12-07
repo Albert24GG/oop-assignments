@@ -76,4 +76,55 @@ public final class Bank {
         transactionService.logTransaction(account, transactionLog);
     }
 
+    /**
+     * Create a new card linked to the given account.
+     *
+     * @param ownerEmail  the email of the owner
+     * @param accountIban the IBAN of the account
+     * @param type        the type of the card. Valid values are:
+     *                    <ul>
+     *                    <li>DEBIT</li>
+     *                    <li>SINGLE_USE</li>
+     *                    </ul>
+     * @param timestamp   the timestamp of the card creation
+     * @throws IllegalArgumentException if any of the following conditions is met:
+     *                                  <ul/
+     *                                  <li>the user/bank account does not exist</li>
+     *                                  <li>the card type is invalid</li>
+     *                                  </ul>
+     */
+    public void createCard(final String ownerEmail, final String accountIban, final String type,
+                           final int timestamp) {
+        UserAccount userAccount = userService.getUser(ownerEmail);
+        BankAccount bankAccount = bankAccService.getAccount(accountIban);
+        Card.Type cardType = Card.Type.fromString(type);
+
+        if (userAccount == null || bankAccount == null) {
+            throw new IllegalArgumentException("User or bank account not found");
+        }
+        if (cardType == null) {
+            throw new IllegalArgumentException("Invalid card type");
+        }
+
+        TransactionLog transactionLog;
+
+        // If the user is not the owner of the account, the card creation fails and an error is
+        // logged
+        if (userAccount != bankAccount.getOwner()) {
+            transactionLog = GenericLog.builder()
+                    .timestamp(timestamp)
+                    .error("Card creation failed")
+                    .build();
+        } else {
+            Card newCard = cardService.createCard(bankAccount, cardType);
+            transactionLog = CardOpLog.builder()
+                    .timestamp(timestamp)
+                    .card(newCard.getNumber())
+                    .cardHolder(userAccount.getEmail())
+                    .account(bankAccount.getIban())
+                    .build();
+        }
+
+        transactionService.logTransaction(bankAccount, transactionLog);
+    }
 }

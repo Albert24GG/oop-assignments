@@ -12,7 +12,8 @@ public final class CommandFactory {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, BiFunction<Integer, CommandInput, Command>> COMMANDS =
             Map.ofEntries(
-                    Map.entry("addAccount", AddAccount::new)
+                    Map.entry("addAccount", AddAccount::new),
+                    Map.entry("createCard", CreateCard::new)
             );
 
     private CommandFactory() {
@@ -44,6 +45,24 @@ public final class CommandFactory {
                     input.getCurrency(),
                     input.getAccountType(),
                     input.getInterestRate(),
+                    getTimestamp()
+            );
+            return Optional.empty();
+        }
+    }
+
+    private static final class CreateCard extends Command {
+        private CreateCard(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            bank.createCard(
+                    input.getEmail(),
+                    input.getAccount(),
+                    "DEBIT",
                     getTimestamp()
             );
             return Optional.empty();
