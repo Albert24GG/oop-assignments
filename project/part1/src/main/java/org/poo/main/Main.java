@@ -89,13 +89,17 @@ public final class Main {
             Command cmd = CommandFactory.getCommand(cmdInput.getCommand(), cmdInput.getTimestamp(),
                     cmdInput);
             if (cmd == null) {
-                throw new IllegalArgumentException("Invalid/Unsupported command: " + cmdInput.getCommand());
+                throw new IllegalArgumentException(
+                        "Invalid/Unsupported command: " + cmdInput.getCommand());
             }
             cmd.execute(bank).ifPresent(commandOutput -> {
                 output.add(commandOutput.toJson());
             });
         }
 
+
+        // Reset the random seed to ensure the output is deterministic
+        Utils.resetRandom();
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
     }
