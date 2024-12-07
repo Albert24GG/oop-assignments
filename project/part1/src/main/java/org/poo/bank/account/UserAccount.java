@@ -21,4 +21,17 @@ public class UserAccount {
     public String getId() {
         return email;
     }
+
+    /**
+     * Add a bank account to the user account.
+     *
+     * @param account the bank account to add
+     * @throws IllegalArgumentException if the account does not belong to the user
+     */
+    public void addAccount(final BankAccount account) {
+        if (account.getOwner() != this) {
+            throw new IllegalArgumentException("The account does not belong to the user");
+        }
+        accounts.add(account);
+    }
 }
