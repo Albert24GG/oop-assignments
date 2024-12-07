@@ -11,6 +11,7 @@ public abstract class TransactionLog {
     private final String error;
 
     public enum Type {
+        GENERIC,
         ACCOUNT_CREATION,
         CARD_OPERATION,
         INTEREST_OPERATION,
