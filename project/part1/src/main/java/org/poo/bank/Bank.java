@@ -73,7 +73,7 @@ public final class Bank {
                 .timestamp(timestamp)
                 .description("New account created")
                 .build();
-        transactionService.logTransaction(account, transactionLog);
+        transactionService.logTransaction(account.getIban(), transactionLog);
     }
 
     /**
@@ -125,7 +125,7 @@ public final class Bank {
                     .build();
         }
 
-        transactionService.logTransaction(bankAccount, transactionLog);
+        transactionService.logTransaction(accountIban, transactionLog);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class Bank {
                     .timestamp(timestamp)
                     .error("Account couldn't be deleted - there are funds remaining")
                     .build();
-            transactionService.logTransaction(bankAccount, transactionLog);
+            transactionService.logTransaction(accountIban, transactionLog);
             throw new IllegalArgumentException(
                     "Account couldn't be deleted - see org.poo.transactions for details");
         }
@@ -181,7 +181,7 @@ public final class Bank {
                 .timestamp(timestamp)
                 .description("Account deleted")
                 .build();
-        transactionService.logTransaction(bankAccount, transactionLog);
+        transactionService.logTransaction(accountIban, transactionLog);
         // Remove the account and its cards
         bankAccService.removeAccount(bankAccount);
         bankAccount.getCards().forEach(cardService::removeCard);

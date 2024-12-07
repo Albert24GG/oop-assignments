@@ -11,17 +11,17 @@ import java.util.Map;
 
 public final class TransactionService {
     /**
-     * Map of bank accounts to their transaction logs.
+     * Map of bank accounts(IBANs) to their transaction logs.
      */
-    private final Map<BankAccount, List<TransactionLog>> logs = new HashMap<>();
+    private final Map<String, List<TransactionLog>> logs = new HashMap<>();
 
     /**
      * Logs a transaction.
      *
-     * @param account the account to log the transaction for
+     * @param account the IBAN of the account to log the transaction for
      * @param log     the transaction log to log
      */
-    public void logTransaction(@NonNull final BankAccount account,
+    public void logTransaction(final String account,
                                @NonNull final TransactionLog log) {
         logs.computeIfAbsent(account, k -> new ArrayList<>()).add(log);
     }
@@ -29,20 +29,20 @@ public final class TransactionService {
     /**
      * Gets the transaction logs for an account.
      *
-     * @param account the account to get the transaction logs for
+     * @param account the IBAN of the account to get the transaction logs for
      * @return the transaction logs for the account
      */
-    public List<TransactionLog> getLogs(@NonNull final BankAccount account) {
+    public List<TransactionLog> getLogs(final String account) {
         return Collections.unmodifiableList(logs.getOrDefault(account, new ArrayList<>()));
     }
 
     /**
      * Removes the transaction logs for an account.
      *
-     * @param account the account to remove the transaction logs for
-     * @return the transaction logs for the account
+     * @param account the IBAN of the account to remove the transaction logs for
+     * @return the transaction logs for the account, or{@code null} if the account does not exist
      */
-    public List<TransactionLog> removeLogs(@NonNull final BankAccount account) {
+    public List<TransactionLog> removeLogs(final String account) {
         return logs.remove(account);
     }
 }
