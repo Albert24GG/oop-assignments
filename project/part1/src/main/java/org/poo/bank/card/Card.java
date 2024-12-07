@@ -40,7 +40,9 @@ public abstract class Card {
             case SINGLE_USE -> new SingleUseCard(account);
             case null -> null;
         };
-        account.addCard(card);
+        if (card != null) {
+            account.addCard(card);
+        }
         return card;
     }
 
