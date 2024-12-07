@@ -31,9 +31,15 @@ public abstract class BankAccount {
     public enum Type {
         SAVINGS, CLASSIC;
 
-        public Type fromString(final String type) {
+        /**
+         * Converts a string to a bank account type
+         *
+         * @param type the string to convert
+         * @return the bank account type or null if the string is not a valid bank account type
+         */
+        public static Type fromString(final String type) {
             try {
-                return Type.valueOf(type);
+                return Type.valueOf(type.toUpperCase());
             } catch (IllegalArgumentException e) {
                 return null;
             }
