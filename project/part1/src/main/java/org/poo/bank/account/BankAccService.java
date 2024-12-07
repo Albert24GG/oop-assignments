@@ -56,6 +56,7 @@ public final class BankAccService {
      * @return the removed account, or {@code null} if the account does not exist
      */
     public BankAccount removeAccount(@NonNull final BankAccount account) {
+        account.getOwner().removeAccount(account);
         accounts.remove(account.getAlias());
         return accounts.remove(account.getIban());
     }

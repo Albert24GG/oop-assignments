@@ -2,6 +2,7 @@ package org.poo.bank.account;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.poo.bank.Bank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,5 +36,15 @@ public class UserAccount {
             throw new IllegalArgumentException("The account does not belong to the user");
         }
         accounts.add(account);
+    }
+
+    /**
+     * Remove a bank account from the user account.
+     *
+     * @param account the bank account to remove
+     * @return the removed account, or {@code null} if the account does not exist
+     */
+    public BankAccount removeAccount(final BankAccount account) {
+        return accounts.remove(account) ? account : null;
     }
 }
