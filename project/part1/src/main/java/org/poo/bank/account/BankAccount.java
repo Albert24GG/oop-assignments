@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.poo.bank.card.Card;
 import org.poo.utils.Utils;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
@@ -23,7 +23,7 @@ public abstract class BankAccount {
     private final Type type;
     private final String currency;
     private final UserAccount owner;
-    private final Set<Card> cards = new HashSet<>();
+    private final Set<Card> cards = new LinkedHashSet<>();
     @Setter(AccessLevel.PROTECTED)
     private double balance = 0.0;
     private double minBalance = 0.0;
