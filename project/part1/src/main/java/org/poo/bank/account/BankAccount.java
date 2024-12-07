@@ -13,16 +13,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@EqualsAndHashCode
-@Getter(AccessLevel.PACKAGE)
+@EqualsAndHashCode(exclude = "cards")
+@Getter
 public abstract class BankAccount {
-    @Getter(AccessLevel.PUBLIC)
     private final String iban = generateIban();
+    @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
     private String alias;
     private final Type type;
     private final String currency;
-    @Getter(AccessLevel.PUBLIC)
     private final UserAccount owner;
     private final Set<Card> cards = new HashSet<>();
     @Setter(AccessLevel.PROTECTED)

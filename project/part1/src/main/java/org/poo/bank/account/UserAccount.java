@@ -1,11 +1,13 @@
 package org.poo.bank.account;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Getter
 public class UserAccount {
     private final String firstName;
     private final String lastName;
