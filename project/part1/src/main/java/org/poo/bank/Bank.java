@@ -42,4 +42,38 @@ public final class Bank {
         userService.createUser(firstName, lastName, email);
     }
 
+    /**
+     * Create a new bank account.
+     *
+     * @param ownerEmail   the email of the owner
+     * @param currency     the currency of the account
+     * @param type         the type of the account. Valid values are:
+     *                     <ul>
+     *                     <li>SAVINGS</li>
+     *                     <li>CLASSIC</li>
+     *                     </ul>
+     * @param interestRate the interest rate of the account
+     * @param timestamp    the timestamp of the account creation
+     * @throws IllegalArgumentException if the account type is invalid
+     */
+    public void createAccount(final String ownerEmail, final String currency,
+                              final String type, final double interestRate,
+                              int timestamp) {
+        BankAccount.Type accountType = BankAccount.Type.fromString(type);
+
+        if (accountType == null) {
+            throw new IllegalArgumentException("Invalid account type");
+        }
+
+        BankAccount account =
+                bankAccService.createAccount(userService.getUser(ownerEmail), currency, accountType,
+                        interestRate);
+
+        TransactionLog transactionLog = AccountCreationLog.builder()
+                .timestamp(timestamp)
+                .description("New account created")
+                .build();
+        transactionService.logTransaction(account, transactionLog);
+    }
+
 }

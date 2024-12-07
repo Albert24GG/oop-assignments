@@ -12,6 +12,7 @@ public final class CommandFactory {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, BiFunction<Integer, CommandInput, Command>> COMMANDS =
             Map.ofEntries(
+                    Map.entry("addAccount", AddAccount::new)
             );
 
     private CommandFactory() {
@@ -30,4 +31,22 @@ public final class CommandFactory {
         return COMMANDS.getOrDefault(command, (t, i) -> null).apply(timestamp, input);
     }
 
+    private static final class AddAccount extends Command {
+        private AddAccount(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            bank.createAccount(
+                    input.getEmail(),
+                    input.getCurrency(),
+                    input.getAccountType(),
+                    input.getInterestRate(),
+                    getTimestamp()
+            );
+            return Optional.empty();
+        }
+    }
 }
