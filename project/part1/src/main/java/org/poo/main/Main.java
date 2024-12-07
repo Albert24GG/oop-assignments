@@ -3,8 +3,12 @@ package org.poo.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.poo.bank.Bank;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
+import org.poo.command.Command;
+import org.poo.command.CommandFactory;
+import org.poo.fileio.CommandInput;
 import org.poo.fileio.ObjectInput;
 
 import java.io.File;
@@ -74,24 +78,23 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
-        /*
-         * TODO Implement your function here
-         *
-         * How to add output to the output array?
-         * There are multiple ways to do this, here is one example:
-         *
-         * ObjectMapper mapper = new ObjectMapper();
-         *
-         * ObjectNode objectNode = mapper.createObjectNode();
-         * objectNode.put("field_name", "field_value");
-         *
-         * ArrayNode arrayNode = mapper.createArrayNode();
-         * arrayNode.add(objectNode);
-         *
-         * output.add(arrayNode);
-         * output.add(objectNode);
-         *
-         */
+        Bank bank = new Bank();
+
+        // Add the users to the bank
+        Arrays.stream(inputData.getUsers()).toList().forEach(user -> {
+            bank.createUser(user.getFirstName(), user.getLastName(), user.getEmail());
+        });
+
+        for (CommandInput cmdInput : inputData.getCommands()) {
+            Command cmd = CommandFactory.getCommand(cmdInput.getCommand(), cmdInput.getTimestamp(),
+                    cmdInput);
+            if (cmd == null) {
+                throw new IllegalArgumentException("Invalid/Unsupported command: " + cmdInput.getCommand());
+            }
+            cmd.execute(bank).ifPresent(commandOutput -> {
+                output.add(commandOutput.toJson());
+            });
+        }
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
