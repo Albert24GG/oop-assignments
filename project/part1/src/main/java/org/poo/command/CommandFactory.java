@@ -13,7 +13,8 @@ public final class CommandFactory {
     private static final Map<String, BiFunction<Integer, CommandInput, Command>> COMMANDS =
             Map.ofEntries(
                     Map.entry("addAccount", AddAccount::new),
-                    Map.entry("createCard", CreateCard::new)
+                    Map.entry("createCard", CreateCard::new),
+                    Map.entry("addFunds", AddFunds::new)
             );
 
     private CommandFactory() {
@@ -63,6 +64,23 @@ public final class CommandFactory {
                     input.getEmail(),
                     input.getAccount(),
                     "DEBIT",
+                    getTimestamp()
+            );
+            return Optional.empty();
+        }
+    }
+
+    private static final class AddFunds extends Command {
+        private AddFunds(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            bank.addFunds(
+                    input.getAccount(),
+                    input.getAmount(),
                     getTimestamp()
             );
             return Optional.empty();

@@ -127,4 +127,20 @@ public final class Bank {
 
         transactionService.logTransaction(bankAccount, transactionLog);
     }
+
+    /**
+     * Add funds to the given account.
+     *
+     * @param accountIban the IBAN of the account
+     * @param amount      the amount to add
+     * @param timestamp   the timestamp of the operation
+     * @throws IllegalArgumentException if the account does not exist
+     */
+    public void addFunds(final String accountIban, final double amount, final int timestamp) {
+        BankAccount account = bankAccService.getAccount(accountIban);
+        if (account == null) {
+            throw new IllegalArgumentException("Account not found");
+        }
+        bankAccService.addFunds(account, amount);
+    }
 }
