@@ -18,6 +18,20 @@ public abstract class Card {
 
     public enum Type {
         DEBIT, SINGLE_USE;
+
+        /**
+         * Converts a string to a card type
+         *
+         * @param type the string to convert
+         * @return the card type or null if the string is not a valid card type
+         */
+        public static Type fromString(String type) {
+            try {
+                return Type.valueOf(type.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
     }
 
     public static Card createCard(Type type, BankAccount account) {
