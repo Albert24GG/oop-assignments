@@ -186,4 +186,29 @@ public final class Bank {
         bankAccService.removeAccount(bankAccount);
         bankAccount.getCards().forEach(cardService::removeCard);
     }
+
+    /**
+     * Delete a specific card.
+     *
+     * @param cardNumber the number of the card
+     * @param timestamp  the timestamp of the operation
+     * @throws IllegalArgumentException if the card does not exist
+     */
+    public void deleteCard(final String cardNumber, final int timestamp) {
+        Card card = cardService.getCard(cardNumber);
+        if (card == null) {
+            throw new IllegalArgumentException("Card not found");
+        }
+        cardService.removeCard(card);
+        BankAccount linkedAccount = card.getLinkedAccount();
+
+        TransactionLog transactionLog = CardOpLog.builder()
+                .timestamp(timestamp)
+                .card(cardNumber)
+                .cardHolder(linkedAccount.getOwner().getEmail())
+                .account(linkedAccount.getIban())
+                .description("Card deleted")
+                .build();
+        transactionService.logTransaction(linkedAccount.getIban(), transactionLog);
+    }
 }

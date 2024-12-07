@@ -17,7 +17,8 @@ public final class CommandFactory {
                     Map.entry("addAccount", AddAccount::new),
                     Map.entry("createCard", CreateCard::new),
                     Map.entry("addFunds", AddFunds::new),
-                    Map.entry("deleteAccount", DeleteAccount::new)
+                    Map.entry("deleteAccount", DeleteAccount::new),
+                    Map.entry("deleteCard", DeleteCard::new)
             );
 
     private CommandFactory() {
@@ -43,7 +44,6 @@ public final class CommandFactory {
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
-            var users = bank.getUsers();
             return Optional.of(
                     CommandOutput.builder()
                             .command("printUsers")
@@ -134,6 +134,22 @@ public final class CommandFactory {
                             .timestamp(getTimestamp())
                             .output(output)
                             .build());
+        }
+    }
+
+    private static final class DeleteCard extends Command {
+        private DeleteCard(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            bank.deleteCard(
+                    input.getCardNumber(),
+                    getTimestamp()
+            );
+            return Optional.empty();
         }
     }
 }
