@@ -143,4 +143,47 @@ public final class Bank {
         }
         bankAccService.addFunds(account, amount);
     }
+
+    /**
+     * Delete a specific account of a user.
+     *
+     * @param ownerEmail  the email of the owner
+     * @param accountIban the IBAN of the account
+     * @param timestamp   the timestamp of the operation
+     * @throws IllegalArgumentException if one of the following conditions is met:
+     *                                  <ul>
+     *                                      <li>the user/bank account does not exist</li>
+     *                                      <li>the user is not the owner of the account</li>
+     *                                      <li>the account has funds remaining</li>
+     *                                  </ul>
+     */
+    public void deleteAccount(final String ownerEmail, final String accountIban,
+                              final int timestamp) {
+        UserAccount userAccount = userService.getUser(ownerEmail);
+        BankAccount bankAccount = bankAccService.getAccount(accountIban);
+        if (userAccount == null || bankAccount == null) {
+            throw new IllegalArgumentException("User or bank account not found");
+        }
+        if (userAccount != bankAccount.getOwner()) {
+            throw new IllegalArgumentException("User is not the owner of the account");
+        }
+        if (bankAccount.getBalance() != 0) {
+            TransactionLog transactionLog = GenericLog.builder()
+                    .timestamp(timestamp)
+                    .error("Account couldn't be deleted - there are funds remaining")
+                    .build();
+            transactionService.logTransaction(bankAccount, transactionLog);
+            throw new IllegalArgumentException(
+                    "Account couldn't be deleted - see org.poo.transactions for details");
+        }
+
+        TransactionLog transactionLog = GenericLog.builder()
+                .timestamp(timestamp)
+                .description("Account deleted")
+                .build();
+        transactionService.logTransaction(bankAccount, transactionLog);
+        // Remove the account and its cards
+        bankAccService.removeAccount(bankAccount);
+        bankAccount.getCards().forEach(cardService::removeCard);
+    }
 }

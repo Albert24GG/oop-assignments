@@ -1,6 +1,7 @@
 package org.poo.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Bank;
 import org.poo.fileio.CommandInput;
 
@@ -15,7 +16,8 @@ public final class CommandFactory {
                     Map.entry("printUsers", PrintUsers::new),
                     Map.entry("addAccount", AddAccount::new),
                     Map.entry("createCard", CreateCard::new),
-                    Map.entry("addFunds", AddFunds::new)
+                    Map.entry("addFunds", AddFunds::new),
+                    Map.entry("deleteAccount", DeleteAccount::new)
             );
 
     private CommandFactory() {
@@ -102,6 +104,36 @@ public final class CommandFactory {
                     getTimestamp()
             );
             return Optional.empty();
+        }
+    }
+
+    private static final class DeleteAccount extends Command {
+        private DeleteAccount(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            ObjectNode output = MAPPER.createObjectNode();
+            try {
+                bank.deleteAccount(
+                        input.getEmail(),
+                        input.getAccount(),
+                        getTimestamp()
+                );
+                output.put("success", "Account deleted")
+                        .put("timestamp", getTimestamp());
+            } catch (IllegalArgumentException e) {
+                output.put("error", e.getMessage())
+                        .put("timestamp", getTimestamp());
+            }
+            return Optional.of(
+                    CommandOutput.builder()
+                            .command("deleteAccount")
+                            .timestamp(getTimestamp())
+                            .output(output)
+                            .build());
         }
     }
 }
