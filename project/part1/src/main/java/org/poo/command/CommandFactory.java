@@ -16,6 +16,7 @@ public final class CommandFactory {
                     Map.entry("printUsers", PrintUsers::new),
                     Map.entry("addAccount", AddAccount::new),
                     Map.entry("createCard", (t, i) -> new CreateCard(t, i, "DEBIT")),
+                    Map.entry("createOneTimeCard", (t, i) -> new CreateCard(t, i, "SINGLE_USE")),
                     Map.entry("addFunds", AddFunds::new),
                     Map.entry("deleteAccount", DeleteAccount::new),
                     Map.entry("deleteCard", DeleteCard::new)
