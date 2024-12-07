@@ -15,7 +15,7 @@ public final class CommandFactory {
             Map.ofEntries(
                     Map.entry("printUsers", PrintUsers::new),
                     Map.entry("addAccount", AddAccount::new),
-                    Map.entry("createCard", CreateCard::new),
+                    Map.entry("createCard", (t, i) -> new CreateCard(t, i, "DEBIT")),
                     Map.entry("addFunds", AddFunds::new),
                     Map.entry("deleteAccount", DeleteAccount::new),
                     Map.entry("deleteCard", DeleteCard::new)
@@ -73,8 +73,11 @@ public final class CommandFactory {
     }
 
     private static final class CreateCard extends Command {
-        private CreateCard(final int timestamp, final CommandInput input) {
+        private final String cardType;
+
+        private CreateCard(final int timestamp, final CommandInput input, final String cardType) {
             super(timestamp, input);
+            this.cardType = cardType;
         }
 
         @Override
@@ -83,7 +86,7 @@ public final class CommandFactory {
             bank.createCard(
                     input.getEmail(),
                     input.getAccount(),
-                    "DEBIT",
+                    cardType,
                     getTimestamp()
             );
             return Optional.empty();
