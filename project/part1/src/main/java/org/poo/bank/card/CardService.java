@@ -42,6 +42,7 @@ public final class CardService {
      * @return the removed card, or {@code null} if the card does not exist
      */
     public Card removeCard(@NonNull final Card card) {
+        card.getLinkedAccount().removeCard(card);
         return cards.remove(card.getNumber());
     }
 }

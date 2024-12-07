@@ -86,12 +86,22 @@ public abstract class BankAccount {
      * @param card the card to add
      * @throws IllegalArgumentException if the card is not linked to this account
      */
-    public void addCard(final Card card) {
+    public void addCard(@NonNull final Card card) {
         if (card.getLinkedAccount() != this) {
             throw new IllegalArgumentException("Card must be linked to this account");
         }
 
         cards.add(card);
+    }
+
+    /**
+     * Removes a card from the account
+     *
+     * @param card the card to remove
+     * @return the removed card, or {@code null} if the card does not exist
+     */
+    public Card removeCard(@NonNull final Card card) {
+        return cards.remove(card) ? card : null;
     }
 
     void addFunds(final double amount) {
