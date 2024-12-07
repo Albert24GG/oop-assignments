@@ -19,7 +19,8 @@ public final class CommandFactory {
                     Map.entry("createOneTimeCard", (t, i) -> new CreateCard(t, i, "SINGLE_USE")),
                     Map.entry("addFunds", AddFunds::new),
                     Map.entry("deleteAccount", DeleteAccount::new),
-                    Map.entry("deleteCard", DeleteCard::new)
+                    Map.entry("deleteCard", DeleteCard::new),
+                    Map.entry("setMinimumBalance", SetMinBalance::new)
             );
 
     private CommandFactory() {
@@ -153,6 +154,34 @@ public final class CommandFactory {
                     input.getCardNumber(),
                     getTimestamp()
             );
+            return Optional.empty();
+        }
+    }
+
+    private static final class SetMinBalance extends Command {
+        private SetMinBalance(final int timestamp, final CommandInput input) {
+            super(timestamp, input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            try {
+                bank.setAccMinBalance(
+                        input.getAccount(),
+                        input.getMinBalance(),
+                        getTimestamp()
+                );
+            } catch (IllegalArgumentException e) {
+                return Optional.of(
+                        CommandOutput.builder()
+                                .command("setMinBalance")
+                                .timestamp(getTimestamp())
+                                .output(MAPPER.createObjectNode()
+                                        .put("error", e.getMessage())
+                                        .put("timestamp", getTimestamp()))
+                                .build());
+            }
             return Optional.empty();
         }
     }

@@ -221,4 +221,18 @@ public final class Bank {
                 .build();
         transactionService.logTransaction(linkedAccount.getIban(), transactionLog);
     }
+
+    /**
+     * Set the minimum balance for the given account.
+     *
+     * @param accountIban the IBAN of the account
+     * @param minBalance  the minimum balance
+     * @param timestamp   the timestamp of the operation
+     * @throws IllegalArgumentException if the account does not exist
+     */
+    public void setAccMinBalance(final String accountIban, final double minBalance,
+                                 final int timestamp) {
+        BankAccount account = getBankAccount(accountIban);
+        bankAccService.setMinBalance(account, minBalance);
+    }
 }
