@@ -8,7 +8,7 @@ import org.poo.bank.transaction.TransactionLog;
 public final class TransferLog extends TransactionLog {
     private final String senderIban;
     private final String receiverIban;
-    private final Double amount;
+    private final String amount;
     private final String transferType;
 
     @Override
