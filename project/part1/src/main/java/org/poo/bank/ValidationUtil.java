@@ -79,4 +79,16 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * Checks if the card is frozen
+     *
+     * @param card the card
+     * @throws IllegalArgumentException if the card is frozen
+     */
+    public static void validateCardNotFrozen(final Card card) {
+        if (card.isFrozen()) {
+            throw new IllegalArgumentException("Card is frozen");
+        }
+    }
+
 }

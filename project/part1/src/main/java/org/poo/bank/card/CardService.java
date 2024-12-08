@@ -45,4 +45,13 @@ public final class CardService {
         card.getLinkedAccount().removeCard(card);
         return cards.remove(card.getNumber());
     }
+
+    /**
+     * Trigger the payment made event on the card.
+     *
+     * @param card the card
+     */
+    public void paymentMade(@NonNull final Card card) {
+        card.paymentMade();
+    }
 }

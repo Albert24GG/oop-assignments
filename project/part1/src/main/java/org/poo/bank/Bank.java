@@ -7,6 +7,8 @@ import org.poo.bank.account.UserService;
 import org.poo.bank.account.UserView;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardService;
+import org.poo.bank.payment.PaymentContext;
+import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionService;
 import org.poo.bank.transaction.impl.AccountCreationLog;
@@ -222,5 +224,15 @@ public final class Bank {
                                  final int timestamp) {
         BankAccount account = ValidationUtil.getBankAccount(bankAccService, accountIban);
         bankAccService.setMinBalance(account, minBalance);
+    }
+
+    /**
+     * Make a payment.
+     *
+     * @param paymentRequest the payment request containing the payment details
+     */
+    public void makePayment(final PaymentRequest paymentRequest) {
+        paymentRequest.process(new PaymentContext(bankAccService, userService, cardService,
+                transactionService, currencyExchangeService));
     }
 }

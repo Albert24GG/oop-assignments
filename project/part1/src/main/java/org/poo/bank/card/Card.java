@@ -3,6 +3,7 @@ package org.poo.bank.card;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.utils.Utils;
@@ -13,7 +14,8 @@ import org.poo.utils.Utils;
 public abstract class Card {
     private final BankAccount linkedAccount;
     private final Type type;
-    private final String number = generateNumber();
+    @Setter(lombok.AccessLevel.PROTECTED)
+    private String number = generateNumber();
     private boolean frozen = false;
 
     public enum Type {
@@ -64,4 +66,8 @@ public abstract class Card {
         return Utils.generateCardNumber();
     }
 
+    /**
+     * Acknowledges that a payment has been made
+     */
+    abstract void paymentMade();
 }
