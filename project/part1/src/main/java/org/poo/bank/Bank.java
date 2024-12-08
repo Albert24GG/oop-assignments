@@ -30,7 +30,7 @@ public final class Bank {
      * @param rate the exchange rate
      */
     public void registerExchangeRate(final String from, final String to, final double rate) {
-        currencyExchangeService.updateExchangeRate(from.toLowerCase(), to.toLowerCase(), rate);
+        currencyExchangeService.updateExchangeRate(from, to, rate);
     }
 
     /**
