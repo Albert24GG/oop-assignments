@@ -2,7 +2,7 @@ package org.poo.bank.account;
 
 import lombok.NonNull;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +10,7 @@ public final class UserService {
     /**
      * Mapping between the id (email) and the user account.
      */
-    private final Map<String, UserAccount> users = new HashMap<>();
+    private final Map<String, UserAccount> users = new LinkedHashMap<>();
 
     /**
      * Create a new user account.
