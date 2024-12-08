@@ -11,7 +11,7 @@ public final class SplitPaymentLog extends TransactionLog {
     @NonNull
     private final String currency;
     @NonNull
-    public final Double amount;
+    private final Double amount;
     @NonNull
     private final List<String> involvedAccounts;
 
