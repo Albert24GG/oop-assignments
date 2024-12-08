@@ -14,7 +14,6 @@ import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.transaction.impl.GenericLog;
 
 import java.util.List;
-import java.util.Optional;
 
 public final class Bank {
     private final CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();
@@ -22,28 +21,6 @@ public final class Bank {
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
     private final TransactionService transactionService = new TransactionService();
-
-    private BankAccount getBankAccount(final String accountIban) {
-        return Optional.ofNullable(bankAccService.getAccount(accountIban))
-                .orElseThrow(() -> new IllegalArgumentException("Bank account not found"));
-    }
-
-    private UserAccount getUserAccount(final String email) {
-        return Optional.ofNullable(userService.getUser(email))
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    private Card getCard(final String cardNumber) {
-        return Optional.ofNullable(cardService.getCard(cardNumber))
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
-    }
-
-    private void validateOwner(final UserAccount owner, final BankAccount account) {
-        Optional.ofNullable(account.getOwner())
-                .filter(owner::equals)
-                .orElseThrow(
-                        () -> new IllegalArgumentException("User is not the owner of the account"));
-    }
 
     /**
      * Register an exchange rate between two currencies.
@@ -129,9 +106,9 @@ public final class Bank {
      */
     public void createCard(final String ownerEmail, final String accountIban, final String type,
                            final int timestamp) {
-        UserAccount userAccount = getUserAccount(ownerEmail);
-        BankAccount bankAccount = getBankAccount(accountIban);
-        validateOwner(userAccount, bankAccount);
+        UserAccount userAccount = ValidationUtil.getUserAccount(userService, ownerEmail);
+        BankAccount bankAccount = ValidationUtil.getBankAccount(bankAccService, accountIban);
+        ValidationUtil.validateAccountOwnership(bankAccount, userAccount);
 
         Card.Type cardType = Card.Type.fromString(type);
         if (cardType == null) {
@@ -168,7 +145,7 @@ public final class Bank {
      * @throws IllegalArgumentException if the account does not exist
      */
     public void addFunds(final String accountIban, final double amount, final int timestamp) {
-        BankAccount account = getBankAccount(accountIban);
+        BankAccount account = ValidationUtil.getBankAccount(bankAccService, accountIban);
         bankAccService.addFunds(account, amount);
     }
 
@@ -187,9 +164,9 @@ public final class Bank {
      */
     public void deleteAccount(final String ownerEmail, final String accountIban,
                               final int timestamp) {
-        UserAccount userAccount = getUserAccount(ownerEmail);
-        BankAccount bankAccount = getBankAccount(accountIban);
-        validateOwner(userAccount, bankAccount);
+        UserAccount userAccount = ValidationUtil.getUserAccount(userService, ownerEmail);
+        BankAccount bankAccount = ValidationUtil.getBankAccount(bankAccService, accountIban);
+        ValidationUtil.validateAccountOwnership(bankAccount, userAccount);
 
         if (bankAccount.getBalance() != 0) {
             TransactionLog transactionLog = GenericLog.builder()
@@ -219,7 +196,7 @@ public final class Bank {
      * @throws IllegalArgumentException if the card does not exist
      */
     public void deleteCard(final String cardNumber, final int timestamp) {
-        Card card = getCard(cardNumber);
+        Card card = ValidationUtil.getCard(cardService, cardNumber);
         cardService.removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
 
@@ -243,7 +220,7 @@ public final class Bank {
      */
     public void setAccMinBalance(final String accountIban, final double minBalance,
                                  final int timestamp) {
-        BankAccount account = getBankAccount(accountIban);
+        BankAccount account = ValidationUtil.getBankAccount(bankAccService, accountIban);
         bankAccService.setMinBalance(account, minBalance);
     }
 }
