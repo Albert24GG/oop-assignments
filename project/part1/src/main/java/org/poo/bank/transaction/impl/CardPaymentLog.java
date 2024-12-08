@@ -9,7 +9,7 @@ public final class CardPaymentLog extends TransactionLog {
     @NonNull
     private final Double amount;
     @NonNull
-    private final String commerciant;
+    private final String merchant;
 
     @Override
     public Type getType() {
