@@ -5,7 +5,7 @@ import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 
 @SuperBuilder
-public final class PaymentLog extends TransactionLog {
+public final class CardPaymentLog extends TransactionLog {
     @NonNull
     private final Double amount;
     @NonNull
