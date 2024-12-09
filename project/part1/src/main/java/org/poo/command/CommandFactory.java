@@ -35,6 +35,16 @@ public final class CommandFactory {
                                 .timestamp(t)
                                 .build();
                         return new MakePayment(t, i, paymentRequest);
+                    }),
+                    Map.entry("sendMoney", (t, i) -> {
+                        PaymentRequest paymentRequest = TransferRequest.builder()
+                                .senderAccount(i.getAccount())
+                                .receiverAccount(i.getReceiver())
+                                .description(i.getDescription())
+                                .amount(i.getAmount())
+                                .timestamp(t)
+                                .build();
+                        return new MakePayment(t, i, paymentRequest);
                     })
             );
 
