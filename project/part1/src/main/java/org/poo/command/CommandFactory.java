@@ -3,6 +3,9 @@ package org.poo.command;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Bank;
+import org.poo.bank.payment.request.PaymentRequest;
+import org.poo.bank.payment.request.impl.CardPaymentRequest;
+import org.poo.bank.payment.request.impl.TransferRequest;
 import org.poo.fileio.CommandInput;
 
 import java.util.Map;
@@ -20,7 +23,19 @@ public final class CommandFactory {
                     Map.entry("addFunds", AddFunds::new),
                     Map.entry("deleteAccount", DeleteAccount::new),
                     Map.entry("deleteCard", DeleteCard::new),
-                    Map.entry("setMinimumBalance", SetMinBalance::new)
+                    Map.entry("setMinimumBalance", SetMinBalance::new),
+                    Map.entry("payOnline", (t, i) -> {
+                        PaymentRequest paymentRequest = CardPaymentRequest.builder()
+                                .cardNumber(i.getCardNumber())
+                                .ownerEmail(i.getEmail())
+                                .description(i.getDescription())
+                                .currency(i.getCurrency())
+                                .merchant(i.getCommerciant())
+                                .amount(i.getAmount())
+                                .timestamp(t)
+                                .build();
+                        return new MakePayment(t, i, paymentRequest);
+                    })
             );
 
     private CommandFactory() {
@@ -182,6 +197,36 @@ public final class CommandFactory {
                                         .put("timestamp", getTimestamp()))
                                 .build());
             }
+            return Optional.empty();
+        }
+    }
+
+    private static final class MakePayment extends Command {
+        private final PaymentRequest paymentRequest;
+
+        private MakePayment(final int timestamp, final CommandInput input,
+                            final PaymentRequest paymentRequest) {
+            super(timestamp, input);
+            this.paymentRequest = paymentRequest;
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(Bank bank) {
+            CommandInput input = getInput();
+
+            try {
+                bank.makePayment(paymentRequest);
+            } catch (IllegalArgumentException e) {
+                return Optional.of(
+                        CommandOutput.builder()
+                                .command(input.getCommand())
+                                .timestamp(getTimestamp())
+                                .output(MAPPER.createObjectNode()
+                                        .put("description", e.getMessage())
+                                        .put("timestamp", getTimestamp()))
+                                .build());
+            }
+
             return Optional.empty();
         }
     }
