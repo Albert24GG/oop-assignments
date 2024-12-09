@@ -92,8 +92,7 @@ public final class Main {
         });
 
         for (CommandInput cmdInput : inputData.getCommands()) {
-            Command cmd = CommandFactory.getCommand(cmdInput.getCommand(), cmdInput.getTimestamp(),
-                    cmdInput);
+            Command cmd = CommandFactory.getCommand(cmdInput.getCommand(), cmdInput);
             if (cmd == null) {
                 throw new IllegalArgumentException(
                         "Invalid/Unsupported command: " + cmdInput.getCommand());

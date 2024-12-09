@@ -11,7 +11,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Getter(AccessLevel.PACKAGE)
 public abstract class Command {
-    private final int timestamp;
     private final CommandInput input;
 
     /**
