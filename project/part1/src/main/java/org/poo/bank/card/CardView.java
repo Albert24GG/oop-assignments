@@ -20,7 +20,7 @@ public final class CardView {
     public static CardView from(final Card card) {
         return CardView.builder()
                 .cardNumber(card.getNumber())
-                .status(card.isFrozen() ? "frozen" : "active")
+                .status(card.getStatus().toString().toLowerCase())
                 .build();
     }
 }

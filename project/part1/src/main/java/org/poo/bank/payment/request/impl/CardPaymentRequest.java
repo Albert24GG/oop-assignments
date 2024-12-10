@@ -37,7 +37,10 @@ public final class CardPaymentRequest extends PaymentRequest {
         Card card = ValidationUtil.getCard(context.cardService(), cardNumber);
         UserAccount userAccount = ValidationUtil.getUserAccount(context.userService(), ownerEmail);
         ValidationUtil.validateCardOwnership(card, userAccount);
-        ValidationUtil.validateCardNotFrozen(card);
+
+        if (card.getStatus() == Card.Status.FROZEN) {
+            throw new IllegalArgumentException("Card is frozen");
+        }
 
         BankAccount bankAccount = card.getLinkedAccount();
         double convertedAmount = context.currencyExchangeService()

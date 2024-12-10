@@ -19,7 +19,11 @@ public abstract class Card {
     private final CardType type;
     @Setter(lombok.AccessLevel.PROTECTED)
     private CardNumber number = CardNumber.generate();
-    private boolean frozen = false;
+    private Status status = Status.ACTIVE;
+
+    public enum Status {
+        ACTIVE, FROZEN
+    }
 
     static Card createCard(@NonNull final CardType type, BankAccount account) {
         Card card = switch (type) {
