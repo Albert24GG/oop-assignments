@@ -1,4 +1,7 @@
-package org.poo.bank.account;
+package org.poo.bank.account.impl;
+
+import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.UserAccount;
 
 public class SavingsBankAcc extends BankAccount {
     private double interestRate;
@@ -9,7 +12,7 @@ public class SavingsBankAcc extends BankAccount {
     }
 
     @Override
-    void changeInterestRate(double interestRate) {
+    protected void changeInterestRate(double interestRate) {
         if (interestRate < 0) {
             throw new IllegalArgumentException("Interest rate must be positive");
         }
@@ -17,7 +20,7 @@ public class SavingsBankAcc extends BankAccount {
     }
 
     @Override
-    void collectInterest() {
+    protected void collectInterest() {
         setBalance(getBalance() * (1 + interestRate));
     }
 }

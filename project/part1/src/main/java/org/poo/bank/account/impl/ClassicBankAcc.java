@@ -1,4 +1,7 @@
-package org.poo.bank.account;
+package org.poo.bank.account.impl;
+
+import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.UserAccount;
 
 public class ClassicBankAcc extends BankAccount {
 
@@ -7,12 +10,12 @@ public class ClassicBankAcc extends BankAccount {
     }
 
     @Override
-    void changeInterestRate(double interestRate) {
+    protected void changeInterestRate(double interestRate) {
         throw new UnsupportedOperationException("Classic accounts do not have an interest rate");
     }
 
     @Override
-    void collectInterest() {
+    protected void collectInterest() {
         throw new UnsupportedOperationException("Classic accounts do not have an interest rate");
     }
 }

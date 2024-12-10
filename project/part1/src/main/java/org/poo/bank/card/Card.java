@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
+import org.poo.bank.card.impl.DebitCard;
+import org.poo.bank.card.impl.SingleUseCard;
 import org.poo.utils.Utils;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
@@ -69,5 +71,5 @@ public abstract class Card {
     /**
      * Acknowledges that a payment has been made
      */
-    abstract void paymentMade();
+    abstract protected void paymentMade();
 }

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.poo.bank.account.impl.ClassicBankAcc;
+import org.poo.bank.account.impl.SavingsBankAcc;
 import org.poo.bank.card.Card;
 import org.poo.utils.Utils;
 
@@ -128,7 +130,7 @@ public abstract class BankAccount {
         this.minBalance = minBalance;
     }
 
-    abstract void changeInterestRate(final double interestRate);
+    abstract protected void changeInterestRate(final double interestRate);
 
-    abstract void collectInterest();
+    abstract protected void collectInterest();
 }
