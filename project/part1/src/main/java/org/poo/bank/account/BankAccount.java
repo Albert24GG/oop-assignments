@@ -56,7 +56,7 @@ public abstract class BankAccount {
      *                     accounts
      * @return the new bank account
      */
-    public static BankAccount createAccount(final Type type, @NonNull final UserAccount owner,
+    static BankAccount createAccount(final Type type, @NonNull final UserAccount owner,
                                             final String currency,
                                             final double interestRate) {
         BankAccount newAccount = switch (type) {

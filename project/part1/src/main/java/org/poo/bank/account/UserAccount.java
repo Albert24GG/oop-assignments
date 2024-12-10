@@ -31,7 +31,7 @@ public class UserAccount {
      * @param account the bank account to add
      * @throws IllegalArgumentException if the account does not belong to the user
      */
-    public void addAccount(final BankAccount account) {
+    void addAccount(final BankAccount account) {
         if (account.getOwner() != this) {
             throw new IllegalArgumentException("The account does not belong to the user");
         }
@@ -44,7 +44,7 @@ public class UserAccount {
      * @param account the bank account to remove
      * @return the removed account, or {@code null} if the account does not exist
      */
-    public BankAccount removeAccount(final BankAccount account) {
+    BankAccount removeAccount(final BankAccount account) {
         return accounts.remove(account) ? account : null;
     }
 }

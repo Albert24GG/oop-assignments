@@ -36,7 +36,7 @@ public abstract class Card {
         }
     }
 
-    public static Card createCard(Type type, BankAccount account) {
+    static Card createCard(Type type, BankAccount account) {
         Card card = switch (type) {
             case DEBIT -> new DebitCard(account);
             case SINGLE_USE -> new SingleUseCard(account);
