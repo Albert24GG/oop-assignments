@@ -2,28 +2,20 @@ package org.poo.bank.account;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.Bank;
+import org.poo.bank.type.Email;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Getter
 public class UserAccount {
+    @Getter
     private final String firstName;
+    @Getter
     private final String lastName;
-    private final String email;
+    @Getter
+    private final Email email;
     private final List<BankAccount> accounts = new ArrayList<>();
-
-    /**
-     * Return the id of the user account.
-     * Currently, the id is the email.
-     *
-     * @return the id of the user account
-     */
-    public String getId() {
-        return email;
-    }
 
     /**
      * Add a bank account to the user account.
@@ -46,5 +38,14 @@ public class UserAccount {
      */
     BankAccount removeAccount(final BankAccount account) {
         return accounts.remove(account) ? account : null;
+    }
+
+    /**
+     * Get the list of bank accounts.
+     *
+     * @return the list of bank accounts
+     */
+    List<BankAccount> getAccounts() {
+        return List.copyOf(accounts);
     }
 }

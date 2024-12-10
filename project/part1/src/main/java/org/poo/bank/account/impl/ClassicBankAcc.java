@@ -1,16 +1,18 @@
 package org.poo.bank.account.impl;
 
+import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserAccount;
+import org.poo.bank.type.Currency;
 
-public class ClassicBankAcc extends BankAccount {
-
-    public ClassicBankAcc(final UserAccount owner, final String currency) {
-        super(BankAccount.Type.CLASSIC, currency, owner);
+public final class ClassicBankAcc extends BankAccount {
+    public ClassicBankAcc(final UserAccount owner, @NonNull final Currency currency) {
+        super(BankAccountType.CLASSIC, currency, owner);
     }
 
     @Override
-    protected void changeInterestRate(double interestRate) {
+    protected void changeInterestRate(final double interestRate) {
         throw new UnsupportedOperationException("Classic accounts do not have an interest rate");
     }
 

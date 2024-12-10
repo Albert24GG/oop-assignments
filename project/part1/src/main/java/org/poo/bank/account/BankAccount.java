@@ -9,7 +9,8 @@ import lombok.Setter;
 import org.poo.bank.account.impl.ClassicBankAcc;
 import org.poo.bank.account.impl.SavingsBankAcc;
 import org.poo.bank.card.Card;
-import org.poo.utils.Utils;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.IBAN;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,35 +19,18 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = "cards")
 @Getter
 public abstract class BankAccount {
-    private final String iban = generateIban();
+    private final IBAN iban = IBAN.generate();
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
     private String alias;
-    private final Type type;
-    private final String currency;
+    private final BankAccountType type;
+    private final Currency currency;
     private final UserAccount owner;
     private final Set<Card> cards = new LinkedHashSet<>();
     @Setter(AccessLevel.PROTECTED)
     private double balance = 0.0;
     private double minBalance = 0.0;
 
-    public enum Type {
-        SAVINGS, CLASSIC;
-
-        /**
-         * Converts a string to a bank account type
-         *
-         * @param type the string to convert
-         * @return the bank account type or null if the string is not a valid bank account type
-         */
-        public static Type fromString(final String type) {
-            try {
-                return Type.valueOf(type.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-    }
 
     /**
      * Creates a new bank account
@@ -58,9 +42,9 @@ public abstract class BankAccount {
      *                     accounts
      * @return the new bank account
      */
-    static BankAccount createAccount(final Type type, @NonNull final UserAccount owner,
-                                            final String currency,
-                                            final double interestRate) {
+    static BankAccount createAccount(final BankAccountType type, @NonNull final UserAccount owner,
+                                     @NonNull final Currency currency,
+                                     final double interestRate) {
         BankAccount newAccount = switch (type) {
             case SAVINGS -> new SavingsBankAcc(owner, currency, interestRate);
             case CLASSIC -> new ClassicBankAcc(owner, currency);
@@ -74,21 +58,12 @@ public abstract class BankAccount {
     }
 
     /**
-     * Generates a new IBAN
-     *
-     * @return the generated IBAN
-     */
-    public static String generateIban() {
-        return Utils.generateIBAN();
-    }
-
-    /**
      * Adds a card to the account
      *
      * @param card the card to add
      * @throws IllegalArgumentException if the card is not linked to this account
      */
-    public void addCard(@NonNull final Card card) {
+    public final void addCard(@NonNull final Card card) {
         if (card.getLinkedAccount() != this) {
             throw new IllegalArgumentException("Card must be linked to this account");
         }
@@ -102,18 +77,18 @@ public abstract class BankAccount {
      * @param card the card to remove
      * @return the removed card, or {@code null} if the card does not exist
      */
-    public Card removeCard(@NonNull final Card card) {
+    public final Card removeCard(@NonNull final Card card) {
         return cards.remove(card) ? card : null;
     }
 
-    void addFunds(final double amount) {
+    final void addFunds(final double amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
         balance += amount;
     }
 
-    void removeFunds(final double amount) {
+    final void removeFunds(final double amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
@@ -123,14 +98,14 @@ public abstract class BankAccount {
         balance -= amount;
     }
 
-    void setMinBalance(final double minBalance) {
+    final void setMinBalance(final double minBalance) {
         if (minBalance < 0) {
             throw new IllegalArgumentException("Minimum balance must be positive");
         }
         this.minBalance = minBalance;
     }
 
-    abstract protected void changeInterestRate(final double interestRate);
+    protected abstract void changeInterestRate(double interestRate);
 
-    abstract protected void collectInterest();
+    protected abstract void collectInterest();
 }

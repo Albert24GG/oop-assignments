@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.poo.bank.card.CardView;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.IBAN;
 
 import java.util.List;
 
@@ -11,10 +13,10 @@ import java.util.List;
 @Getter
 public final class BankAccView {
     @JsonProperty("IBAN")
-    private final String iban;
+    private final IBAN iban;
     private final double balance;
-    private final String currency;
-    private final String type;
+    private final Currency currency;
+    private final BankAccountType type;
     private final List<CardView> cards;
 
     /**
@@ -28,7 +30,7 @@ public final class BankAccView {
                 .iban(account.getIban())
                 .balance(account.getBalance())
                 .currency(account.getCurrency())
-                .type(account.getType().toString().toLowerCase())
+                .type(account.getType())
                 .cards(account.getCards().stream()
                         .map(CardView::from)
                         .toList())

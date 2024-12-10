@@ -3,12 +3,12 @@ package org.poo.bank.card;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
+import org.poo.bank.type.CardNumber;
 
 @Builder(access = lombok.AccessLevel.PRIVATE)
 @Getter
 public final class CardView {
-    @JsonProperty("cardNumber")
-    private final String number;
+    private final CardNumber cardNumber;
     private final String status;
 
     /**
@@ -19,7 +19,7 @@ public final class CardView {
      */
     public static CardView from(final Card card) {
         return CardView.builder()
-                .number(card.getNumber())
+                .cardNumber(card.getNumber())
                 .status(card.isFrozen() ? "frozen" : "active")
                 .build();
     }

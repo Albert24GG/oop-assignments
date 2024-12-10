@@ -2,10 +2,11 @@ package org.poo.bank.card.impl;
 
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.card.Card;
+import org.poo.bank.card.CardType;
 
-public class DebitCard extends Card {
+public final class DebitCard extends Card {
     public DebitCard(final BankAccount account) {
-        super(account, Type.DEBIT);
+        super(account, CardType.DEBIT);
     }
 
     @Override

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.bank.Bank;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.Email;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.command.Command;
@@ -83,12 +85,13 @@ public final class Main {
 
         // Register the exchange rates
         Arrays.stream(inputData.getExchangeRates()).toList().forEach(rate -> {
-            bank.registerExchangeRate(rate.getFrom(), rate.getTo(), rate.getRate());
+            bank.registerExchangeRate(Currency.of(rate.getFrom()), Currency.of(rate.getTo()),
+                    rate.getRate());
         });
 
         // Add the users to the bank
         Arrays.stream(inputData.getUsers()).toList().forEach(user -> {
-            bank.createUser(user.getFirstName(), user.getLastName(), user.getEmail());
+            bank.createUser(user.getFirstName(), user.getLastName(), Email.of(user.getEmail()));
         });
 
         for (CommandInput cmdInput : inputData.getCommands()) {

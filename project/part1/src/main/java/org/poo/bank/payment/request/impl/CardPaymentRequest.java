@@ -12,24 +12,28 @@ import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CardPaymentLog;
 import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.type.CardNumber;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.Email;
+
 
 @SuperBuilder(toBuilder = true)
 @Getter
 public final class CardPaymentRequest extends PaymentRequest {
     @NonNull
-    private final String cardNumber;
+    private final CardNumber cardNumber;
     @NonNull
-    private final String ownerEmail;
+    private final Email ownerEmail;
     @NonNull
     private final String description;
     @NonNull
-    private final String currency;
+    private final Currency currency;
     @NonNull
     private final String merchant;
 
 
     @Override
-    protected void internalProcess(PaymentContext context) {
+    protected void internalProcess(@NonNull final PaymentContext context) {
         Card card = ValidationUtil.getCard(context.cardService(), cardNumber);
         UserAccount userAccount = ValidationUtil.getUserAccount(context.userService(), ownerEmail);
         ValidationUtil.validateCardOwnership(card, userAccount);

@@ -3,18 +3,23 @@ package org.poo.bank.payment.request.impl;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
+import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.payment.PaymentContext;
 import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.GenericLog;
 import org.poo.bank.transaction.impl.TransferLog;
+import org.poo.bank.type.IBAN;
 
 @SuperBuilder(toBuilder = true)
 @Getter
 public final class TransferRequest extends PaymentRequest {
     @NonNull
-    private final String senderAccount;
+    private final IBAN senderAccount;
+    /**
+     * The IBAN or account alias of the receiver
+     */
     @NonNull
     private final String receiverAccount;
     @NonNull
@@ -22,8 +27,16 @@ public final class TransferRequest extends PaymentRequest {
 
     @Override
     protected void internalProcess(PaymentContext context) {
-        BankAccount sender = context.bankAccService().getAccount(senderAccount);
-        BankAccount receiver = context.bankAccService().getAccount(receiverAccount);
+        BankAccount sender =
+                ValidationUtil.getBankAccountByIban(context.bankAccService(), senderAccount);
+        BankAccount receiver;
+        try {
+            receiver =
+                    ValidationUtil.getBankAccountByAlias(context.bankAccService(), receiverAccount);
+        } catch (IllegalArgumentException e) {
+            receiver = ValidationUtil.getBankAccountByIban(context.bankAccService(),
+                    IBAN.of(receiverAccount));
+        }
 
         double sentAmount = getAmount();
 

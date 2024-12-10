@@ -8,6 +8,8 @@ import org.poo.bank.account.BankAccount;
 import org.poo.bank.payment.PaymentContext;
 import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.transaction.impl.SplitPaymentLog;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.IBAN;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -17,19 +19,19 @@ import java.util.stream.IntStream;
 @Getter
 public final class SplitPaymentRequest extends PaymentRequest {
     @NonNull
-    private final List<String> involvedAccounts;
+    private final List<IBAN> involvedAccounts;
     @NonNull
-    private final String currency;
+    private final Currency currency;
 
     @Override
-    protected void internalProcess(PaymentContext context) {
+    protected void internalProcess(@NonNull final PaymentContext context) {
         if (involvedAccounts.size() < 2) {
             throw new IllegalArgumentException(
                     "At least two accounts must be involved in a split payment");
         }
 
         List<BankAccount> accounts = involvedAccounts.stream()
-                .map(accountIban -> ValidationUtil.getBankAccount(context.bankAccService(),
+                .map(accountIban -> ValidationUtil.getBankAccountByIban(context.bankAccService(),
                         accountIban))
                 .toList();
 

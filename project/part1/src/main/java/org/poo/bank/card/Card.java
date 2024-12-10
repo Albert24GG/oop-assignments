@@ -2,43 +2,26 @@ package org.poo.bank.card;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.impl.DebitCard;
 import org.poo.bank.card.impl.SingleUseCard;
-import org.poo.utils.Utils;
+import org.poo.bank.type.CardNumber;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Getter
 public abstract class Card {
     private final BankAccount linkedAccount;
-    private final Type type;
+    private final CardType type;
     @Setter(lombok.AccessLevel.PROTECTED)
-    private String number = generateNumber();
+    private CardNumber number = CardNumber.generate();
     private boolean frozen = false;
 
-    public enum Type {
-        DEBIT, SINGLE_USE;
-
-        /**
-         * Converts a string to a card type
-         *
-         * @param type the string to convert
-         * @return the card type or null if the string is not a valid card type
-         */
-        public static Type fromString(String type) {
-            try {
-                return Type.valueOf(type.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-    }
-
-    static Card createCard(Type type, BankAccount account) {
+    static Card createCard(@NonNull final CardType type, BankAccount account) {
         Card card = switch (type) {
             case DEBIT -> new DebitCard(account);
             case SINGLE_USE -> new SingleUseCard(account);
@@ -60,16 +43,7 @@ public abstract class Card {
     }
 
     /**
-     * Generates a new card number
-     *
-     * @return the generated card number
-     */
-    public static String generateNumber() {
-        return Utils.generateCardNumber();
-    }
-
-    /**
      * Acknowledges that a payment has been made
      */
-    abstract protected void paymentMade();
+    protected abstract void paymentMade();
 }

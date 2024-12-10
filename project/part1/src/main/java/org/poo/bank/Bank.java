@@ -1,12 +1,15 @@
 package org.poo.bank;
 
+import lombok.NonNull;
 import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.account.UserService;
 import org.poo.bank.account.UserView;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardService;
+import org.poo.bank.card.CardType;
 import org.poo.bank.payment.PaymentContext;
 import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.transaction.TransactionLog;
@@ -14,6 +17,10 @@ import org.poo.bank.transaction.TransactionService;
 import org.poo.bank.transaction.impl.AccountCreationLog;
 import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.type.CardNumber;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.Email;
+import org.poo.bank.type.IBAN;
 
 import java.util.List;
 
@@ -31,7 +38,8 @@ public final class Bank {
      * @param to   the currency to convert to
      * @param rate the exchange rate
      */
-    public void registerExchangeRate(final String from, final String to, final double rate) {
+    public void registerExchangeRate(@NonNull final Currency from, @NonNull final Currency to,
+                                     final double rate) {
         currencyExchangeService.updateExchangeRate(from, to, rate);
     }
 
@@ -51,7 +59,8 @@ public final class Bank {
      * @param lastName  the last name of the user
      * @param email     the email of the user
      */
-    public void createUser(final String firstName, final String lastName, final String email) {
+    public void createUser(final String firstName, final String lastName,
+                           @NonNull final Email email) {
         userService.createUser(firstName, lastName, email);
     }
 
@@ -60,7 +69,7 @@ public final class Bank {
      *
      * @param ownerEmail   the email of the owner
      * @param currency     the currency of the account
-     * @param type         the type of the account. Valid values are:
+     * @param accountType  the type of the account. Valid values are:
      *                     <ul>
      *                     <li>SAVINGS</li>
      *                     <li>CLASSIC</li>
@@ -69,15 +78,9 @@ public final class Bank {
      * @param timestamp    the timestamp of the account creation
      * @throws IllegalArgumentException if the account type is invalid
      */
-    public void createAccount(final String ownerEmail, final String currency,
-                              final String type, final double interestRate,
+    public void createAccount(@NonNull final Email ownerEmail, @NonNull final Currency currency,
+                              @NonNull final BankAccountType accountType, final double interestRate,
                               final int timestamp) {
-        BankAccount.Type accountType = BankAccount.Type.fromString(type);
-
-        if (accountType == null) {
-            throw new IllegalArgumentException("Invalid account type");
-        }
-
         BankAccount account =
                 bankAccService.createAccount(userService.getUser(ownerEmail), currency, accountType,
                         interestRate);
@@ -92,30 +95,26 @@ public final class Bank {
     /**
      * Create a new card linked to the given account.
      *
-     * @param ownerEmail  the email of the owner
-     * @param accountIban the IBAN of the account
-     * @param type        the type of the card. Valid values are:
-     *                    <ul>
-     *                    <li>DEBIT</li>
-     *                    <li>SINGLE_USE</li>
-     *                    </ul>
-     * @param timestamp   the timestamp of the card creation
+     * @param ownerEmail the email of the owner
+     * @param account    the IBAN of the account
+     * @param cardType       the type of the card. Valid values are:
+     *                   <ul>
+     *                   <li>DEBIT</li>
+     *                   <li>SINGLE_USE</li>
+     *                   </ul>
+     * @param timestamp  the timestamp of the card creation
      * @throws IllegalArgumentException if any of the following conditions is met:
      *                                  <ul/
      *                                  <li>the user/bank account does not exist</li>
      *                                  <li>the card type is invalid</li>
      *                                  </ul>
      */
-    public void createCard(final String ownerEmail, final String accountIban, final String type,
+    public void createCard(@NonNull final Email ownerEmail, @NonNull final IBAN account,
+                           @NonNull final CardType cardType,
                            final int timestamp) {
         UserAccount userAccount = ValidationUtil.getUserAccount(userService, ownerEmail);
-        BankAccount bankAccount = ValidationUtil.getBankAccount(bankAccService, accountIban);
+        BankAccount bankAccount = ValidationUtil.getBankAccountByIban(bankAccService, account);
         ValidationUtil.validateAccountOwnership(bankAccount, userAccount);
-
-        Card.Type cardType = Card.Type.fromString(type);
-        if (cardType == null) {
-            throw new IllegalArgumentException("Invalid card type");
-        }
 
         TransactionLog transactionLog;
         // If the user is not the owner of the account, the card creation fails and an error is
@@ -135,7 +134,7 @@ public final class Bank {
                     .build();
         }
 
-        transactionService.logTransaction(accountIban, transactionLog);
+        transactionService.logTransaction(account, transactionLog);
     }
 
     /**
@@ -146,9 +145,10 @@ public final class Bank {
      * @param timestamp   the timestamp of the operation
      * @throws IllegalArgumentException if the account does not exist
      */
-    public void addFunds(final String accountIban, final double amount, final int timestamp) {
-        BankAccount account = ValidationUtil.getBankAccount(bankAccService, accountIban);
-        bankAccService.addFunds(account, amount);
+    public void addFunds(@NonNull final IBAN accountIban, final double amount,
+                         final int timestamp) {
+        BankAccount bankAccount = ValidationUtil.getBankAccountByIban(bankAccService, accountIban);
+        bankAccService.addFunds(bankAccount, amount);
     }
 
     /**
@@ -164,10 +164,10 @@ public final class Bank {
      *                                      <li>the account has funds remaining</li>
      *                                  </ul>
      */
-    public void deleteAccount(final String ownerEmail, final String accountIban,
+    public void deleteAccount(@NonNull final Email ownerEmail, @NonNull final IBAN accountIban,
                               final int timestamp) {
         UserAccount userAccount = ValidationUtil.getUserAccount(userService, ownerEmail);
-        BankAccount bankAccount = ValidationUtil.getBankAccount(bankAccService, accountIban);
+        BankAccount bankAccount = ValidationUtil.getBankAccountByIban(bankAccService, accountIban);
         ValidationUtil.validateAccountOwnership(bankAccount, userAccount);
 
         if (bankAccount.getBalance() != 0) {
@@ -197,7 +197,7 @@ public final class Bank {
      * @param timestamp  the timestamp of the operation
      * @throws IllegalArgumentException if the card does not exist
      */
-    public void deleteCard(final String cardNumber, final int timestamp) {
+    public void deleteCard(@NonNull final CardNumber cardNumber, final int timestamp) {
         Card card = ValidationUtil.getCard(cardService, cardNumber);
         cardService.removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
@@ -220,9 +220,9 @@ public final class Bank {
      * @param timestamp   the timestamp of the operation
      * @throws IllegalArgumentException if the account does not exist
      */
-    public void setAccMinBalance(final String accountIban, final double minBalance,
+    public void setAccMinBalance(@NonNull final IBAN accountIban, final double minBalance,
                                  final int timestamp) {
-        BankAccount account = ValidationUtil.getBankAccount(bankAccService, accountIban);
+        BankAccount account = ValidationUtil.getBankAccountByIban(bankAccService, accountIban);
         bankAccService.setMinBalance(account, minBalance);
     }
 

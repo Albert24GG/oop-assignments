@@ -28,5 +28,5 @@ public abstract class PaymentRequest {
         internalProcess(context);
     }
 
-    protected abstract void internalProcess(final PaymentContext context);
+    protected abstract void internalProcess(PaymentContext context);
 }

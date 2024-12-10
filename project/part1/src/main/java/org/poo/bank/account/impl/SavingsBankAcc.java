@@ -1,18 +1,22 @@
 package org.poo.bank.account.impl;
 
+import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserAccount;
+import org.poo.bank.type.Currency;
 
-public class SavingsBankAcc extends BankAccount {
+public final class SavingsBankAcc extends BankAccount {
     private double interestRate;
 
-    public SavingsBankAcc(final UserAccount owner, final String currency, double interestRate) {
-        super(BankAccount.Type.SAVINGS, currency, owner);
+    public SavingsBankAcc(final UserAccount owner, @NonNull final Currency currency,
+                          final double interestRate) {
+        super(BankAccountType.SAVINGS, currency, owner);
         this.interestRate = interestRate;
     }
 
     @Override
-    protected void changeInterestRate(double interestRate) {
+    protected void changeInterestRate(final double interestRate) {
         if (interestRate < 0) {
             throw new IllegalArgumentException("Interest rate must be positive");
         }

@@ -2,6 +2,7 @@ package org.poo.bank.account;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.poo.bank.type.Email;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public final class UserView {
     private String firstName;
     private String lastName;
-    private String email;
+    private Email email;
     private List<BankAccView> accounts;
 
     /**

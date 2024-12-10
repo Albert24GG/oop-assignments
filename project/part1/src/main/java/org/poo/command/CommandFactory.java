@@ -3,9 +3,15 @@ package org.poo.command;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Bank;
+import org.poo.bank.account.BankAccountType;
+import org.poo.bank.card.CardType;
 import org.poo.bank.payment.request.PaymentRequest;
 import org.poo.bank.payment.request.impl.CardPaymentRequest;
 import org.poo.bank.payment.request.impl.TransferRequest;
+import org.poo.bank.type.CardNumber;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.Email;
+import org.poo.bank.type.IBAN;
 import org.poo.fileio.CommandInput;
 
 import java.util.Map;
@@ -26,10 +32,10 @@ public final class CommandFactory {
                     Map.entry("setMinimumBalance", SetMinBalance::new),
                     Map.entry("payOnline", i -> {
                         PaymentRequest paymentRequest = CardPaymentRequest.builder()
-                                .cardNumber(i.getCardNumber())
-                                .ownerEmail(i.getEmail())
+                                .cardNumber(CardNumber.of(i.getCardNumber()))
+                                .ownerEmail(Email.of(i.getEmail()))
                                 .description(i.getDescription())
-                                .currency(i.getCurrency())
+                                .currency(Currency.of(i.getCurrency()))
                                 .merchant(i.getCommerciant())
                                 .amount(i.getAmount())
                                 .timestamp(i.getTimestamp())
@@ -38,7 +44,7 @@ public final class CommandFactory {
                     }),
                     Map.entry("sendMoney", i -> {
                         PaymentRequest paymentRequest = TransferRequest.builder()
-                                .senderAccount(i.getAccount())
+                                .senderAccount(IBAN.of(i.getAccount()))
                                 .receiverAccount(i.getReceiver())
                                 .description(i.getDescription())
                                 .amount(i.getAmount())
@@ -87,9 +93,9 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             bank.createAccount(
-                    input.getEmail(),
-                    input.getCurrency(),
-                    input.getAccountType(),
+                    Email.of(input.getEmail()),
+                    Currency.of(input.getCurrency()),
+                    BankAccountType.of(input.getAccountType()),
                     input.getInterestRate(),
                     input.getTimestamp()
             );
@@ -109,9 +115,9 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             bank.createCard(
-                    input.getEmail(),
-                    input.getAccount(),
-                    cardType,
+                    Email.of(input.getEmail()),
+                    IBAN.of(input.getAccount()),
+                    CardType.of(cardType),
                     input.getTimestamp()
             );
             return Optional.empty();
@@ -127,7 +133,7 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             bank.addFunds(
-                    input.getAccount(),
+                    IBAN.of(input.getAccount()),
                     input.getAmount(),
                     input.getTimestamp()
             );
@@ -146,8 +152,8 @@ public final class CommandFactory {
             ObjectNode output = MAPPER.createObjectNode();
             try {
                 bank.deleteAccount(
-                        input.getEmail(),
-                        input.getAccount(),
+                        Email.of(input.getEmail()),
+                        IBAN.of(input.getAccount()),
                         input.getTimestamp()
                 );
                 output.put("success", "Account deleted")
@@ -174,7 +180,7 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             bank.deleteCard(
-                    input.getCardNumber(),
+                    CardNumber.of(input.getCardNumber()),
                     input.getTimestamp()
             );
             return Optional.empty();
@@ -191,7 +197,7 @@ public final class CommandFactory {
             CommandInput input = getInput();
             try {
                 bank.setAccMinBalance(
-                        input.getAccount(),
+                        IBAN.of(input.getAccount()),
                         input.getMinBalance(),
                         input.getTimestamp()
                 );

@@ -1,16 +1,15 @@
 package org.poo.bank.account;
 
-import lombok.Getter;
 import lombok.NonNull;
+import org.poo.bank.type.Currency;
+import org.poo.bank.type.IBAN;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public final class BankAccService {
-    /**
-     * Mapping between the IBAN and the bank account.
-     */
-    private final Map<String, BankAccount> accounts = new HashMap<>();
+    private final Map<IBAN, BankAccount> ibanMapping = new HashMap<>();
+    private final Map<String, BankAccount> aliasMapping = new HashMap<>();
 
     /**
      * Create a new bank account.
@@ -21,10 +20,11 @@ public final class BankAccService {
      * @param interestRate the interest rate of the account
      * @return the created account
      */
-    public BankAccount createAccount(final UserAccount owner, final String currency,
-                                     final BankAccount.Type type, final double interestRate) {
+    public BankAccount createAccount(@NonNull final UserAccount owner,
+                                     @NonNull final Currency currency,
+                                     final BankAccountType type, final double interestRate) {
         BankAccount account = BankAccount.createAccount(type, owner, currency, interestRate);
-        accounts.put(account.getIban(), account);
+        ibanMapping.put(account.getIban(), account);
         return account;
     }
 
@@ -35,19 +35,30 @@ public final class BankAccService {
      * @param alias   the alias
      */
     public void registerAlias(final BankAccount account, final String alias) {
-        accounts.put(alias, account);
+        aliasMapping.put(alias, account);
         account.setAlias(alias);
     }
 
     /**
-     * Get the account with the given IBAN or alias.
+     * Get the account with the given IBAN.
      *
-     * @param identifier the IBAN or alias of the account
-     * @return the account with the given identifier, or {@code null} if no account is found
+     * @param iban the IBAN of the account
+     * @return the account with the given IBAN, or {@code null} if the account does not exist
      */
-    public BankAccount getAccount(final String identifier) {
-        return accounts.get(identifier);
+    public BankAccount getAccountByIban(@NonNull final IBAN iban) {
+        return ibanMapping.get(iban);
     }
+
+    /**
+     * Get the account with the given alias.
+     *
+     * @param alias the alias of the account
+     * @return the account with the given alias, or {@code null} if the account does not exist
+     */
+    public BankAccount getAccountByAlias(@NonNull final String alias) {
+        return aliasMapping.get(alias);
+    }
+
 
     /**
      * Remove the account.
@@ -57,8 +68,8 @@ public final class BankAccService {
      */
     public BankAccount removeAccount(@NonNull final BankAccount account) {
         account.getOwner().removeAccount(account);
-        accounts.remove(account.getAlias());
-        return accounts.remove(account.getIban());
+        aliasMapping.remove(account.getAlias());
+        return ibanMapping.remove(account.getIban());
     }
 
     /**

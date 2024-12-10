@@ -2,6 +2,7 @@ package org.poo.bank.transaction;
 
 import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.type.IBAN;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,10 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class TransactionService {
-    /**
-     * Map of bank accounts(IBANs) to their transaction logs.
-     */
-    private final Map<String, List<TransactionLog>> logs = new HashMap<>();
+    private final Map<IBAN, List<TransactionLog>> logs = new HashMap<>();
 
     /**
      * Logs a transaction.
@@ -21,7 +19,7 @@ public final class TransactionService {
      * @param account the IBAN of the account to log the transaction for
      * @param log     the transaction log to log
      */
-    public void logTransaction(final String account,
+    public void logTransaction(final IBAN account,
                                @NonNull final TransactionLog log) {
         logs.computeIfAbsent(account, k -> new ArrayList<>()).add(log);
     }
@@ -30,10 +28,10 @@ public final class TransactionService {
      * Gets the transaction logs for an account.
      *
      * @param account the IBAN of the account to get the transaction logs for
-     * @return the transaction logs for the account
+     * @return the transaction logs for the account, or an empty list if the account does not exist
      */
-    public List<TransactionLog> getLogs(final String account) {
-        return Collections.unmodifiableList(logs.getOrDefault(account, new ArrayList<>()));
+    public List<TransactionLog> getLogs(final IBAN account) {
+        return logs.getOrDefault(account, Collections.emptyList());
     }
 
     /**
@@ -42,7 +40,7 @@ public final class TransactionService {
      * @param account the IBAN of the account to remove the transaction logs for
      * @return the transaction logs for the account, or{@code null} if the account does not exist
      */
-    public List<TransactionLog> removeLogs(final String account) {
+    public List<TransactionLog> removeLogs(final IBAN account) {
         return logs.remove(account);
     }
 }

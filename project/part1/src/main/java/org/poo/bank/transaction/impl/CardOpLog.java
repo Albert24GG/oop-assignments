@@ -3,15 +3,18 @@ package org.poo.bank.transaction.impl;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.type.CardNumber;
+import org.poo.bank.type.Email;
+import org.poo.bank.type.IBAN;
 
 @SuperBuilder(toBuilder = true)
 public final class CardOpLog extends TransactionLog {
     @NonNull
-    private final String card;
+    private final CardNumber card;
     @NonNull
-    private final String cardHolder;
+    private final Email cardHolder;
     @NonNull
-    private final String account;
+    private final IBAN account;
 
     @Override
     public Type getType() {
