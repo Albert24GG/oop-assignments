@@ -32,13 +32,13 @@ public final class CurrencyExchangeService {
             throw new IllegalArgumentException("Exchange rate must be positive");
         }
 
-        String from_ = normalizeCurrency(from);
-        String to_ = normalizeCurrency(to);
+        String fromNormalized = normalizeCurrency(from);
+        String toNormalized = normalizeCurrency(to);
 
-        conversionGraph.computeIfAbsent(from_, k -> new LinkedHashSet<>()).add(to_);
-        conversionGraph.computeIfAbsent(to_, k -> new LinkedHashSet<>()).add(from_);
-        exchangeRates.put(new ExchangeRatePair(from_, to_), rate);
-        exchangeRates.put(new ExchangeRatePair(to_, from_), 1 / rate);
+        conversionGraph.computeIfAbsent(fromNormalized, k -> new LinkedHashSet<>()).add(toNormalized);
+        conversionGraph.computeIfAbsent(toNormalized, k -> new LinkedHashSet<>()).add(fromNormalized);
+        exchangeRates.put(new ExchangeRatePair(fromNormalized, toNormalized), rate);
+        exchangeRates.put(new ExchangeRatePair(toNormalized, fromNormalized), 1 / rate);
     }
 
     /**
@@ -56,10 +56,10 @@ public final class CurrencyExchangeService {
      *                                  </ul>
      */
     public double convert(final String from, final String to, final double amount) {
-        String from_ = normalizeCurrency(from);
-        String to_ = normalizeCurrency(to);
+        String fromNormalized = normalizeCurrency(from);
+        String toNormalized = normalizeCurrency(to);
 
-        if (from_.equals(to_)) {
+        if (fromNormalized.equals(toNormalized)) {
             return amount;
         }
 
@@ -67,14 +67,14 @@ public final class CurrencyExchangeService {
             throw new IllegalArgumentException("Amount must be positive");
         }
 
-        if (!conversionGraph.containsKey(from_)) {
-            throw new IllegalArgumentException("Unknown currency: " + from_);
+        if (!conversionGraph.containsKey(fromNormalized)) {
+            throw new IllegalArgumentException("Unknown currency: " + fromNormalized);
         }
 
         Set<String> visited = new HashSet<>();
         Queue<String> queue = new LinkedList<>();
         Queue<Double> rates = new LinkedList<>();
-        queue.add(from_);
+        queue.add(fromNormalized);
         rates.add(1.0);
 
         while (!queue.isEmpty()) {
@@ -82,7 +82,7 @@ public final class CurrencyExchangeService {
             double currentRate = rates.poll();
             visited.add(current);
 
-            if (current.equals(to_)) {
+            if (current.equals(toNormalized)) {
                 return amount * currentRate;
             }
 
@@ -94,7 +94,7 @@ public final class CurrencyExchangeService {
             }
         }
 
-        throw new IllegalArgumentException("No exchange rate between " + from_ + " and " + to_);
+        throw new IllegalArgumentException("No exchange rate between " + fromNormalized + " and " + toNormalized);
     }
 
 }
