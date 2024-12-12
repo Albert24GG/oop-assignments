@@ -56,6 +56,7 @@ public final class CreateCard extends BankOperation<Void> {
                     .card(newCard.getNumber())
                     .cardHolder(userAccount.getEmail())
                     .account(bankAccount.getIban())
+                    .description("New card created")
                     .build();
         }
 
