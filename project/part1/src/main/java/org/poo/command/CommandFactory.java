@@ -4,16 +4,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Bank;
 import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.UserView;
 import org.poo.bank.card.CardType;
-import org.poo.bank.payment.request.PaymentRequest;
-import org.poo.bank.payment.request.impl.CardPaymentRequest;
-import org.poo.bank.payment.request.impl.TransferRequest;
+import org.poo.bank.operation.BankOperation;
+import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.impl.AddFunds;
+import org.poo.bank.operation.impl.CardPaymentRequest;
+import org.poo.bank.operation.impl.CreateBankAccount;
+import org.poo.bank.operation.impl.CreateCard;
+import org.poo.bank.operation.impl.DeleteBankAccount;
+import org.poo.bank.operation.impl.DeleteCard;
+import org.poo.bank.operation.impl.GetAllUsers;
+import org.poo.bank.operation.impl.SetAccountMinBalance;
+import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 import org.poo.fileio.CommandInput;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,16 +32,16 @@ public final class CommandFactory {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Map<String, Function<CommandInput, Command>> COMMANDS =
             Map.ofEntries(
-                    Map.entry("printUsers", PrintUsers::new),
-                    Map.entry("addAccount", AddAccount::new),
-                    Map.entry("createCard", i -> new CreateCard(i, "DEBIT")),
-                    Map.entry("createOneTimeCard", i -> new CreateCard(i, "SINGLE_USE")),
-                    Map.entry("addFunds", AddFunds::new),
-                    Map.entry("deleteAccount", DeleteAccount::new),
-                    Map.entry("deleteCard", DeleteCard::new),
-                    Map.entry("setMinimumBalance", SetMinBalance::new),
+                    Map.entry("printUsers", PrintUsersCmd::new),
+                    Map.entry("addAccount", AddAccountCmd::new),
+                    Map.entry("createCard", i -> new CreateCardCmd(i, "DEBIT")),
+                    Map.entry("createOneTimeCard", i -> new CreateCardCmd(i, "SINGLE_USE")),
+                    Map.entry("addFunds", AddFundsCmd::new),
+                    Map.entry("deleteAccount", DeleteAccountCmd::new),
+                    Map.entry("deleteCard", DeleteCardCmd::new),
+                    Map.entry("setMinimumBalance", SetMinBalanceCmd::new),
                     Map.entry("payOnline", i -> {
-                        PaymentRequest paymentRequest = CardPaymentRequest.builder()
+                        var operation = CardPaymentRequest.builder()
                                 .cardNumber(CardNumber.of(i.getCardNumber()))
                                 .ownerEmail(Email.of(i.getEmail()))
                                 .description(i.getDescription())
@@ -40,18 +50,19 @@ public final class CommandFactory {
                                 .amount(i.getAmount())
                                 .timestamp(i.getTimestamp())
                                 .build();
-                        return new MakePayment(i, paymentRequest);
+                        return new PaymentCmd(i, operation);
                     }),
                     Map.entry("sendMoney", i -> {
-                        PaymentRequest paymentRequest = TransferRequest.builder()
+                        var operation = TransferRequest.builder()
                                 .senderAccount(IBAN.of(i.getAccount()))
                                 .receiverAccount(i.getReceiver())
                                 .description(i.getDescription())
                                 .amount(i.getAmount())
                                 .timestamp(i.getTimestamp())
                                 .build();
-                        return new MakePayment(i, paymentRequest);
+                        return new PaymentCmd(i, operation);
                     })
+
             );
 
     private CommandFactory() {
@@ -68,45 +79,47 @@ public final class CommandFactory {
         return COMMANDS.getOrDefault(command, i -> null).apply(input);
     }
 
-    private static final class PrintUsers extends Command {
-        private PrintUsers(final CommandInput input) {
+    private static final class PrintUsersCmd extends Command {
+        private PrintUsersCmd(final CommandInput input) {
             super(input);
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
-            return Optional.of(
-                    CommandOutput.builder()
+            BankOperationResult<List<UserView>> result = bank.processOperation(new GetAllUsers());
+            return Optional.of(result.isSuccess())
+                    .map(success -> CommandOutput.builder()
                             .command(getInput().getCommand())
                             .timestamp(getInput().getTimestamp())
-                            .output(MAPPER.valueToTree(bank.getUsers()))
+                            .output(MAPPER.valueToTree(result.getPayload().get()))
                             .build());
         }
     }
 
-    private static final class AddAccount extends Command {
-        private AddAccount(final CommandInput input) {
+    private static final class AddAccountCmd extends Command {
+        private AddAccountCmd(final CommandInput input) {
             super(input);
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            bank.createAccount(
-                    Email.of(input.getEmail()),
-                    Currency.of(input.getCurrency()),
-                    BankAccountType.of(input.getAccountType()),
-                    input.getInterestRate(),
-                    input.getTimestamp()
-            );
+            var operation = CreateBankAccount.builder()
+                    .ownerEmail(Email.of(input.getEmail()))
+                    .currency(Currency.of(input.getCurrency()))
+                    .type(BankAccountType.of(input.getAccountType()))
+                    .interestRate(input.getInterestRate())
+                    .timestamp(input.getTimestamp())
+                    .build();
+            bank.processOperation(operation);
             return Optional.empty();
         }
     }
 
-    private static final class CreateCard extends Command {
+    private static final class CreateCardCmd extends Command {
         private final String cardType;
 
-        private CreateCard(final CommandInput input, final String cardType) {
+        private CreateCardCmd(final CommandInput input, final String cardType) {
             super(input);
             this.cardType = cardType;
         }
@@ -114,35 +127,37 @@ public final class CommandFactory {
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            bank.createCard(
-                    Email.of(input.getEmail()),
-                    IBAN.of(input.getAccount()),
-                    CardType.of(cardType),
-                    input.getTimestamp()
-            );
+            CreateCard.builder()
+                    .ownerEmail(Email.of(input.getEmail()))
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .type(CardType.of(cardType))
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
             return Optional.empty();
         }
     }
 
-    private static final class AddFunds extends Command {
-        private AddFunds(final CommandInput input) {
+    private static final class AddFundsCmd extends Command {
+        private AddFundsCmd(final CommandInput input) {
             super(input);
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            bank.addFunds(
-                    IBAN.of(input.getAccount()),
-                    input.getAmount(),
-                    input.getTimestamp()
-            );
+            AddFunds.builder()
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .amount(input.getAmount())
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
             return Optional.empty();
         }
     }
 
-    private static final class DeleteAccount extends Command {
-        private DeleteAccount(final CommandInput input) {
+    private static final class DeleteAccountCmd extends Command {
+        private DeleteAccountCmd(final CommandInput input) {
             super(input);
         }
 
@@ -150,16 +165,17 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             ObjectNode output = MAPPER.createObjectNode();
-            try {
-                bank.deleteAccount(
-                        Email.of(input.getEmail()),
-                        IBAN.of(input.getAccount()),
-                        input.getTimestamp()
-                );
+            var result = DeleteBankAccount.builder()
+                    .ownerEmail(Email.of(input.getEmail()))
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
+            if (result.isSuccess()) {
                 output.put("success", "Account deleted")
                         .put("timestamp", input.getTimestamp());
-            } catch (IllegalArgumentException e) {
-                output.put("error", e.getMessage())
+            } else {
+                output.put("error", result.getMessage())
                         .put("timestamp", input.getTimestamp());
             }
             return Optional.of(
@@ -171,77 +187,75 @@ public final class CommandFactory {
         }
     }
 
-    private static final class DeleteCard extends Command {
-        private DeleteCard(final CommandInput input) {
+    private static final class DeleteCardCmd extends Command {
+        private DeleteCardCmd(final CommandInput input) {
             super(input);
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            bank.deleteCard(
-                    CardNumber.of(input.getCardNumber()),
-                    input.getTimestamp()
-            );
+            DeleteCard.builder()
+                    .cardNumber(CardNumber.of(input.getCardNumber()))
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
             return Optional.empty();
         }
     }
 
-    private static final class SetMinBalance extends Command {
-        private SetMinBalance(final CommandInput input) {
+    private static final class SetMinBalanceCmd extends Command {
+        private SetMinBalanceCmd(final CommandInput input) {
             super(input);
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            try {
-                bank.setAccMinBalance(
-                        IBAN.of(input.getAccount()),
-                        input.getMinBalance(),
-                        input.getTimestamp()
-                );
-            } catch (IllegalArgumentException e) {
-                return Optional.of(
-                        CommandOutput.builder()
-                                .command(input.getCommand())
-                                .timestamp(input.getTimestamp())
-                                .output(MAPPER.createObjectNode()
-                                        .put("error", e.getMessage())
-                                        .put("timestamp", input.getTimestamp()))
-                                .build());
-            }
-            return Optional.empty();
+            var result = SetAccountMinBalance.builder()
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .minBalance(input.getMinBalance())
+                    .build()
+                    .processBy(bank);
+            return result.isSuccess()
+                    ? Optional.empty()
+                    : Optional.of(
+                    CommandOutput.builder()
+                            .command(input.getCommand())
+                            .timestamp(input.getTimestamp())
+                            .output(MAPPER.createObjectNode()
+                                    .put("error", result.getMessage())
+                                    .put("timestamp", input.getTimestamp()))
+                            .build());
         }
+
     }
 
-    private static final class MakePayment extends Command {
-        private final PaymentRequest paymentRequest;
+    private static final class PaymentCmd extends Command {
+        private final BankOperation<Void> paymentOperation;
 
-        private MakePayment(final CommandInput input,
-                            final PaymentRequest paymentRequest) {
+        private PaymentCmd(final CommandInput input,
+                           final BankOperation<Void> paymentOperation) {
             super(input);
-            this.paymentRequest = paymentRequest;
+            this.paymentOperation = paymentOperation;
         }
 
         @Override
-        public Optional<CommandOutput> execute(Bank bank) {
-            CommandInput input = getInput();
+        public Optional<CommandOutput> execute(final Bank bank) {
+            var result = bank.processOperation(paymentOperation);
 
-            try {
-                bank.makePayment(paymentRequest);
-            } catch (IllegalArgumentException e) {
-                return Optional.of(
-                        CommandOutput.builder()
-                                .command(input.getCommand())
-                                .timestamp(input.getTimestamp())
-                                .output(MAPPER.createObjectNode()
-                                        .put("description", e.getMessage())
-                                        .put("timestamp", input.getTimestamp()))
-                                .build());
-            }
+            return result.isSuccess()
+                    ? Optional.empty()
+                    : Optional.of(
+                    CommandOutput.builder()
+                            .command(getInput().getCommand())
+                            .timestamp(getInput().getTimestamp())
+                            .output(MAPPER.createObjectNode()
+                                    .put("description", result.getMessage())
+                                    .put("timestamp", getInput().getTimestamp()))
+                            .build());
 
-            return Optional.empty();
         }
     }
+
 }
