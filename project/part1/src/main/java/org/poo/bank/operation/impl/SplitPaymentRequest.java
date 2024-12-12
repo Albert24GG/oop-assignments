@@ -9,12 +9,13 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.SplitPaymentLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
 import java.util.List;
-import java.util.OptionalInt;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Builder
@@ -44,35 +45,45 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
         double splitAmount = amount / accounts.size();
         List<Double> amounts = accounts.stream()
                 .map(account -> context.currencyExchangeService()
-                        .convert(account.getCurrency(), currency, splitAmount))
+                        .convert(currency, account.getCurrency(), splitAmount))
                 .toList();
 
-        // Prepare the transaction log
-        SplitPaymentLog transactionLog = SplitPaymentLog.builder()
-                .timestamp(timestamp)
-                .amount(splitAmount)
-                .involvedAccounts(involvedAccounts)
-                .currency(currency)
-                .build();
-
         // Check if all accounts have enough funds
-        OptionalInt firstAccountWithInsufficientFunds = IntStream.range(0, accounts.size())
+        Optional<BankAccount> lastAccountWithInsufficientFunds = IntStream.range(0, accounts.size())
                 .filter(
                         i -> accounts.get(i).getBalance() < amounts.get(i)
                 )
+                .reduce((a, b) -> b).stream()
+                .mapToObj(accounts::get)
                 .findFirst();
 
-        if (firstAccountWithInsufficientFunds.isPresent()) {
-            transactionLog = transactionLog.toBuilder()
-                    .error("Insufficient funds")
-                    .build();
-        } else {
-            accounts.forEach(account -> context.bankAccService().removeFunds(account, splitAmount));
-        }
+        // Prepare the transaction log
+        var logBuilder = SplitPaymentLog.builder()
+                .timestamp(timestamp)
+                .amount(splitAmount)
+                .involvedAccounts(involvedAccounts)
+                .currency(currency);
 
-        SplitPaymentLog finalTransactionLog = transactionLog;
+
+        TransactionLog transactionLog = lastAccountWithInsufficientFunds.<TransactionLog>map(
+                account -> logBuilder
+                        .error(String.format(
+                                "Account %s has insufficient funds for a split payment",
+                                account.getIban()))
+                        .build()
+        ).orElseGet(
+                () -> {
+                    IntStream.range(0, accounts.size())
+                            .forEach(i -> context.bankAccService()
+                                    .removeFunds(accounts.get(i), amounts.get(i)));
+                    return logBuilder
+                            .description(
+                                    String.format("Split payment of %.2f %s", amount, currency))
+                            .build();
+                }
+        );
         accounts.forEach(account -> context.transactionService()
-                .logTransaction(account.getIban(), finalTransactionLog));
+                .logTransaction(account.getIban(), transactionLog));
         return BankOperationResult.success();
     }
 }

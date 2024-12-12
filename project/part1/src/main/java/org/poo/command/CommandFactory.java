@@ -19,6 +19,7 @@ import org.poo.bank.operation.impl.GetAllUsers;
 import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
+import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
@@ -48,7 +49,8 @@ public final class CommandFactory {
                     Map.entry("payOnline", OnlinePaymentCmd::new),
                     Map.entry("sendMoney", SendMoneyCmd::new),
                     Map.entry("checkCardStatus", CheckCardStatusCmd::new),
-                    Map.entry("changeInterestRate", ChangeInterestRateCmd::new)
+                    Map.entry("changeInterestRate", ChangeInterestRateCmd::new),
+                    Map.entry("splitPayment", SplitPaymentCmd::new)
             );
 
     private CommandFactory() {
@@ -357,6 +359,27 @@ public final class CommandFactory {
                                     .put("description", result.getMessage())
                                     .put("timestamp", input.getTimestamp()))
                             .build());
+        }
+    }
+
+    private static final class SplitPaymentCmd extends Command {
+        private SplitPaymentCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+
+            SplitPaymentRequest.builder()
+                    .involvedAccounts(
+                            input.getAccounts().stream().map(IBAN::of).toList())
+                    .currency(Currency.of(input.getCurrency()))
+                    .amount(input.getAmount())
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
+            return Optional.empty();
         }
     }
 
