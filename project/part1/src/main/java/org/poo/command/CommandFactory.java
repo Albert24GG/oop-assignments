@@ -9,6 +9,7 @@ import org.poo.bank.card.CardType;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
+import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.CheckCardStatus;
 import org.poo.bank.operation.impl.CreateBankAccount;
 import org.poo.bank.operation.impl.CreateCard;
@@ -46,8 +47,8 @@ public final class CommandFactory {
                     Map.entry("setAlias", SetAliasCmd::new),
                     Map.entry("payOnline", OnlinePaymentCmd::new),
                     Map.entry("sendMoney", SendMoneyCmd::new),
-                    Map.entry("checkCardStatus", CheckCardStatusCmd::new)
-
+                    Map.entry("checkCardStatus", CheckCardStatusCmd::new),
+                    Map.entry("changeInterestRate", ChangeInterestRateCmd::new)
             );
 
     private CommandFactory() {
@@ -319,6 +320,33 @@ public final class CommandFactory {
                     .build()
                     .processBy(bank);
 
+            return result.isSuccess()
+                    ? Optional.empty()
+                    : Optional.of(
+                    CommandOutput.builder()
+                            .command(input.getCommand())
+                            .timestamp(input.getTimestamp())
+                            .output(MAPPER.createObjectNode()
+                                    .put("description", result.getMessage())
+                                    .put("timestamp", input.getTimestamp()))
+                            .build());
+        }
+    }
+
+    private static final class ChangeInterestRateCmd extends Command {
+        private ChangeInterestRateCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            var result = ChangeInterestRate.builder()
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .newInterestRate(input.getInterestRate())
+                    .timestamp(input.getTimestamp())
+                    .build()
+                    .processBy(bank);
             return result.isSuccess()
                     ? Optional.empty()
                     : Optional.of(
