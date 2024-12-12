@@ -81,4 +81,15 @@ public final class CardService {
     public boolean validateCardOwnership(final Card card, final UserAccount user) {
         return card.getOwner().equals(user);
     }
+
+    /**
+     * Update the status of the card.
+     * The status is updated based on the balance of the linked account.
+     *
+     * @param card the card
+     * @return the new status of the card
+     */
+    public Card.Status updateCardStatus(final Card card) {
+        return card.updateStatus();
+    }
 }

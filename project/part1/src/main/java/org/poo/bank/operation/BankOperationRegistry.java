@@ -2,6 +2,7 @@ package org.poo.bank.operation;
 
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
+import org.poo.bank.operation.impl.CheckCardStatus;
 import org.poo.bank.operation.impl.CreateBankAccount;
 import org.poo.bank.operation.impl.CreateCard;
 import org.poo.bank.operation.impl.CreateUserAccount;
@@ -35,7 +36,8 @@ public final class BankOperationRegistry {
                     TransferRequest.class,
                     SplitPaymentRequest.class,
                     SetAccountMinBalance.class,
-                    SetAccountAlias.class
+                    SetAccountAlias.class,
+                    CheckCardStatus.class
             )
     );
 
