@@ -67,7 +67,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
             transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
                     .amount(convertedAmount)
-                    .description(description)
+                    .description("Card payment")
                     .merchant(merchant)
                     .build();
         }
