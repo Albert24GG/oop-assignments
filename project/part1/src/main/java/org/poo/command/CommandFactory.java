@@ -6,7 +6,6 @@ import org.poo.bank.Bank;
 import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserView;
 import org.poo.bank.card.CardType;
-import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
@@ -15,8 +14,8 @@ import org.poo.bank.operation.impl.CreateCard;
 import org.poo.bank.operation.impl.DeleteBankAccount;
 import org.poo.bank.operation.impl.DeleteCard;
 import org.poo.bank.operation.impl.GetAllUsers;
+import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
-import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -40,28 +39,7 @@ public final class CommandFactory {
                     Map.entry("deleteAccount", DeleteAccountCmd::new),
                     Map.entry("deleteCard", DeleteCardCmd::new),
                     Map.entry("setMinimumBalance", SetMinBalanceCmd::new),
-                    Map.entry("payOnline", i -> {
-                        var operation = CardPaymentRequest.builder()
-                                .cardNumber(CardNumber.of(i.getCardNumber()))
-                                .ownerEmail(Email.of(i.getEmail()))
-                                .description(i.getDescription())
-                                .currency(Currency.of(i.getCurrency()))
-                                .merchant(i.getCommerciant())
-                                .amount(i.getAmount())
-                                .timestamp(i.getTimestamp())
-                                .build();
-                        return new PaymentCmd(i, operation);
-                    }),
-                    Map.entry("sendMoney", i -> {
-                        var operation = TransferRequest.builder()
-                                .senderAccount(IBAN.of(i.getAccount()))
-                                .receiverAccount(i.getReceiver())
-                                .description(i.getDescription())
-                                .amount(i.getAmount())
-                                .timestamp(i.getTimestamp())
-                                .build();
-                        return new PaymentCmd(i, operation);
-                    })
+                    Map.entry("setAlias", SetAliasCmd::new)
 
             );
 
@@ -255,6 +233,24 @@ public final class CommandFactory {
                                     .put("timestamp", getInput().getTimestamp()))
                             .build());
 
+        }
+    }
+
+    private static final class SetAliasCmd extends Command {
+        private SetAliasCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            SetAccountAlias.builder()
+                    .ownerEmail(Email.of(input.getEmail()))
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .alias(input.getAlias())
+                    .build()
+                    .processBy(bank);
+            return Optional.empty();
         }
     }
 
