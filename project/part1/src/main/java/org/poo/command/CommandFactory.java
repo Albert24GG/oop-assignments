@@ -17,6 +17,7 @@ import org.poo.bank.operation.impl.GetAllUsers;
 import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
+import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -41,7 +42,9 @@ public final class CommandFactory {
                     Map.entry("deleteAccount", DeleteAccountCmd::new),
                     Map.entry("deleteCard", DeleteCardCmd::new),
                     Map.entry("setMinimumBalance", SetMinBalanceCmd::new),
-                    Map.entry("setAlias", SetAliasCmd::new)
+                    Map.entry("setAlias", SetAliasCmd::new),
+                    Map.entry("payOnline", OnlinePaymentCmd::new),
+                    Map.entry("sendMoney", SendMoneyCmd::new)
 
             );
 
@@ -229,18 +232,23 @@ public final class CommandFactory {
 
     }
 
-    private static final class PaymentCmd extends Command {
-        private final BankOperation<Void> paymentOperation;
-
-        private PaymentCmd(final CommandInput input,
-                           final BankOperation<Void> paymentOperation) {
+    private static final class OnlinePaymentCmd extends Command {
+        private OnlinePaymentCmd(final CommandInput input) {
             super(input);
-            this.paymentOperation = paymentOperation;
         }
 
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
-            var result = bank.processOperation(paymentOperation);
+            var result = CardPaymentRequest.builder()
+                    .cardNumber(CardNumber.of(getInput().getCardNumber()))
+                    .ownerEmail(Email.of(getInput().getEmail()))
+                    .amount(getInput().getAmount())
+                    .description(getInput().getDescription())
+                    .currency(Currency.of(getInput().getCurrency()))
+                    .merchant(getInput().getCommerciant())
+                    .timestamp(getInput().getTimestamp())
+                    .build()
+                    .processBy(bank);
 
             return result.isSuccess()
                     ? Optional.empty()
@@ -253,6 +261,26 @@ public final class CommandFactory {
                                     .put("timestamp", getInput().getTimestamp()))
                             .build());
 
+        }
+    }
+
+    private static final class SendMoneyCmd extends Command {
+        private SendMoneyCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            TransferRequest.builder()
+                    .senderAccount(IBAN.of(getInput().getAccount()))
+                    .receiverAccount(getInput().getReceiver())
+                    .description(getInput().getDescription())
+                    .amount(getInput().getAmount())
+                    .timestamp(getInput().getTimestamp())
+                    .build()
+                    .processBy(bank);
+
+            return Optional.empty();
         }
     }
 
