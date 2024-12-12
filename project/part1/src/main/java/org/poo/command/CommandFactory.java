@@ -20,6 +20,7 @@ import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
+import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
@@ -50,7 +51,8 @@ public final class CommandFactory {
                     Map.entry("sendMoney", SendMoneyCmd::new),
                     Map.entry("checkCardStatus", CheckCardStatusCmd::new),
                     Map.entry("changeInterestRate", ChangeInterestRateCmd::new),
-                    Map.entry("splitPayment", SplitPaymentCmd::new)
+                    Map.entry("splitPayment", SplitPaymentCmd::new),
+                    Map.entry("report", ReportCmd::new)
             );
 
     private CommandFactory() {
@@ -380,6 +382,38 @@ public final class CommandFactory {
                     .build()
                     .processBy(bank);
             return Optional.empty();
+        }
+    }
+
+    private static final class ReportCmd extends Command {
+        private ReportCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            var result = TransactionsReportQuery.builder()
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .startTimestamp(input.getStartTimestamp())
+                    .endTimestamp(input.getEndTimestamp())
+                    .build()
+                    .processBy(bank);
+            return Optional.of(
+                    Optional.of(result.isSuccess())
+                            .map(success -> CommandOutput.builder()
+                                    .command(getInput().getCommand())
+                                    .timestamp(getInput().getTimestamp())
+                                    .output(MAPPER.valueToTree(result.getPayload().get()))
+                                    .build())
+                            .orElseGet(() ->
+                                    CommandOutput.builder()
+                                            .command(getInput().getCommand())
+                                            .timestamp(getInput().getTimestamp())
+                                            .output(MAPPER.createObjectNode()
+                                                    .put("description", result.getMessage())
+                                                    .put("timestamp", getInput().getTimestamp()))
+                                            .build()));
         }
     }
 

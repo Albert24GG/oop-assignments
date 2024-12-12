@@ -35,6 +35,22 @@ public final class TransactionService {
     }
 
     /**
+     * Gets the transaction logs for an account within a time range.
+     *
+     * @param account        the IBAN of the account to get the transaction logs for
+     * @param startTimestamp the start timestamp
+     * @param endTimestamp   the end timestamp
+     * @return the transaction logs for the account within the time range, or an empty list if the
+     * account does not exist
+     */
+    public List<TransactionLog> getLogs(final IBAN account, int startTimestamp, int endTimestamp) {
+        return logs.getOrDefault(account, Collections.emptyList()).stream()
+                .filter(log -> log.getTimestamp() >= startTimestamp &&
+                        log.getTimestamp() <= endTimestamp)
+                .toList();
+    }
+
+    /**
      * Removes the transaction logs for an account.
      *
      * @param account the IBAN of the account to remove the transaction logs for
