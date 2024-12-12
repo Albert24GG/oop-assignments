@@ -61,8 +61,8 @@ public final class TransferRequest extends BankOperation<Void> {
             sendTransactionLog = TransferLog.builder()
                     .timestamp(timestamp)
                     .description(description)
-                    .senderIban(sender.getIban())
-                    .receiverIban(receiver.getIban())
+                    .senderIBAN(sender.getIban())
+                    .receiverIBAN(receiver.getIban())
                     .amount(sentAmount + " " + sender.getCurrency())
                     .transferType("sent")
                     .build();

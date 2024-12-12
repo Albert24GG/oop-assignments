@@ -8,7 +8,9 @@ import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.DeleteBankAccount;
 import org.poo.bank.operation.impl.DeleteCard;
 import org.poo.bank.operation.impl.GetAllUsers;
+import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
+import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransferRequest;
@@ -19,6 +21,7 @@ import java.util.Set;
 public final class BankOperationRegistry {
     private static final Set<Class<? extends BankOperation<?>>> ALLOWED_OPERATIONS = Set.copyOf(
             Arrays.asList(
+                    GetUserTransactions.class,
                     GetAllUsers.class,
                     RegisterExchangeRate.class,
                     CreateUserAccount.class,
@@ -31,7 +34,8 @@ public final class BankOperationRegistry {
                     CardPaymentRequest.class,
                     TransferRequest.class,
                     SplitPaymentRequest.class,
-                    SetAccountMinBalance.class
+                    SetAccountMinBalance.class,
+                    SetAccountAlias.class
             )
     );
 

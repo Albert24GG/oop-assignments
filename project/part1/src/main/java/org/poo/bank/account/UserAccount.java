@@ -45,7 +45,7 @@ public class UserAccount {
      *
      * @return the list of bank accounts
      */
-    List<BankAccount> getAccounts() {
+    public List<BankAccount> getAccounts() {
         return List.copyOf(accounts);
     }
 }

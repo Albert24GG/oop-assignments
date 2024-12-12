@@ -1,10 +1,12 @@
 package org.poo.bank.transaction.impl;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 
-@SuperBuilder
+@Getter
+@SuperBuilder(toBuilder = true)
 public final class CardPaymentLog extends TransactionLog {
     @NonNull
     private final Double amount;

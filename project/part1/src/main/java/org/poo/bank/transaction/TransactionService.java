@@ -31,7 +31,7 @@ public final class TransactionService {
      * @return the transaction logs for the account, or an empty list if the account does not exist
      */
     public List<TransactionLog> getLogs(final IBAN account) {
-        return logs.getOrDefault(account, Collections.emptyList());
+        return List.copyOf(logs.getOrDefault(account, Collections.emptyList()));
     }
 
     /**

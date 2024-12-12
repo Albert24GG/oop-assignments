@@ -1,9 +1,14 @@
 package org.poo.bank.transaction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder(toBuilder = true)
+@Getter
 public abstract class TransactionLog {
     @NonNull
     private final Integer timestamp;
@@ -25,5 +30,6 @@ public abstract class TransactionLog {
      *
      * @return the type of the transaction
      */
+    @JsonIgnore
     public abstract Type getType();
 }

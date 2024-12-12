@@ -1,5 +1,6 @@
 package org.poo.bank.transaction.impl;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
@@ -8,6 +9,7 @@ import org.poo.bank.type.IBAN;
 
 import java.util.List;
 
+@Getter
 @SuperBuilder(toBuilder = true)
 public final class SplitPaymentLog extends TransactionLog {
     @NonNull

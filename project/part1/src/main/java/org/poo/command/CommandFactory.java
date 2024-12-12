@@ -14,6 +14,7 @@ import org.poo.bank.operation.impl.CreateCard;
 import org.poo.bank.operation.impl.DeleteBankAccount;
 import org.poo.bank.operation.impl.DeleteCard;
 import org.poo.bank.operation.impl.GetAllUsers;
+import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
 import org.poo.bank.type.CardNumber;
@@ -32,6 +33,7 @@ public final class CommandFactory {
     private static final Map<String, Function<CommandInput, Command>> COMMANDS =
             Map.ofEntries(
                     Map.entry("printUsers", PrintUsersCmd::new),
+                    Map.entry("printTransactions", PrintTransactionsCmd::new),
                     Map.entry("addAccount", AddAccountCmd::new),
                     Map.entry("createCard", i -> new CreateCardCmd(i, "DEBIT")),
                     Map.entry("createOneTimeCard", i -> new CreateCardCmd(i, "SINGLE_USE")),
@@ -65,6 +67,24 @@ public final class CommandFactory {
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             BankOperationResult<List<UserView>> result = bank.processOperation(new GetAllUsers());
+            return Optional.of(result.isSuccess())
+                    .map(success -> CommandOutput.builder()
+                            .command(getInput().getCommand())
+                            .timestamp(getInput().getTimestamp())
+                            .output(MAPPER.valueToTree(result.getPayload().get()))
+                            .build());
+        }
+    }
+
+    private static final class PrintTransactionsCmd extends Command {
+        private PrintTransactionsCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            var result = bank.processOperation(new GetUserTransactions(Email.of(input.getEmail())));
             return Optional.of(result.isSuccess())
                     .map(success -> CommandOutput.builder()
                             .command(getInput().getCommand())
