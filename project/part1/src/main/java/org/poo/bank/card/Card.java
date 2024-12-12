@@ -12,11 +12,11 @@ import org.poo.bank.card.impl.SingleUseCard;
 import org.poo.bank.type.CardNumber;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@EqualsAndHashCode
 @Getter
 public abstract class Card {
     private static final int LOW_BALANCE_THRESHOLD = 30;
 
+    @EqualsAndHashCode.Exclude
     private final BankAccount linkedAccount;
     private final CardType type;
     @Setter(lombok.AccessLevel.PROTECTED)

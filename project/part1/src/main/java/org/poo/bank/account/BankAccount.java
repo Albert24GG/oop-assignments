@@ -13,10 +13,10 @@ import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@EqualsAndHashCode(exclude = "cards")
 @Getter
 public abstract class BankAccount {
     private final IBAN iban = IBAN.generate();
@@ -26,6 +26,7 @@ public abstract class BankAccount {
     private final BankAccountType type;
     private final Currency currency;
     private final UserAccount owner;
+    @EqualsAndHashCode.Exclude
     private final Set<Card> cards = new LinkedHashSet<>();
     @Setter(AccessLevel.PROTECTED)
     private double balance = 0.0;
