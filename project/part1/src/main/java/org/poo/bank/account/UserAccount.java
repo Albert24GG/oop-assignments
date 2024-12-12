@@ -6,6 +6,7 @@ import org.poo.bank.type.Email;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserAccount {
@@ -34,10 +35,11 @@ public class UserAccount {
      * Remove a bank account from the user account.
      *
      * @param account the bank account to remove
-     * @return the removed account, or {@code null} if the account does not exist
+     * @return an {@link Optional} containing the removed bank account, or an
+     * {@link Optional#empty()} if the account does not exist
      */
-    BankAccount removeAccount(final BankAccount account) {
-        return accounts.remove(account) ? account : null;
+    Optional<BankAccount> removeAccount(final BankAccount account) {
+        return Optional.ofNullable(accounts.remove(account) ? account : null);
     }
 
     /**

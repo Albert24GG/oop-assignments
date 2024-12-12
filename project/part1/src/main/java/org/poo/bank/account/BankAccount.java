@@ -76,10 +76,11 @@ public abstract class BankAccount {
      * Removes a card from the account
      *
      * @param card the card to remove
-     * @return the removed card, or {@code null} if the card does not exist
+     * @return an {@link Optional} containing the removed card, or an
+     * {@link Optional#empty()} if the card does not exist
      */
-    public final Card removeCard(@NonNull final Card card) {
-        return cards.remove(card) ? card : null;
+    public final Optional<Card> removeCard(@NonNull final Card card) {
+        return Optional.ofNullable(cards.remove(card) ? card : null);
     }
 
     final void addFunds(final double amount) {
