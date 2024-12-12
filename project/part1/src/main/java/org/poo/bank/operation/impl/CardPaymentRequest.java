@@ -47,7 +47,13 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         }
 
         if (card.getStatus() == Card.Status.FROZEN) {
-            throw new BankOperationException(BankErrorType.CARD_FROZEN);
+            TransactionLog transactionLog = GenericLog.builder()
+                    .timestamp(timestamp)
+                    .description("The card is frozen")
+                    .build();
+            context.transactionService()
+                    .logTransaction(card.getLinkedAccount().getIban(), transactionLog);
+            return BankOperationResult.success();
         }
 
         BankAccount bankAccount = card.getLinkedAccount();
