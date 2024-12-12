@@ -1,5 +1,6 @@
 package org.poo.bank.transaction.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
@@ -10,6 +11,7 @@ import org.poo.bank.transaction.TransactionLog;
 public final class CardPaymentLog extends TransactionLog {
     @NonNull
     private final Double amount;
+    @JsonProperty("commerciant")
     @NonNull
     private final String merchant;
 
