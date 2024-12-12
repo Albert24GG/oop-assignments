@@ -3,7 +3,6 @@ package org.poo.bank.operation.impl;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
@@ -24,13 +23,10 @@ public final class AddFunds extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        try {
-            BankAccount bankAccount =
-                    ValidationUtil.getBankAccountByIban(context.bankAccService(), accountIban);
-            context.bankAccService().addFunds(bankAccount, amount);
-        } catch (IllegalArgumentException e) {
-            throw new BankOperationException(BankErrorType.INVALID_ARGUMENT, e.getMessage());
-        }
+        BankAccount bankAccount = context.bankAccService().getAccountByIban(accountIban)
+                .orElseThrow(
+                        () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
+        context.bankAccService().addFunds(bankAccount, amount);
         return BankOperationResult.success();
     }
 }

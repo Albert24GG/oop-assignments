@@ -6,6 +6,7 @@ import org.poo.bank.type.IBAN;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class BankAccService {
     private final Map<IBAN, BankAccount> ibanMapping = new HashMap<>();
@@ -43,20 +44,22 @@ public final class BankAccService {
      * Get the account with the given IBAN.
      *
      * @param iban the IBAN of the account
-     * @return the account with the given IBAN, or {@code null} if the account does not exist
+     * @return an {@link Optional} containing the account with the given IBAN, or an
+     * {@link Optional#empty()} if the account does not exist
      */
-    public BankAccount getAccountByIban(@NonNull final IBAN iban) {
-        return ibanMapping.get(iban);
+    public Optional<BankAccount> getAccountByIban(@NonNull final IBAN iban) {
+        return Optional.ofNullable(ibanMapping.get(iban));
     }
 
     /**
      * Get the account with the given alias.
      *
      * @param alias the alias of the account
-     * @return the account with the given alias, or {@code null} if the account does not exist
+     * @return an {@link Optional} containing the account with the given alias, or an
+     * {@link Optional#empty()} if the account does not exist
      */
-    public BankAccount getAccountByAlias(@NonNull final String alias) {
-        return aliasMapping.get(alias);
+    public Optional<BankAccount> getAccountByAlias(@NonNull final String alias) {
+        return Optional.ofNullable(aliasMapping.get(alias));
     }
 
 
@@ -64,12 +67,13 @@ public final class BankAccService {
      * Remove the account.
      *
      * @param account the account to remove
-     * @return the removed account, or {@code null} if the account does not exist
+     * @return an {@link Optional} containing the removed account, or an {@link Optional#empty()} if the
+     * account does not exist
      */
-    public BankAccount removeAccount(@NonNull final BankAccount account) {
+    public Optional<BankAccount> removeAccount(@NonNull final BankAccount account) {
         account.getOwner().removeAccount(account);
         aliasMapping.remove(account.getAlias());
-        return ibanMapping.remove(account.getIban());
+        return Optional.ofNullable(ibanMapping.remove(account.getIban()));
     }
 
     /**
@@ -123,4 +127,14 @@ public final class BankAccService {
         account.collectInterest();
     }
 
+    /**
+     * Validate that the account is owned by the given user.
+     *
+     * @param account the account
+     * @param user    the user
+     * @return {@code true} if the account is owned by the user, {@code false} otherwise
+     */
+    public boolean validateAccountOwnership(final BankAccount account, final UserAccount user) {
+        return account.getOwner().equals(user);
+    }
 }

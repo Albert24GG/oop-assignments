@@ -2,10 +2,12 @@ package org.poo.bank.card;
 
 import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.UserAccount;
 import org.poo.bank.type.CardNumber;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class CardService {
     /**
@@ -30,21 +32,23 @@ public final class CardService {
      * Get the card with the given number.
      *
      * @param number the number of the card
-     * @return the card with the given number, or {@code null} if the card does not exist
+     * @return an {@link Optional} containing the card with the given number, or an
+     * {@link Optional#empty()} if the card does not exist
      */
-    public Card getCard(@NonNull final CardNumber number) {
-        return cards.get(number);
+    public Optional<Card> getCard(@NonNull final CardNumber number) {
+        return Optional.ofNullable(cards.get(number));
     }
 
     /**
      * Remove the given card.
      *
      * @param card the card to remove
-     * @return the removed card, or {@code null} if the card does not exist
+     * @return an {@link Optional} containing the removed card, or an
+     * {@link Optional#empty()} if the card does not exist
      */
-    public Card removeCard(@NonNull final Card card) {
+    public Optional<Card> removeCard(@NonNull final Card card) {
         card.getLinkedAccount().removeCard(card);
-        return cards.remove(card.getNumber());
+        return Optional.ofNullable(cards.remove(card.getNumber()));
     }
 
     /**
@@ -54,5 +58,27 @@ public final class CardService {
      */
     public void paymentMade(@NonNull final Card card) {
         card.paymentMade();
+    }
+
+    /**
+     * Validate that the card is owned by the given account.
+     *
+     * @param card    the card
+     * @param account the account
+     * @return {@code true} if the card is owned by the account, {@code false} otherwise
+     */
+    public boolean validateCardOwnership(final Card card, final BankAccount account) {
+        return card.getLinkedAccount().equals(account);
+    }
+
+    /**
+     * Validate that the card is owned by the given user.
+     *
+     * @param card the card
+     * @param user the user
+     * @return {@code true} if the card is owned by the user, {@code false} otherwise
+     */
+    public boolean validateCardOwnership(final Card card, final UserAccount user) {
+        return card.getOwner().equals(user);
     }
 }

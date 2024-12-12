@@ -3,7 +3,6 @@ package org.poo.bank.operation.impl;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
@@ -14,6 +13,8 @@ import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.GenericLog;
 import org.poo.bank.transaction.impl.TransferLog;
 import org.poo.bank.type.IBAN;
+
+import java.util.Optional;
 
 @Builder
 @RequiredArgsConstructor
@@ -34,29 +35,17 @@ public final class TransferRequest extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount sender;
-        try {
-            sender = ValidationUtil.getBankAccountByIban(context.bankAccService(), senderAccount);
-        } catch (IllegalArgumentException e) {
-            throw new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND, e.getMessage());
-        }
-        BankAccount receiver;
-        try {
-            receiver =
-                    ValidationUtil.getBankAccountByAlias(context.bankAccService(), receiverAccount);
-        } catch (IllegalArgumentException e) {
-            try {
-                receiver = ValidationUtil.getBankAccountByIban(context.bankAccService(),
-                        IBAN.of(receiverAccount));
-            } catch (IllegalArgumentException e2) {
-                throw new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND, e2.getMessage());
-            }
-        }
+        BankAccount sender = context.bankAccService().getAccountByIban(senderAccount)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
+        BankAccount receiver = context.bankAccService().getAccountByAlias(receiverAccount)
+                .orElseGet(() -> context.bankAccService().getAccountByIban(IBAN.of(receiverAccount))
+                        .orElseThrow(
+                                () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND)));
 
         double sentAmount = amount;
 
         TransactionLog sendTransactionLog;
-        TransactionLog receiveTransactionLog = null;
+        Optional<TransactionLog> receiveTransactionLog = Optional.empty();
         if (sender.getBalance() < sentAmount) {
             sendTransactionLog = GenericLog.builder()
                     .timestamp(timestamp)
@@ -78,16 +67,16 @@ public final class TransferRequest extends BankOperation<Void> {
                     .transferType("sent")
                     .build();
 
-            receiveTransactionLog = ((TransferLog) sendTransactionLog).toBuilder()
-                    .transferType("received")
-                    .amount(receivedAmount + " " + receiver.getCurrency())
-                    .build();
+            receiveTransactionLog = Optional.of(
+                    ((TransferLog) sendTransactionLog).toBuilder()
+                            .transferType("received")
+                            .amount(receivedAmount + " " + receiver.getCurrency())
+                            .build());
         }
 
         context.transactionService().logTransaction(sender.getIban(), sendTransactionLog);
-        if (receiveTransactionLog != null) {
-            context.transactionService().logTransaction(receiver.getIban(), receiveTransactionLog);
-        }
+        receiveTransactionLog.ifPresent(
+                log -> context.transactionService().logTransaction(receiver.getIban(), log));
         return BankOperationResult.success();
     }
 }

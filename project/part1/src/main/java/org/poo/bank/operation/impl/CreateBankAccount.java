@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
+import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -32,7 +33,9 @@ public final class CreateBankAccount extends BankOperation<Void> {
 
         BankAccount account =
                 context.bankAccService()
-                        .createAccount(context.userService().getUser(ownerEmail), currency, type,
+                        .createAccount(context.userService().getUser(ownerEmail)
+                                        .orElseThrow(() -> new BankOperationException(
+                                                BankErrorType.USER_NOT_FOUND)), currency, type,
                                 interestRate);
 
         TransactionLog transactionLog = AccountCreationLog.builder()

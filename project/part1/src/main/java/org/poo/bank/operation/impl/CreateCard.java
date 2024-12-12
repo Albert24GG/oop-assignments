@@ -3,7 +3,6 @@ package org.poo.bank.operation.impl;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
@@ -33,17 +32,13 @@ public final class CreateCard extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
+        UserAccount userAccount = context.userService().getUser(ownerEmail)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.USER_NOT_FOUND));
+        BankAccount bankAccount = context.bankAccService().getAccountByIban(accountIban)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
 
-        UserAccount userAccount;
-        BankAccount bankAccount;
-        try {
-            userAccount =
-                    ValidationUtil.getUserAccount(context.userService(), ownerEmail);
-            bankAccount =
-                    ValidationUtil.getBankAccountByIban(context.bankAccService(), accountIban);
-            ValidationUtil.validateAccountOwnership(bankAccount, userAccount);
-        } catch (IllegalArgumentException e) {
-            throw new BankOperationException(BankErrorType.INVALID_ARGUMENT, e.getMessage());
+        if (!context.bankAccService().validateAccountOwnership(bankAccount, userAccount)) {
+            throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
         }
 
         TransactionLog transactionLog;

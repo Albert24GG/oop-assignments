@@ -3,7 +3,6 @@ package org.poo.bank.operation.impl;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
@@ -36,16 +35,11 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
                     "At least two accounts must be involved in a split payment");
         }
 
-        List<BankAccount> accounts;
-        try {
-            accounts = involvedAccounts.stream()
-                    .map(accountIban -> ValidationUtil.getBankAccountByIban(
-                            context.bankAccService(),
-                            accountIban))
-                    .toList();
-        } catch (IllegalArgumentException e) {
-            throw new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND, e.getMessage());
-        }
+        List<BankAccount> accounts = involvedAccounts.stream()
+                .map(accountIban -> context.bankAccService().getAccountByIban(accountIban)
+                        .orElseThrow(
+                                () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND)))
+                .toList();
 
         double splitAmount = amount / accounts.size();
         List<Double> amounts = accounts.stream()

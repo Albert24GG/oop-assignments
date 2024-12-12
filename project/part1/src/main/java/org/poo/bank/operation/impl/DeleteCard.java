@@ -3,7 +3,6 @@ package org.poo.bank.operation.impl;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.poo.bank.ValidationUtil;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.operation.BankErrorType;
@@ -26,12 +25,8 @@ public final class DeleteCard extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        Card card;
-        try {
-            card = ValidationUtil.getCard(context.cardService(), cardNumber);
-        } catch (IllegalArgumentException e) {
-            throw new BankOperationException(BankErrorType.CARD_NOT_FOUND, e.getMessage());
-        }
+        Card card = context.cardService().getCard(cardNumber)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
 
         context.cardService().removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
