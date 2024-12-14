@@ -11,6 +11,7 @@ import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.CheckCardStatus;
+import org.poo.bank.operation.impl.CollectInterest;
 import org.poo.bank.operation.impl.CreateBankAccount;
 import org.poo.bank.operation.impl.CreateCard;
 import org.poo.bank.operation.impl.DeleteBankAccount;
@@ -54,7 +55,8 @@ public final class CommandFactory {
                     Map.entry("changeInterestRate", ChangeInterestRateCmd::new),
                     Map.entry("splitPayment", SplitPaymentCmd::new),
                     Map.entry("report", ReportCmd::new),
-                    Map.entry("spendingsReport", SpendingsReportCmd::new)
+                    Map.entry("spendingsReport", SpendingsReportCmd::new),
+                    Map.entry("addInterest", AddInterestCmd::new)
             );
 
     private CommandFactory() {
@@ -450,6 +452,29 @@ public final class CommandFactory {
                                                     .put("description", result.getMessage())
                                                     .put("timestamp", getInput().getTimestamp()))
                                             .build()));
+        }
+    }
+
+    private static final class AddInterestCmd extends Command {
+        private AddInterestCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            var result = new CollectInterest(IBAN.of(input.getAccount())).processBy(bank);
+
+            return result.isSuccess()
+                    ? Optional.empty()
+                    : Optional.of(
+                    CommandOutput.builder()
+                            .command(input.getCommand())
+                            .timestamp(input.getTimestamp())
+                            .output(MAPPER.createObjectNode()
+                                    .put("description", result.getMessage())
+                                    .put("timestamp", input.getTimestamp()))
+                            .build());
         }
     }
 

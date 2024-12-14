@@ -4,6 +4,7 @@ import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.CheckCardStatus;
+import org.poo.bank.operation.impl.CollectInterest;
 import org.poo.bank.operation.impl.CreateBankAccount;
 import org.poo.bank.operation.impl.CreateCard;
 import org.poo.bank.operation.impl.CreateUserAccount;
@@ -43,7 +44,8 @@ public final class BankOperationRegistry {
                     CheckCardStatus.class,
                     ChangeInterestRate.class,
                     TransactionsReportQuery.class,
-                    SpendingsReportQuery.class
+                    SpendingsReportQuery.class,
+                    CollectInterest.class
             )
     );
 
