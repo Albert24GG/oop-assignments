@@ -52,15 +52,6 @@ public final class CardService {
     }
 
     /**
-     * Trigger the payment made event on the card.
-     *
-     * @param card the card
-     */
-    public void paymentMade(@NonNull final Card card) {
-        card.paymentMade();
-    }
-
-    /**
      * Validate that the card is owned by the given account.
      *
      * @param card    the card

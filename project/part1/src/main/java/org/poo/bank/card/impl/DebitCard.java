@@ -8,9 +8,4 @@ public final class DebitCard extends Card {
     public DebitCard(final BankAccount account) {
         super(account, CardType.DEBIT);
     }
-
-    @Override
-    protected void paymentMade() {
-        // Do nothing
-    }
 }

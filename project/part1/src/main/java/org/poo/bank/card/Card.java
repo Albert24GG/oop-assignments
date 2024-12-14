@@ -71,9 +71,4 @@ public abstract class Card {
         };
         return status;
     }
-
-    /**
-     * Acknowledges that a payment has been made
-     */
-    protected abstract void paymentMade();
 }

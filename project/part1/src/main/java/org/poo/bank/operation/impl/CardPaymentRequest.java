@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
+import org.poo.bank.card.CardType;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -60,25 +61,30 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         double convertedAmount = context.currencyExchangeService()
                 .convert(currency, bankAccount.getCurrency(), amount);
 
-        TransactionLog transactionLog;
         if (bankAccount.getBalance() < convertedAmount) {
-            transactionLog = GenericLog.builder()
+            TransactionLog transactionLog = GenericLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();
+            context.transactionService().logTransaction(bankAccount.getIban(), transactionLog);
         } else {
             context.bankAccService().removeFunds(bankAccount, convertedAmount);
-            context.cardService().paymentMade(card);
 
-            transactionLog = CardPaymentLog.builder()
+            TransactionLog transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
                     .amount(convertedAmount)
                     .description("Card payment")
                     .merchant(merchant)
                     .build();
+            context.transactionService().logTransaction(bankAccount.getIban(), transactionLog);
+            // If the card is single use, renew it
+            if (card.getType() == CardType.SINGLE_USE) {
+                new DeleteCard(cardNumber, timestamp).execute(context);
+                new CreateCard(ownerEmail, bankAccount.getIban(), card.getType(),
+                        timestamp).execute(context);
+            }
         }
 
-        context.transactionService().logTransaction(bankAccount.getIban(), transactionLog);
         return BankOperationResult.success();
     }
 }
