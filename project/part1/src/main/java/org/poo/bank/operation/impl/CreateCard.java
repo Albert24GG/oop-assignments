@@ -14,7 +14,6 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CardOpLog;
-import org.poo.bank.transaction.impl.GenericLog;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 
@@ -37,18 +36,11 @@ public final class CreateCard extends BankOperation<Void> {
         BankAccount bankAccount = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
 
-        if (!context.bankAccService().validateAccountOwnership(bankAccount, userAccount)) {
-            throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
-        }
-
         TransactionLog transactionLog;
         // If the user is not the owner of the account, the card creation fails and an error is
         // logged
-        if (userAccount != bankAccount.getOwner()) {
-            transactionLog = GenericLog.builder()
-                    .timestamp(timestamp)
-                    .error("Card creation failed")
-                    .build();
+        if (!context.bankAccService().validateAccountOwnership(bankAccount, userAccount)) {
+            throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
         } else {
             Card newCard = context.cardService().createCard(bankAccount, type);
             transactionLog = CardOpLog.builder()
