@@ -402,11 +402,12 @@ public final class CommandFactory {
                     .build()
                     .processBy(bank);
             return Optional.of(
-                    Optional.of(result.isSuccess())
-                            .map(success -> CommandOutput.builder()
+                    Optional.ofNullable(result.isSuccess() && result.getPayload().isPresent() ?
+                                    result.getPayload().get() : null)
+                            .map(payload -> CommandOutput.builder()
                                     .command(getInput().getCommand())
                                     .timestamp(getInput().getTimestamp())
-                                    .output(MAPPER.valueToTree(result.getPayload().get()))
+                                    .output(MAPPER.valueToTree(payload))
                                     .build())
                             .orElseGet(() ->
                                     CommandOutput.builder()
@@ -434,7 +435,8 @@ public final class CommandFactory {
                     .build()
                     .processBy(bank);
             return Optional.of(
-                    Optional.of(result.isSuccess())
+                    Optional.ofNullable(result.isSuccess() && result.getPayload().isPresent() ?
+                                    result.getPayload().get() : null)
                             .map(success -> CommandOutput.builder()
                                     .command(getInput().getCommand())
                                     .timestamp(getInput().getTimestamp())
