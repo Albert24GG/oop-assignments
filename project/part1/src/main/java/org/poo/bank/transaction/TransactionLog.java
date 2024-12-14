@@ -20,7 +20,7 @@ public abstract class TransactionLog {
         ACCOUNT_CREATION,
         CARD_OPERATION,
         INTEREST_OPERATION,
-        PAYMENT,
+        CARD_PAYMENT,
         SPLIT_PAYMENT,
         TRANSFER
     }

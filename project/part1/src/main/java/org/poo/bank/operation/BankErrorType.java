@@ -16,6 +16,7 @@ public enum BankErrorType {
     ACCOUNT_DELETION_FAILED("Account couldn't be deleted - see org.poo.transactions for details"),
     UNAUTHORIZED_OPERATION("Unauthorized operation"),
     INVALID_ARGUMENT("Invalid argument"),
+    INVALID_OPERATION("Invalid operation"),
     CARD_FROZEN("Card is frozen");
 
     private final String message;

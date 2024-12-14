@@ -14,6 +14,7 @@ import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
+import org.poo.bank.operation.impl.SpendingsReportQuery;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
@@ -41,7 +42,8 @@ public final class BankOperationRegistry {
                     SetAccountAlias.class,
                     CheckCardStatus.class,
                     ChangeInterestRate.class,
-                    TransactionsReportQuery.class
+                    TransactionsReportQuery.class,
+                    SpendingsReportQuery.class
             )
     );
 

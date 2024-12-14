@@ -19,6 +19,7 @@ import org.poo.bank.operation.impl.GetAllUsers;
 import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
+import org.poo.bank.operation.impl.SpendingsReportQuery;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
@@ -52,7 +53,8 @@ public final class CommandFactory {
                     Map.entry("checkCardStatus", CheckCardStatusCmd::new),
                     Map.entry("changeInterestRate", ChangeInterestRateCmd::new),
                     Map.entry("splitPayment", SplitPaymentCmd::new),
-                    Map.entry("report", ReportCmd::new)
+                    Map.entry("report", ReportCmd::new),
+                    Map.entry("spendingsReport", SpendingsReportCmd::new)
             );
 
     private CommandFactory() {
@@ -394,6 +396,38 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             var result = TransactionsReportQuery.builder()
+                    .accountIban(IBAN.of(input.getAccount()))
+                    .startTimestamp(input.getStartTimestamp())
+                    .endTimestamp(input.getEndTimestamp())
+                    .build()
+                    .processBy(bank);
+            return Optional.of(
+                    Optional.of(result.isSuccess())
+                            .map(success -> CommandOutput.builder()
+                                    .command(getInput().getCommand())
+                                    .timestamp(getInput().getTimestamp())
+                                    .output(MAPPER.valueToTree(result.getPayload().get()))
+                                    .build())
+                            .orElseGet(() ->
+                                    CommandOutput.builder()
+                                            .command(getInput().getCommand())
+                                            .timestamp(getInput().getTimestamp())
+                                            .output(MAPPER.createObjectNode()
+                                                    .put("description", result.getMessage())
+                                                    .put("timestamp", getInput().getTimestamp()))
+                                            .build()));
+        }
+    }
+
+    private static final class SpendingsReportCmd extends Command {
+        private SpendingsReportCmd(final CommandInput input) {
+            super(input);
+        }
+
+        @Override
+        public Optional<CommandOutput> execute(final Bank bank) {
+            CommandInput input = getInput();
+            var result = SpendingsReportQuery.builder()
                     .accountIban(IBAN.of(input.getAccount()))
                     .startTimestamp(input.getStartTimestamp())
                     .endTimestamp(input.getEndTimestamp())

@@ -17,6 +17,6 @@ public final class CardPaymentLog extends TransactionLog {
 
     @Override
     public Type getType() {
-        return Type.PAYMENT;
+        return Type.CARD_PAYMENT;
     }
 }
