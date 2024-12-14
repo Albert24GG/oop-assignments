@@ -37,7 +37,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
 
         if (account.getType() == BankAccountType.SAVINGS) {
             throw new BankOperationException(BankErrorType.INVALID_OPERATION,
-                    "Savings accounts do not support spendings reports");
+                    "This kind of report is not supported for a saving account");
         }
 
         // Get all card payments

@@ -6,6 +6,7 @@ import org.poo.bank.Bank;
 import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserView;
 import org.poo.bank.card.CardType;
+import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
@@ -436,22 +437,21 @@ public final class CommandFactory {
                     .endTimestamp(input.getEndTimestamp())
                     .build()
                     .processBy(bank);
-            return Optional.of(
-                    Optional.ofNullable(result.isSuccess() && result.getPayload().isPresent() ?
-                                    result.getPayload().get() : null)
-                            .map(success -> CommandOutput.builder()
-                                    .command(getInput().getCommand())
-                                    .timestamp(getInput().getTimestamp())
-                                    .output(MAPPER.valueToTree(result.getPayload().get()))
-                                    .build())
-                            .orElseGet(() ->
-                                    CommandOutput.builder()
-                                            .command(getInput().getCommand())
-                                            .timestamp(getInput().getTimestamp())
-                                            .output(MAPPER.createObjectNode()
-                                                    .put("description", result.getMessage())
-                                                    .put("timestamp", getInput().getTimestamp()))
-                                            .build()));
+            var commandOutputBuilder =
+                    CommandOutput.builder()
+                            .command(getInput().getCommand())
+                            .timestamp(getInput().getTimestamp());
+            if (result.isSuccess()) {
+                commandOutputBuilder.output(MAPPER.valueToTree(result.getPayload().get()));
+            } else if (result.getErrorType() == BankErrorType.INVALID_OPERATION) {
+                commandOutputBuilder.output(MAPPER.createObjectNode()
+                        .put("error", result.getMessage()));
+            } else {
+                commandOutputBuilder.output(MAPPER.createObjectNode()
+                        .put("description", result.getMessage())
+                        .put("timestamp", getInput().getTimestamp()));
+            }
+            return Optional.of(commandOutputBuilder.build());
         }
     }
 
