@@ -39,7 +39,7 @@ public final class DeleteBankAccount extends BankOperation<Void> {
         if (bankAccount.getBalance() != 0) {
             TransactionLog transactionLog = GenericLog.builder()
                     .timestamp(timestamp)
-                    .error("Account couldn't be deleted - there are funds remaining")
+                    .description("Account couldn't be deleted - there are funds remaining")
                     .build();
             context.transactionService().logTransaction(accountIban, transactionLog);
             throw new BankOperationException(BankErrorType.ACCOUNT_DELETION_FAILED);
