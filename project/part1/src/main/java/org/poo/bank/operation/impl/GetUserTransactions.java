@@ -12,6 +12,7 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.type.Email;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Builder
@@ -29,6 +30,7 @@ public final class GetUserTransactions extends BankOperation<List<TransactionLog
         List<TransactionLog> transactions = user.getAccounts().stream()
                 .flatMap(
                         account -> context.transactionService().getLogs(account.getIban()).stream())
+                .sorted(Comparator.comparing(TransactionLog::getTimestamp))
                 .toList();
         return BankOperationResult.success(transactions);
     }
