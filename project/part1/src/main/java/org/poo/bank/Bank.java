@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.UserService;
 import org.poo.bank.card.CardService;
+import org.poo.bank.currency.CurrencyExchangeService;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;

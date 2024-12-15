@@ -1,4 +1,4 @@
-package org.poo.bank;
+package org.poo.bank.currency;
 
 import lombok.NonNull;
 import org.poo.bank.type.Currency;
