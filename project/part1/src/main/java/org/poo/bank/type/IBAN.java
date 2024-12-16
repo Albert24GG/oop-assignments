@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 import org.poo.utils.Utils;
 
-public record IBAN(String value) {
+public record IBAN(@NonNull String value) {
     /**
      * Generates a random IBAN.
      *

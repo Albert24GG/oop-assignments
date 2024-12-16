@@ -48,8 +48,8 @@ public final class Bank {
      * @param email     the email of the user
      * @return the result of the operation
      */
-    public BankOperationResult<Void> createUserAccount(final String firstName,
-                                                       final String lastName,
+    public BankOperationResult<Void> createUserAccount(@NonNull final String firstName,
+                                                       @NonNull final String lastName,
                                                        @NonNull final Email email) {
         return processOperation(new CreateUserAccount(firstName, lastName, email));
     }

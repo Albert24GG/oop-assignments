@@ -1,6 +1,5 @@
 package org.poo.bank.transaction;
 
-import lombok.NonNull;
 import org.poo.bank.type.IBAN;
 
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ public final class TransactionLogService {
      * @param log     the transaction log to log
      */
     public void logTransaction(final IBAN account,
-                               @NonNull final TransactionLog log) {
+                               final TransactionLog log) {
         logs.computeIfAbsent(account, k -> new ArrayList<>()).add(log);
     }
 
@@ -47,15 +46,5 @@ public final class TransactionLogService {
                 .filter(log -> log.getTimestamp() >= startTimestamp &&
                         log.getTimestamp() <= endTimestamp)
                 .toList();
-    }
-
-    /**
-     * Removes the transaction logs for an account.
-     *
-     * @param account the IBAN of the account to remove the transaction logs for
-     * @return the transaction logs for the account, or{@code null} if the account does not exist
-     */
-    public List<TransactionLog> removeLogs(final IBAN account) {
-        return logs.remove(account);
     }
 }

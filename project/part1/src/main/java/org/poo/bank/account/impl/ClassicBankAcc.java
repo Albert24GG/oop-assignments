@@ -1,13 +1,12 @@
 package org.poo.bank.account.impl;
 
-import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.type.Currency;
 
 public final class ClassicBankAcc extends BankAccount {
-    public ClassicBankAcc(final UserAccount owner, @NonNull final Currency currency) {
+    public ClassicBankAcc(final UserAccount owner, final Currency currency) {
         super(BankAccountType.CLASSIC, currency, owner);
     }
 

@@ -3,7 +3,7 @@ package org.poo.bank.type;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 
-public record Email(String value) {
+public record Email(@NonNull String value) {
     /**
      * Creates an Email object.
      *

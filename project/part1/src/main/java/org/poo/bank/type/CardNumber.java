@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 import org.poo.utils.Utils;
 
-public record CardNumber(String value) {
+public record CardNumber(@NonNull String value) {
     /**
      * Generates a random card number.
      *

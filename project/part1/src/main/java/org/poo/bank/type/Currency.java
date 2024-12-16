@@ -4,7 +4,7 @@ package org.poo.bank.type;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 
-public record Currency(String name) {
+public record Currency(@NonNull String name) {
     /**
      * Constructs a Currency object.
      *

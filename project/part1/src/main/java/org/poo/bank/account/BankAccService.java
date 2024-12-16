@@ -1,6 +1,5 @@
 package org.poo.bank.account;
 
-import lombok.NonNull;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -21,8 +20,8 @@ public final class BankAccService {
      * @param interestRate the interest rate of the account
      * @return the created account
      */
-    public BankAccount createAccount(@NonNull final UserAccount owner,
-                                     @NonNull final Currency currency,
+    public BankAccount createAccount(final UserAccount owner,
+                                     final Currency currency,
                                      final BankAccountType type, final double interestRate) {
         BankAccount account = BankAccount.createAccount(type, owner, currency, interestRate);
         ibanMapping.put(account.getIban(), account);
@@ -47,7 +46,7 @@ public final class BankAccService {
      * @return an {@link Optional} containing the account with the given IBAN, or an
      * {@link Optional#empty()} if the account does not exist
      */
-    public Optional<BankAccount> getAccountByIban(@NonNull final IBAN iban) {
+    public Optional<BankAccount> getAccountByIban(final IBAN iban) {
         return Optional.ofNullable(ibanMapping.get(iban));
     }
 
@@ -58,7 +57,7 @@ public final class BankAccService {
      * @return an {@link Optional} containing the account with the given alias, or an
      * {@link Optional#empty()} if the account does not exist
      */
-    public Optional<BankAccount> getAccountByAlias(@NonNull final String alias) {
+    public Optional<BankAccount> getAccountByAlias(final String alias) {
         return Optional.ofNullable(aliasMapping.get(alias));
     }
 
@@ -70,7 +69,7 @@ public final class BankAccService {
      * @return an {@link Optional} containing the removed account, or an {@link Optional#empty()} if the
      * account does not exist
      */
-    public Optional<BankAccount> removeAccount(@NonNull final BankAccount account) {
+    public Optional<BankAccount> removeAccount(final BankAccount account) {
         account.getOwner().removeAccount(account);
         aliasMapping.remove(account.getAlias());
         return Optional.ofNullable(ibanMapping.remove(account.getIban()));
@@ -82,7 +81,7 @@ public final class BankAccService {
      * @param account the account
      * @param amount  the amount to add
      */
-    public void addFunds(@NonNull final BankAccount account, final double amount) {
+    public void addFunds(final BankAccount account, final double amount) {
         account.addFunds(amount);
     }
 
@@ -92,7 +91,7 @@ public final class BankAccService {
      * @param account the account
      * @param amount  the amount to remove
      */
-    public void removeFunds(@NonNull final BankAccount account, final double amount) {
+    public void removeFunds(final BankAccount account, final double amount) {
         account.removeFunds(amount);
     }
 
@@ -102,7 +101,7 @@ public final class BankAccService {
      * @param account    the account
      * @param minBalance the minimum balance
      */
-    public void setMinBalance(@NonNull final BankAccount account, final double minBalance) {
+    public void setMinBalance(final BankAccount account, final double minBalance) {
         account.setMinBalance(minBalance);
     }
 
@@ -113,7 +112,7 @@ public final class BankAccService {
      * @param account      the account
      * @param interestRate the new interest rate
      */
-    public void changeInterestRate(@NonNull final BankAccount account, final double interestRate) {
+    public void changeInterestRate(final BankAccount account, final double interestRate) {
         account.changeInterestRate(interestRate);
     }
 
@@ -123,7 +122,7 @@ public final class BankAccService {
      *
      * @param account the account
      */
-    public void collectInterest(@NonNull final BankAccount account) {
+    public void collectInterest(final BankAccount account) {
         account.collectInterest();
     }
 

@@ -1,6 +1,5 @@
 package org.poo.bank.account;
 
-import lombok.NonNull;
 import org.poo.bank.type.Email;
 
 import java.util.LinkedHashMap;
@@ -20,8 +19,7 @@ public final class UserService {
      * @return the created user account
      * @throws IllegalArgumentException if the user already exists
      */
-    public UserAccount createUser(final String firstName, final String lastName,
-                                  @NonNull final Email email)
+    public UserAccount createUser(final String firstName, final String lastName, final Email email)
             throws IllegalArgumentException {
         if (users.containsKey(email)) {
             throw new IllegalArgumentException("User already exists");
@@ -39,19 +37,8 @@ public final class UserService {
      * @return an {@link Optional} containing the user account with the given email, or an
      * {@link Optional#empty()} if the user does not exist
      */
-    public Optional<UserAccount> getUser(@NonNull final Email email) {
+    public Optional<UserAccount> getUser(final Email email) {
         return Optional.ofNullable(users.get(email));
-    }
-
-    /**
-     * Remove the user account.
-     *
-     * @param user the user account to remove
-     * @return an {@link Optional} containing the removed user account, or an
-     * {@link Optional#empty()} if the user does not exist
-     */
-    public Optional<UserAccount> removeUser(@NonNull final UserAccount user) {
-        return Optional.ofNullable(users.remove(user.getEmail()));
     }
 
     /**

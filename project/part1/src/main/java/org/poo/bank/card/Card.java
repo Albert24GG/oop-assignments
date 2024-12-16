@@ -2,7 +2,6 @@ package org.poo.bank.card;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.poo.bank.account.BankAccount;
@@ -27,7 +26,7 @@ public abstract class Card {
         ACTIVE, FROZEN, TO_BE_FROZEN, WARNING_LOW_BALANCE
     }
 
-    static Card createCard(@NonNull final CardType type, BankAccount account) {
+    static Card createCard(final CardType type, BankAccount account) {
         Card card = switch (type) {
             case DEBIT -> new DebitCard(account);
             case SINGLE_USE -> new SingleUseCard(account);

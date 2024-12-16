@@ -3,7 +3,6 @@ package org.poo.bank.operation;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 
 import java.util.Optional;
 
@@ -28,7 +27,7 @@ public class BankOperationResult<T> {
     /**
      * Creates a new bank operation success result with a payload
      */
-    public static <T> BankOperationResult<T> success(@NonNull final T payload) {
+    public static <T> BankOperationResult<T> success(final T payload) {
         return BankOperationResult.<T>builder()
                 .success(true)
                 .payload(Optional.of(payload))
@@ -40,7 +39,7 @@ public class BankOperationResult<T> {
      *
      * @param errorType the error type
      */
-    public static <T> BankOperationResult<T> error(@NonNull final BankErrorType errorType) {
+    public static <T> BankOperationResult<T> error(final BankErrorType errorType) {
         return BankOperationResult.<T>builder()
                 .success(false)
                 .errorType(errorType)
@@ -54,8 +53,8 @@ public class BankOperationResult<T> {
      * @param errorType the error type
      * @param message   the error message
      */
-    public static <T> BankOperationResult<T> error(@NonNull final BankErrorType errorType,
-                                                   @NonNull final String message) {
+    public static <T> BankOperationResult<T> error(final BankErrorType errorType,
+                                                   final String message) {
         return BankOperationResult.<T>builder()
                 .success(false)
                 .errorType(errorType)

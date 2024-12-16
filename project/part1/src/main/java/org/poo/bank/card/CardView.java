@@ -1,6 +1,5 @@
 package org.poo.bank.card;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.poo.bank.type.CardNumber;

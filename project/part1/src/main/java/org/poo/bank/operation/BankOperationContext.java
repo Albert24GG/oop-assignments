@@ -7,9 +7,9 @@ import org.poo.bank.account.UserService;
 import org.poo.bank.card.CardService;
 import org.poo.bank.transaction.TransactionLogService;
 
-public record BankOperationContext(@NonNull BankAccService bankAccService,
-                                   @NonNull UserService userService,
-                                   @NonNull CardService cardService,
-                                   @NonNull TransactionLogService transactionLogService,
-                                   @NonNull CurrencyExchangeService currencyExchangeService) {
+public record BankOperationContext(BankAccService bankAccService,
+                                   UserService userService,
+                                   CardService cardService,
+                                   TransactionLogService transactionLogService,
+                                   CurrencyExchangeService currencyExchangeService) {
 }

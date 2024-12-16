@@ -1,6 +1,5 @@
 package org.poo.bank.currency;
 
-import lombok.NonNull;
 import org.poo.bank.type.Currency;
 
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public final class CurrencyExchangeService {
      * @param rate the exchange rate
      * @throws IllegalArgumentException if the exchange rate is not positive
      */
-    public void updateExchangeRate(@NonNull final Currency from, @NonNull final Currency to,
+    public void updateExchangeRate(final Currency from, final Currency to,
                                    final double rate) {
         if (rate <= 0) {
             throw new IllegalArgumentException("Exchange rate must be positive");
@@ -52,7 +51,7 @@ public final class CurrencyExchangeService {
      *                                  <li>the amount is negative</li>
      *                                  </ul>
      */
-    public double convert(@NonNull final Currency from, @NonNull final Currency to,
+    public double convert(final Currency from, final Currency to,
                           final double amount) {
         if (from.equals(to)) {
             return amount;

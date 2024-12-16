@@ -1,6 +1,5 @@
 package org.poo.bank.card;
 
-import lombok.NonNull;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.type.CardNumber;
@@ -22,7 +21,7 @@ public final class CardService {
      * @param type    the type of the card
      * @return the created card
      */
-    public Card createCard(@NonNull final BankAccount account, @NonNull final CardType type) {
+    public Card createCard(final BankAccount account, final CardType type) {
         Card card = Card.createCard(type, account);
         cards.put(card.getNumber(), card);
         return card;
@@ -35,7 +34,7 @@ public final class CardService {
      * @return an {@link Optional} containing the card with the given number, or an
      * {@link Optional#empty()} if the card does not exist
      */
-    public Optional<Card> getCard(@NonNull final CardNumber number) {
+    public Optional<Card> getCard(final CardNumber number) {
         return Optional.ofNullable(cards.get(number));
     }
 
@@ -46,20 +45,9 @@ public final class CardService {
      * @return an {@link Optional} containing the removed card, or an
      * {@link Optional#empty()} if the card does not exist
      */
-    public Optional<Card> removeCard(@NonNull final Card card) {
+    public Optional<Card> removeCard(final Card card) {
         card.getLinkedAccount().removeCard(card);
         return Optional.ofNullable(cards.remove(card.getNumber()));
-    }
-
-    /**
-     * Validate that the card is owned by the given account.
-     *
-     * @param card    the card
-     * @param account the account
-     * @return {@code true} if the card is owned by the account, {@code false} otherwise
-     */
-    public boolean validateCardOwnership(final Card card, final BankAccount account) {
-        return card.getLinkedAccount().equals(account);
     }
 
     /**
