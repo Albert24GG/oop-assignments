@@ -1,7 +1,6 @@
 package org.poo.bank.transaction;
 
 import lombok.NonNull;
-import org.poo.bank.account.BankAccount;
 import org.poo.bank.type.IBAN;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class TransactionService {
+public final class TransactionLogService {
     private final Map<IBAN, List<TransactionLog>> logs = new HashMap<>();
 
     /**

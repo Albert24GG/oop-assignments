@@ -11,7 +11,7 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
-import org.poo.bank.transaction.TransactionService;
+import org.poo.bank.transaction.TransactionLogService;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 
@@ -21,10 +21,10 @@ public final class Bank {
     private final CardService cardService = new CardService();
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
-    private final TransactionService transactionService = new TransactionService();
+    private final TransactionLogService transactionLogService = new TransactionLogService();
     private final BankOperationContext bankOperationContext =
             new BankOperationContext(bankAccService,
-                    userService, cardService, transactionService, currencyExchangeService);
+                    userService, cardService, transactionLogService, currencyExchangeService);
 
     /**
      * Register an exchange rate between two currencies.

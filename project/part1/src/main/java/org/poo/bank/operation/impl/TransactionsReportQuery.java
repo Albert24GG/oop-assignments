@@ -32,7 +32,7 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
 
         List<TransactionLog>
                 transactions =
-                context.transactionService().getLogs(accountIban, startTimestamp, endTimestamp);
+                context.transactionLogService().getLogs(accountIban, startTimestamp, endTimestamp);
 
         // For savings accounts, only interest operations are shown
         if (account.getType() == BankAccountType.SAVINGS) {

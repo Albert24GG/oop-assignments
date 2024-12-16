@@ -74,9 +74,9 @@ public final class TransferRequest extends BankOperation<Void> {
                             .build());
         }
 
-        context.transactionService().logTransaction(sender.getIban(), sendTransactionLog);
+        context.transactionLogService().logTransaction(sender.getIban(), sendTransactionLog);
         receiveTransactionLog.ifPresent(
-                log -> context.transactionService().logTransaction(receiver.getIban(), log));
+                log -> context.transactionLogService().logTransaction(receiver.getIban(), log));
         return BankOperationResult.success();
     }
 }

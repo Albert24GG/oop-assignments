@@ -9,7 +9,6 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
-import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.SplitPaymentLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -85,7 +84,7 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
 
         );
 
-        accounts.forEach(account -> context.transactionService()
+        accounts.forEach(account -> context.transactionLogService()
                 .logTransaction(account.getIban(), transactionLog));
         return BankOperationResult.success();
     }

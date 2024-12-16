@@ -52,7 +52,7 @@ public final class CreateCard extends BankOperation<Void> {
                     .build();
         }
 
-        context.transactionService().logTransaction(accountIban, transactionLog);
+        context.transactionLogService().logTransaction(accountIban, transactionLog);
         return BankOperationResult.success();
     }
 }

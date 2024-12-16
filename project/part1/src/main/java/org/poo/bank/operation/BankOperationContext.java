@@ -5,11 +5,11 @@ import org.poo.bank.currency.CurrencyExchangeService;
 import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.UserService;
 import org.poo.bank.card.CardService;
-import org.poo.bank.transaction.TransactionService;
+import org.poo.bank.transaction.TransactionLogService;
 
 public record BankOperationContext(@NonNull BankAccService bankAccService,
                                    @NonNull UserService userService,
                                    @NonNull CardService cardService,
-                                   @NonNull TransactionService transactionService,
+                                   @NonNull TransactionLogService transactionLogService,
                                    @NonNull CurrencyExchangeService currencyExchangeService) {
 }

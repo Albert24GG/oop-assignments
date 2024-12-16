@@ -42,7 +42,7 @@ public final class CreateBankAccount extends BankOperation<Void> {
                 .timestamp(timestamp)
                 .description("New account created")
                 .build();
-        context.transactionService().logTransaction(account.getIban(), transactionLog);
+        context.transactionLogService().logTransaction(account.getIban(), transactionLog);
         return BankOperationResult.success();
     }
 }

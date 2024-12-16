@@ -38,7 +38,7 @@ public final class CheckCardStatus extends BankOperation<Void> {
                     .timestamp(timestamp)
                     .description(description)
                     .build();
-            context.transactionService().logTransaction(card.getLinkedAccount().getIban(), log);
+            context.transactionLogService().logTransaction(card.getLinkedAccount().getIban(), log);
         });
         return BankOperationResult.success();
     }

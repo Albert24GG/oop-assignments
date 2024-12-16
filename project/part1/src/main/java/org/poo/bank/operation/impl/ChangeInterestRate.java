@@ -37,7 +37,7 @@ public final class ChangeInterestRate extends BankOperation<Void> {
                 .timestamp(timestamp)
                 .description("Interest rate of the account changed to " + newInterestRate)
                 .build();
-        context.transactionService().logTransaction(accountIban, transactionLog);
+        context.transactionLogService().logTransaction(accountIban, transactionLog);
 
         context.bankAccService().changeInterestRate(account, newInterestRate);
         return BankOperationResult.success();

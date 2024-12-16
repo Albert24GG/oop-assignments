@@ -38,7 +38,7 @@ public final class DeleteCard extends BankOperation<Void> {
                 .account(linkedAccount.getIban())
                 .description("The card has been destroyed")
                 .build();
-        context.transactionService().logTransaction(linkedAccount.getIban(), transactionLog);
+        context.transactionLogService().logTransaction(linkedAccount.getIban(), transactionLog);
 
         return BankOperationResult.success();
     }

@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
-import org.poo.bank.card.Card;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -43,7 +42,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
         // Get all card payments
         List<TransactionLog>
                 transactions =
-                context.transactionService()
+                context.transactionLogService()
                         .getLogs(accountIban, startTimestamp, endTimestamp)
                         .stream().filter(transactionLog -> transactionLog.getType() ==
                                 TransactionLog.Type.CARD_PAYMENT)

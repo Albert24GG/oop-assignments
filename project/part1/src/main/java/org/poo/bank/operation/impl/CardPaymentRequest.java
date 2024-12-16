@@ -52,7 +52,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .timestamp(timestamp)
                     .description("The card is frozen")
                     .build();
-            context.transactionService()
+            context.transactionLogService()
                     .logTransaction(card.getLinkedAccount().getIban(), transactionLog);
             return BankOperationResult.success();
         }
@@ -66,7 +66,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();
-            context.transactionService().logTransaction(bankAccount.getIban(), transactionLog);
+            context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
         } else {
             context.bankAccService().removeFunds(bankAccount, convertedAmount);
 
@@ -76,7 +76,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .description("Card payment")
                     .merchant(merchant)
                     .build();
-            context.transactionService().logTransaction(bankAccount.getIban(), transactionLog);
+            context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
                 new DeleteCard(cardNumber, timestamp).execute(context);
