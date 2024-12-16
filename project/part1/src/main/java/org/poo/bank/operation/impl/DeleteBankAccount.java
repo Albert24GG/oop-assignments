@@ -38,6 +38,7 @@ public final class DeleteBankAccount extends BankOperation<Void> {
 
         if (bankAccount.getBalance() != 0) {
             TransactionLog transactionLog = GenericLog.builder()
+            TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Account couldn't be deleted - there are funds remaining")
                     .build();
@@ -45,11 +46,12 @@ public final class DeleteBankAccount extends BankOperation<Void> {
             throw new BankOperationException(BankErrorType.ACCOUNT_DELETION_FAILED);
         }
 
-        TransactionLog transactionLog = GenericLog.builder()
+        TransactionLog transactionLog = AccountOpLog.builder()
                 .timestamp(timestamp)
                 .description("Account deleted")
                 .build();
         context.transactionLogService().logTransaction(accountIban, transactionLog);
+
         // Remove the account and its cards
         context.bankAccService().removeAccount(bankAccount);
         bankAccount.getCards().forEach(context.cardService()::removeCard);

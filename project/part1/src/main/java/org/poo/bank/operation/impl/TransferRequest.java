@@ -10,7 +10,7 @@ import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.transaction.impl.TransferLog;
 import org.poo.bank.type.IBAN;
 
@@ -47,7 +47,7 @@ public final class TransferRequest extends BankOperation<Void> {
         TransactionLog sendTransactionLog;
         Optional<TransactionLog> receiveTransactionLog = Optional.empty();
         if (sender.getBalance() < sentAmount) {
-            sendTransactionLog = GenericLog.builder()
+            sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();

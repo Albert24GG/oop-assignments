@@ -17,6 +17,7 @@ public abstract class TransactionLog {
 
     public enum Type {
         GENERIC,
+        FAILED,
         ACCOUNT_CREATION,
         CARD_OPERATION,
         INTEREST_OPERATION,

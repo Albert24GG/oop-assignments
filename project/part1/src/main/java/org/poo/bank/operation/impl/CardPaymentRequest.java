@@ -14,7 +14,7 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CardPaymentLog;
-import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -48,7 +48,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         }
 
         if (card.getStatus() == Card.Status.FROZEN) {
-            TransactionLog transactionLog = GenericLog.builder()
+            TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("The card is frozen")
                     .build();
@@ -62,7 +62,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                 .convert(currency, bankAccount.getCurrency(), amount);
 
         if (bankAccount.getBalance() < convertedAmount) {
-            TransactionLog transactionLog = GenericLog.builder()
+            TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();

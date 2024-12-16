@@ -11,7 +11,7 @@ import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.AccountCreationLog;
+import org.poo.bank.transaction.impl.AccountOpLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 
@@ -31,14 +31,13 @@ public final class CreateBankAccount extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount account =
-                context.bankAccService()
-                        .createAccount(context.userService().getUser(ownerEmail)
-                                        .orElseThrow(() -> new BankOperationException(
-                                                BankErrorType.USER_NOT_FOUND)), currency, type,
-                                interestRate);
+        BankAccount account = context.bankAccService()
+                .createAccount(context.userService().getUser(ownerEmail)
+                                .orElseThrow(() -> new BankOperationException(
+                                        BankErrorType.USER_NOT_FOUND)), currency, type,
+                        interestRate);
 
-        TransactionLog transactionLog = AccountCreationLog.builder()
+        TransactionLog transactionLog = AccountOpLog.builder()
                 .timestamp(timestamp)
                 .description("New account created")
                 .build();
