@@ -137,4 +137,25 @@ public final class BankAccService {
     public boolean validateAccountOwnership(final BankAccount account, final UserAccount user) {
         return account.getOwner().equals(user);
     }
+
+    /**
+     * Check if the account can be deleted.
+     *
+     * @param account the account
+     * @return {@code true} if the account can be deleted, {@code false} otherwise
+     */
+    public boolean canDeleteAccount(final BankAccount account) {
+        return account.getBalance() == 0;
+    }
+
+    /**
+     * Validate that the account has enough funds.
+     *
+     * @param sender the account
+     * @param amount the amount
+     * @return {@code true} if the account has enough funds, {@code false} otherwise
+     */
+    public boolean validateFunds(final BankAccount sender, final double amount) {
+        return sender.getBalance() >= amount;
+    }
 }

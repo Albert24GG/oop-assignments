@@ -51,7 +51,8 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
         // Check if all accounts have enough funds
         Optional<BankAccount> lastAccountWithInsufficientFunds = IntStream.range(0, accounts.size())
                 .filter(
-                        i -> accounts.get(i).getBalance() < convertedSplitAmounts.get(i)
+                        i -> !context.bankAccService()
+                                .validateFunds(accounts.get(i), convertedSplitAmounts.get(i))
                 )
                 .reduce((a, b) -> b).stream()
                 .mapToObj(accounts::get)

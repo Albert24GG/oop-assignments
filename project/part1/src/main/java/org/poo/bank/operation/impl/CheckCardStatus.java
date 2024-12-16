@@ -28,18 +28,14 @@ public final class CheckCardStatus extends BankOperation<Void> {
         Card card = context.cardService().getCard(cardNumber).orElseThrow(
                 () -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
 
-        Optional<String> logDescription =
-                context.cardService().updateCardStatus(card) == Card.Status.TO_BE_FROZEN
-                        ? Optional.of(
-                        "You have reached the minimum amount of funds, the card will be frozen")
-                        : Optional.empty();
-        logDescription.ifPresent(description -> {
+        if (context.cardService().updateCardStatus(card) == Card.Status.TO_BE_FROZEN) {
             TransactionLog log = GenericLog.builder()
                     .timestamp(timestamp)
-                    .description(description)
+                    .description(
+                            "You have reached the minimum amount of funds, the card will be frozen")
                     .build();
             context.transactionLogService().logTransaction(card.getLinkedAccount().getIban(), log);
-        });
+        }
         return BankOperationResult.success();
     }
 }

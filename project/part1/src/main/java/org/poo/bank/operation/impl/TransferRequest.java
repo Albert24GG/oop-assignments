@@ -46,7 +46,7 @@ public final class TransferRequest extends BankOperation<Void> {
 
         TransactionLog sendTransactionLog;
         Optional<TransactionLog> receiveTransactionLog = Optional.empty();
-        if (sender.getBalance() < sentAmount) {
+        if (!context.bankAccService().validateFunds(sender, sentAmount)) {
             sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")

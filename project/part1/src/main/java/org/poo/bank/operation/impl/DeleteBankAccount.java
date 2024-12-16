@@ -11,7 +11,8 @@ import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.transaction.impl.AccountOpLog;
+import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 
@@ -36,8 +37,7 @@ public final class DeleteBankAccount extends BankOperation<Void> {
             throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
         }
 
-        if (bankAccount.getBalance() != 0) {
-            TransactionLog transactionLog = GenericLog.builder()
+        if (!context.bankAccService().canDeleteAccount(bankAccount)) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Account couldn't be deleted - there are funds remaining")

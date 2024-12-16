@@ -66,8 +66,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                         .currency(account.getCurrency())
                         .transactions(transactions)
                         .merchants(merchants)
-                        .build(
-                        )
+                        .build()
         );
     }
 }

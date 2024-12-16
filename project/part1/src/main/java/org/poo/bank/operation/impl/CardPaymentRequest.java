@@ -61,7 +61,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         double convertedAmount = context.currencyExchangeService()
                 .convert(currency, bankAccount.getCurrency(), amount);
 
-        if (bankAccount.getBalance() < convertedAmount) {
+        if (!context.bankAccService().validateFunds(bankAccount, convertedAmount)) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")

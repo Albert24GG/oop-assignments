@@ -36,23 +36,21 @@ public final class CreateCard extends BankOperation<Void> {
         BankAccount bankAccount = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
 
-        TransactionLog transactionLog;
         // If the user is not the owner of the account, the card creation fails and an error is
         // logged
         if (!context.bankAccService().validateAccountOwnership(bankAccount, userAccount)) {
             throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
         } else {
             Card newCard = context.cardService().createCard(bankAccount, type);
-            transactionLog = CardOpLog.builder()
+            TransactionLog transactionLog = CardOpLog.builder()
                     .timestamp(timestamp)
                     .card(newCard.getNumber())
                     .cardHolder(userAccount.getEmail())
                     .account(bankAccount.getIban())
                     .description("New card created")
                     .build();
+            context.transactionLogService().logTransaction(accountIban, transactionLog);
         }
-
-        context.transactionLogService().logTransaction(accountIban, transactionLog);
         return BankOperationResult.success();
     }
 }
