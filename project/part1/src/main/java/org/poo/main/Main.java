@@ -27,7 +27,6 @@ import java.util.Objects;
  * The entry point to this homework. It runs the checker that tests your implementation.
  */
 public final class Main {
-    private static int i = 0;
     /**
      * for coding style
      */
@@ -76,10 +75,6 @@ public final class Main {
      */
     public static void action(final String filePath1,
                               final String filePath2) throws IOException {
-        ++i;
-        if( i > 8){
-            return;
-        }
         ObjectMapper objectMapper = new ObjectMapper();
         File file = new File(CheckerConstants.TESTS_PATH + filePath1);
         ObjectInput inputData = objectMapper.readValue(file, ObjectInput.class);
