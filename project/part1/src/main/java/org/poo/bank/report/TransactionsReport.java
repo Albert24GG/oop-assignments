@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -16,5 +17,5 @@ public final class TransactionsReport {
     private final IBAN iban;
     private final double balance;
     private final Currency currency;
-    private final List<TransactionLog> transactions;
+    private final List<TransactionLogView> transactions;
 }

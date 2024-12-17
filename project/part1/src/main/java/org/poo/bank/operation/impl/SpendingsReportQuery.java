@@ -13,6 +13,8 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.report.MerchantSpending;
 import org.poo.bank.report.SpendingsReport;
 import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.TransactionLogType;
+import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.transaction.impl.CardPaymentLog;
 import org.poo.bank.type.IBAN;
 
@@ -45,7 +47,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                 context.transactionLogService()
                         .getLogs(accountIban, startTimestamp, endTimestamp)
                         .stream().filter(transactionLog -> transactionLog.getType() ==
-                                TransactionLog.Type.CARD_PAYMENT)
+                                TransactionLogType.CARD_PAYMENT)
                         .toList();
 
         // Group by merchant and sum the amounts to get the total spending per merchant
@@ -64,7 +66,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                         .iban(accountIban)
                         .balance(account.getBalance())
                         .currency(account.getCurrency())
-                        .transactions(transactions)
+                        .transactions(transactions.stream().map(TransactionLog::toView).toList())
                         .merchants(merchants)
                         .build()
         );

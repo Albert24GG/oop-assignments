@@ -12,6 +12,8 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.report.TransactionsReport;
 import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.TransactionLogType;
+import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.IBAN;
 
 import java.util.List;
@@ -38,13 +40,14 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
         if (account.getType() == BankAccountType.SAVINGS) {
             transactions = transactions.stream()
                     .filter(transactionLog -> transactionLog.getType() ==
-                            TransactionLog.Type.INTEREST_OPERATION).toList();
+                            TransactionLogType.INTEREST_OPERATION).toList();
         }
+
         return BankOperationResult.success(TransactionsReport.builder()
                 .iban(accountIban)
                 .balance(account.getBalance())
                 .currency(account.getCurrency())
-                .transactions(transactions)
+                .transactions(transactions.stream().map(TransactionLog::toView).toList())
                 .build());
     }
 }

@@ -1,12 +1,9 @@
 package org.poo.bank.transaction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder(toBuilder = true)
 @Getter
 public abstract class TransactionLog {
@@ -15,22 +12,24 @@ public abstract class TransactionLog {
     private final String description;
     private final String error;
 
-    public enum Type {
-        GENERIC,
-        FAILED,
-        ACCOUNT_CREATION,
-        CARD_OPERATION,
-        INTEREST_OPERATION,
-        CARD_PAYMENT,
-        SPLIT_PAYMENT,
-        TRANSFER
-    }
-
     /**
      * Get the type of the transaction
      *
      * @return the type of the transaction
      */
-    @JsonIgnore
-    public abstract Type getType();
+    public abstract TransactionLogType getType();
+
+    /**
+     * Convert the transaction log to a view
+     *
+     * @return the transaction log view
+     */
+    public TransactionLogView toView() {
+        return TransactionLogView.builder()
+                .timestamp(timestamp)
+                .description(description)
+                .error(error)
+                .type(getType())
+                .build();
+    }
 }
