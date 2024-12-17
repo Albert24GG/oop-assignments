@@ -13,7 +13,6 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.report.TransactionsReport;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.IBAN;
 
 import java.util.List;
@@ -27,7 +26,8 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
     private final int endTimestamp;
 
     @Override
-    protected BankOperationResult<TransactionsReport> internalExecute(BankOperationContext context)
+    protected BankOperationResult<TransactionsReport> internalExecute(
+            final BankOperationContext context)
             throws BankOperationException {
         BankAccount account = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
@@ -39,8 +39,8 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
         // For savings accounts, only interest operations are shown
         if (account.getType() == BankAccountType.SAVINGS) {
             transactions = transactions.stream()
-                    .filter(transactionLog -> transactionLog.getType() ==
-                            TransactionLogType.INTEREST_OPERATION).toList();
+                    .filter(transactionLog -> transactionLog.getType()
+                            == TransactionLogType.INTEREST_OPERATION).toList();
         }
 
         return BankOperationResult.success(TransactionsReport.builder()

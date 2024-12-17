@@ -47,7 +47,7 @@ public final class CurrencyExchangeService {
      * @throws IllegalArgumentException if one of the following occurs:
      *                                  <ul>
      *                                  <li>the currency to convert from is unknown</li>
-     *                                  <li>there is no exchange rate between the two currencies</li>
+     *                                  <li>no exchange rate between the two currencies found</li>
      *                                  <li>the amount is negative</li>
      *                                  </ul>
      */

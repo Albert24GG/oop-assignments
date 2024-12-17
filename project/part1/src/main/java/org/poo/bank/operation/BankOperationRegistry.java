@@ -23,7 +23,7 @@ import org.poo.bank.operation.impl.TransferRequest;
 import java.util.Arrays;
 import java.util.Set;
 
-public final class BankOperationRegistry {
+final class BankOperationRegistry {
     private static final Set<Class<? extends BankOperation<?>>> ALLOWED_OPERATIONS = Set.copyOf(
             Arrays.asList(
                     GetUserTransactions.class,

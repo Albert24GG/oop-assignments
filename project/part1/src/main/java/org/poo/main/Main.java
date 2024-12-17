@@ -36,6 +36,7 @@ public final class Main {
     /**
      * DO NOT MODIFY MAIN METHOD
      * Call the checker
+     *
      * @param args from command line
      * @throws IOException in case of exceptions to reading / writing
      */
@@ -91,7 +92,8 @@ public final class Main {
 
         // Add the users to the bank
         Arrays.stream(inputData.getUsers()).toList().forEach(user -> {
-            bank.createUserAccount(user.getFirstName(), user.getLastName(), Email.of(user.getEmail()));
+            bank.createUserAccount(user.getFirstName(), user.getLastName(),
+                    Email.of(user.getEmail()));
         });
 
         for (CommandInput cmdInput : inputData.getCommands()) {

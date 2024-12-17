@@ -14,6 +14,11 @@ public final class CommandOutput {
     private final int timestamp;
     private final JsonNode output;
 
+    /**
+     * Convert the command output to a JSON object
+     *
+     * @return the JSON object
+     */
     public JsonNode toJson() {
         return MAPPER.valueToTree(this);
     }

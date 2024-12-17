@@ -13,8 +13,6 @@ import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.GenericLog;
 import org.poo.bank.type.CardNumber;
 
-import java.util.Optional;
-
 @Builder
 @RequiredArgsConstructor
 public final class CheckCardStatus extends BankOperation<Void> {

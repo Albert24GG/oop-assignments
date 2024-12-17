@@ -41,10 +41,11 @@ public final class TransactionLogService {
      * @return the transaction logs for the account within the time range, or an empty list if the
      * account does not exist
      */
-    public List<TransactionLog> getLogs(final IBAN account, int startTimestamp, int endTimestamp) {
+    public List<TransactionLog> getLogs(final IBAN account, final int startTimestamp,
+                                        final int endTimestamp) {
         return logs.getOrDefault(account, Collections.emptyList()).stream()
-                .filter(log -> log.getTimestamp() >= startTimestamp &&
-                        log.getTimestamp() <= endTimestamp)
+                .filter(log -> log.getTimestamp() >= startTimestamp
+                        && log.getTimestamp() <= endTimestamp)
                 .toList();
     }
 }

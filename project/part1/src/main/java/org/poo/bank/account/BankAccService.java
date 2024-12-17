@@ -66,8 +66,8 @@ public final class BankAccService {
      * Remove the account.
      *
      * @param account the account to remove
-     * @return an {@link Optional} containing the removed account, or an {@link Optional#empty()} if the
-     * account does not exist
+     * @return an {@link Optional} containing the removed account, or an {@link Optional#empty()}
+     * if the account does not exist
      */
     public Optional<BankAccount> removeAccount(final BankAccount account) {
         account.getOwner().removeAccount(account);

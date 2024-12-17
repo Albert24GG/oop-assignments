@@ -1,6 +1,5 @@
 package org.poo.bank.card;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 
 public enum CardType {
@@ -17,7 +16,6 @@ public enum CardType {
         return CardType.valueOf(type.toUpperCase());
     }
 
-    @JsonValue
     @Override
     public String toString() {
         return name().toLowerCase();

@@ -30,7 +30,8 @@ public final class GetUserTransactions extends BankOperation<List<TransactionLog
 
         List<TransactionLogView> transactionViews = user.getAccounts().stream()
                 .flatMap(
-                        account -> context.transactionLogService().getLogs(account.getIban()).stream())
+                        account -> context.transactionLogService().getLogs(account.getIban())
+                                .stream())
                 .sorted(Comparator.comparing(TransactionLog::getTimestamp))
                 .map(TransactionLog::toView)
                 .toList();

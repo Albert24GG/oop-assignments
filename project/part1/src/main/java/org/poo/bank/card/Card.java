@@ -26,7 +26,7 @@ public abstract class Card {
         ACTIVE, FROZEN, TO_BE_FROZEN, WARNING_LOW_BALANCE
     }
 
-    static Card createCard(final CardType type, BankAccount account) {
+    static Card createCard(final CardType type, final BankAccount account) {
         Card card = switch (type) {
             case DEBIT -> new DebitCard(account);
             case SINGLE_USE -> new SingleUseCard(account);

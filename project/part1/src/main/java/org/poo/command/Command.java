@@ -20,5 +20,5 @@ public abstract class Command {
      * @return an {@link Optional} containing the command output, or {@link Optional#empty()}
      * if the command has no output
      */
-    public abstract Optional<CommandOutput> execute(final Bank bank);
+    public abstract Optional<CommandOutput> execute(Bank bank);
 }

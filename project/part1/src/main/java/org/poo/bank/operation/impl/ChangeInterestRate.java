@@ -23,7 +23,7 @@ public final class ChangeInterestRate extends BankOperation<Void> {
     private final int timestamp;
 
     @Override
-    protected BankOperationResult<Void> internalExecute(BankOperationContext context)
+    protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
         BankAccount account = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));

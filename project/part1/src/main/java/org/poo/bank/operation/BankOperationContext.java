@@ -1,6 +1,5 @@
 package org.poo.bank.operation;
 
-import lombok.NonNull;
 import org.poo.bank.currency.CurrencyExchangeService;
 import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.UserService;

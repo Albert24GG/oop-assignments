@@ -21,12 +21,11 @@ public abstract class BankOperation<T> {
         } catch (Exception e) {
             throw new BankOperationException(BankErrorType.INTERNAL_ERROR, e.getMessage());
         }
-
     }
 
     /**
      * Convenience method to process the operation by a bank, useful for chaining
-     * This is equivalent to calling bank.processOperation(this)
+     * This is equivalent to calling {@code bank.processOperation(this)}
      *
      * @param bank the bank to process the operation
      * @return the result of the operation

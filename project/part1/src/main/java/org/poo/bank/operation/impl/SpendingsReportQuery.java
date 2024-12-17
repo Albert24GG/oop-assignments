@@ -14,7 +14,6 @@ import org.poo.bank.report.MerchantSpending;
 import org.poo.bank.report.SpendingsReport;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.transaction.impl.CardPaymentLog;
 import org.poo.bank.type.IBAN;
 
@@ -31,7 +30,8 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
     private final int endTimestamp;
 
     @Override
-    protected BankOperationResult<SpendingsReport> internalExecute(BankOperationContext context)
+    protected BankOperationResult<SpendingsReport> internalExecute(
+            final BankOperationContext context)
             throws BankOperationException {
         BankAccount account = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
@@ -46,8 +46,8 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                 transactions =
                 context.transactionLogService()
                         .getLogs(accountIban, startTimestamp, endTimestamp)
-                        .stream().filter(transactionLog -> transactionLog.getType() ==
-                                TransactionLogType.CARD_PAYMENT)
+                        .stream().filter(transactionLog -> transactionLog.getType()
+                                == TransactionLogType.CARD_PAYMENT)
                         .toList();
 
         // Group by merchant and sum the amounts to get the total spending per merchant

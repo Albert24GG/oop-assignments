@@ -19,7 +19,7 @@ public final class CollectInterest extends BankOperation<Void> {
     private final IBAN accountIban;
 
     @Override
-    protected BankOperationResult<Void> internalExecute(BankOperationContext context)
+    protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
         BankAccount account = context.bankAccService().getAccountByIban(accountIban)
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
