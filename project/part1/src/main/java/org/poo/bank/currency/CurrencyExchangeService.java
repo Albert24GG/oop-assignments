@@ -80,7 +80,7 @@ public final class CurrencyExchangeService {
                 return amount * currentRate;
             }
 
-            for (var next : conversionGraph.get(current)) {
+            for (Currency next : conversionGraph.get(current)) {
                 if (!visited.contains(next)) {
                     queue.add(next);
                     rates.add(currentRate * exchangeRates.get(new ExchangeRatePair(current, next)));
