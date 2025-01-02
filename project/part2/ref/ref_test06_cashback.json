@@ -2,9 +2,9 @@
   "command" : "spendingsReport",
   "output" : {
     "IBAN" : "RO58POOB7344468893732422",
-    "balance" : 1276.37,
+    "balance" : 912.68,
     "currency" : "USD",
-    "transaction" : [ {
+    "transactions" : [ {
       "timestamp" : 4,
       "description" : "Card payment",
       "amount" : 497.0,
@@ -17,7 +17,7 @@
     }, {
       "timestamp" : 7,
       "description" : "Card payment",
-      "amount" : 308.0,
+      "amount" : 481.25,
       "commerciant" : "H&M"
     }, {
       "timestamp" : 12,
@@ -25,27 +25,17 @@
       "amount" : 329.0,
       "commerciant" : "H&M"
     }, {
-      "timestamp" : 19,
-      "description" : "Card payment",
-      "amount" : 156.42,
-      "commerciant" : "H&M"
-    }, {
-      "timestamp" : 30,
-      "description" : "Card payment",
-      "amount" : 204.93,
-      "commerciant" : "H&M"
-    }, {
       "timestamp" : 34,
       "description" : "Card payment",
-      "amount" : 54.45,
+      "amount" : 605.0,
       "commerciant" : "H&M"
     } ],
-    "commerciant" : [ {
+    "commerciants" : [ {
       "commerciant" : "Apple",
       "total" : 124.0
     }, {
       "commerciant" : "H&M",
-      "total" : 1549.8
+      "total" : 1912.25
     } ]
   },
   "timestamp" : 42
@@ -57,7 +47,7 @@
     "email" : "Tiffany_Leonard@hotmail.us",
     "accounts" : [ {
       "IBAN" : "RO58POOB7344468893732422",
-      "balance" : 1439.09,
+      "balance" : 954.35,
       "currency" : "USD",
       "type" : "classic",
       "cards" : [ {
@@ -91,9 +81,9 @@
   "command" : "spendingsReport",
   "output" : {
     "IBAN" : "RO58POOB7344468893732422",
-    "balance" : 1439.09,
+    "balance" : 954.35,
     "currency" : "USD",
-    "transaction" : [ {
+    "transactions" : [ {
       "timestamp" : 4,
       "description" : "Card payment",
       "amount" : 497.0,
@@ -106,7 +96,7 @@
     }, {
       "timestamp" : 7,
       "description" : "Card payment",
-      "amount" : 308.0,
+      "amount" : 481.25,
       "commerciant" : "H&M"
     }, {
       "timestamp" : 12,
@@ -114,27 +104,17 @@
       "amount" : 329.0,
       "commerciant" : "H&M"
     }, {
-      "timestamp" : 19,
-      "description" : "Card payment",
-      "amount" : 156.42,
-      "commerciant" : "H&M"
-    }, {
-      "timestamp" : 30,
-      "description" : "Card payment",
-      "amount" : 204.93,
-      "commerciant" : "H&M"
-    }, {
       "timestamp" : 34,
       "description" : "Card payment",
-      "amount" : 54.45,
+      "amount" : 605.0,
       "commerciant" : "H&M"
     } ],
-    "commerciant" : [ {
+    "commerciants" : [ {
       "commerciant" : "Apple",
       "total" : 124.0
     }, {
       "commerciant" : "H&M",
-      "total" : 1549.8
+      "total" : 1912.25
     } ]
   },
   "timestamp" : 47
@@ -177,10 +157,10 @@
   "command" : "spendingsReport",
   "output" : {
     "IBAN" : "RO69POOB6209498372540635",
-    "balance" : 1024.0,
+    "balance" : 265.67,
     "currency" : "USD",
-    "transaction" : [ ],
-    "commerciant" : [ ]
+    "transactions" : [ ],
+    "commerciants" : [ ]
   },
   "timestamp" : 117
 } ]
