@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class SilverPlan implements ServicePlan {
-    private static final double COMMISSION = 0.01;
+    private static final double COMMISSION = 0.001;
     private static final double COMMISSION_THRESHOLD = 500.0;
     private static final Map<ServicePlanType, Integer> UPGRADE_FEES = Map.of(
             ServicePlanType.GOLD, 250

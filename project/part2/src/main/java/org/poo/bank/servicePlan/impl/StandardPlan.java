@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class StandardPlan implements ServicePlan {
-    private static final double COMMISSION = 0.02;
+    private static final double COMMISSION = 0.002;
     private static final Map<ServicePlanType, Integer> UPGRADE_FEES = Map.of(
             ServicePlanType.SILVER, 100,
             ServicePlanType.GOLD, 350
