@@ -26,6 +26,7 @@ import org.poo.bank.operation.impl.SpendingsReportQuery;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
+import org.poo.bank.operation.impl.WithdrawSavings;
 import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
@@ -170,6 +171,16 @@ public final class CommandFactory {
                     Map.entry("addInterest", input -> {
                         BankOperation<Void> operation =
                                 new CollectInterest(IBAN.of(input.getAccount()));
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("withdrawSavings", input -> {
+                        BankOperation<Void> operation = WithdrawSavings.builder()
+                                .accountIban(IBAN.of(input.getAccount()))
+                                .amount(input.getAmount())
+                                .currency(Currency.of(input.getCurrency()))
+                                .timestamp(input.getTimestamp())
+                                .build();
                         return new CommandWitError<>(input, operation, "description");
                     })
             );

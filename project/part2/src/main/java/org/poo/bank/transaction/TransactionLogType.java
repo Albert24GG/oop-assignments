@@ -8,5 +8,6 @@ public enum TransactionLogType {
     INTEREST_OPERATION,
     CARD_PAYMENT,
     SPLIT_PAYMENT,
-    TRANSFER
+    TRANSFER,
+    SAVINGS_WITHDRAW,
 }

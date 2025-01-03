@@ -17,7 +17,10 @@ public enum BankErrorType {
     UNAUTHORIZED_OPERATION("Unauthorized operation"),
     INVALID_ARGUMENT("Invalid argument"),
     INVALID_OPERATION("Invalid operation"),
-    CARD_FROZEN("Card is frozen");
+    CARD_FROZEN("Card is frozen"),
+    AGE_RESTRICTION("You don't have the minimum age required."),
+    INSUFFICIENT_FUNDS("Insufficient funds"),
+    INVALID_ACCOUNT_TYPE("Invalid account type");
 
     private final String message;
 }

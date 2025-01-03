@@ -37,6 +37,8 @@ public final class TransactionLogView {
     private final String transferType;
     @JsonIgnore
     private final TransactionLogType type;
+    private final IBAN savingsAccountIBAN;
+    private final IBAN classicAccountIBAN;
 
     @JsonProperty("amount")
     public Object getAmount() {
