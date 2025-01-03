@@ -2,6 +2,7 @@ package org.poo.bank.account;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class UserAccount {
     @Getter
     private final Email email;
     private final List<BankAccount> accounts = new ArrayList<>();
+    @Getter
+    private final Date birthDate;
+    private final String occupation;
 
     /**
      * Add a bank account to the user account.

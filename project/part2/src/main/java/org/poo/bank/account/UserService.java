@@ -1,5 +1,6 @@
 package org.poo.bank.account;
 
+import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
 
 import java.util.LinkedHashMap;
@@ -13,19 +14,23 @@ public final class UserService {
     /**
      * Create a new user account.
      *
-     * @param firstName the first name of the user
-     * @param lastName  the last name of the user
-     * @param email     the email of the user
+     * @param firstName  the first name of the user
+     * @param lastName   the last name of the user
+     * @param email      the email of the user
+     * @param birthDate  the birthdate of the user
+     * @param occupation the occupation of the user
      * @return the created user account
      * @throws IllegalArgumentException if the user already exists
      */
-    public UserAccount createUser(final String firstName, final String lastName, final Email email)
+    public UserAccount createUser(final String firstName, final String lastName, final Email email,
+                                  final
+                                  Date birthDate, final String occupation)
             throws IllegalArgumentException {
         if (users.containsKey(email)) {
             throw new IllegalArgumentException("User already exists");
         }
 
-        final UserAccount user = new UserAccount(firstName, lastName, email);
+        final UserAccount user = new UserAccount(firstName, lastName, email, birthDate, occupation);
         users.put(email, user);
         return user;
     }
