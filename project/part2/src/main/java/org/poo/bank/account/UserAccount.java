@@ -1,16 +1,20 @@
 package org.poo.bank.account;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
+import org.poo.bank.servicePlan.ServicePlan;
+import org.poo.bank.servicePlan.ServicePlanType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class UserAccount {
+@AllArgsConstructor
+public final class UserAccount {
     @Getter
     private final String firstName;
     @Getter
@@ -21,6 +25,7 @@ public class UserAccount {
     @Getter
     private final Date birthDate;
     private final String occupation;
+    private ServicePlan servicePlan;
 
     /**
      * Add a bank account to the user account.
@@ -53,5 +58,29 @@ public class UserAccount {
      */
     public List<BankAccount> getAccounts() {
         return List.copyOf(accounts);
+    }
+
+    /**
+     * Get the service plan type.
+     *
+     * @return the service plan type
+     */
+    public ServicePlanType getServicePlanType() {
+        return servicePlan.getServicePlanType();
+    }
+
+    /**
+     * Get the upgrade fee for the new service plan.
+     *
+     * @param newPlan the new service plan
+     * @return the upgrade fee
+     */
+    public double getPlanUpgradeFee(final ServicePlanType newPlan) {
+        return servicePlan.getUpgradeFee(newPlan)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid service plan upgrade"));
+    }
+
+    void upgradeServicePlan(final ServicePlanType newPlan) {
+        servicePlan = servicePlan.upgradePlan(newPlan);
     }
 }

@@ -2,6 +2,8 @@ package org.poo.bank.account;
 
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
+import org.poo.bank.servicePlan.ServicePlan;
+import org.poo.bank.servicePlan.ServicePlanType;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,23 +16,26 @@ public final class UserService {
     /**
      * Create a new user account.
      *
-     * @param firstName  the first name of the user
-     * @param lastName   the last name of the user
-     * @param email      the email of the user
-     * @param birthDate  the birthdate of the user
-     * @param occupation the occupation of the user
+     * @param firstName   the first name of the user
+     * @param lastName    the last name of the user
+     * @param email       the email of the user
+     * @param birthDate   the birthdate of the user
+     * @param occupation  the occupation of the user
+     * @param servicePlan the service plan of the user
      * @return the created user account
      * @throws IllegalArgumentException if the user already exists
      */
     public UserAccount createUser(final String firstName, final String lastName, final Email email,
                                   final
-                                  Date birthDate, final String occupation)
+                                  Date birthDate, final String occupation,
+                                  final ServicePlan servicePlan)
             throws IllegalArgumentException {
         if (users.containsKey(email)) {
             throw new IllegalArgumentException("User already exists");
         }
 
-        final UserAccount user = new UserAccount(firstName, lastName, email, birthDate, occupation);
+        final UserAccount user =
+                new UserAccount(firstName, lastName, email, birthDate, occupation, servicePlan);
         users.put(email, user);
         return user;
     }
@@ -53,5 +58,15 @@ public final class UserService {
      */
     public List<UserAccount> getUsers() {
         return List.copyOf(users.values());
+    }
+
+    /**
+     * Upgrade the service plan of a user.
+     *
+     * @param user    the user account
+     * @param newPlan the new service plan
+     */
+    public void upgradePlan(final UserAccount user, final ServicePlanType newPlan) {
+        user.upgradeServicePlan(newPlan);
     }
 }

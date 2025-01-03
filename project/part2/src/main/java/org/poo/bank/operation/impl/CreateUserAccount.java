@@ -9,6 +9,9 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
+import org.poo.bank.servicePlan.ServicePlan;
+import org.poo.bank.servicePlan.impl.StandardPlan;
+import org.poo.bank.servicePlan.impl.StudentPlan;
 
 @Builder
 @RequiredArgsConstructor
@@ -27,7 +30,14 @@ public final class CreateUserAccount extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        context.userService().createUser(firstName, lastName, email, birthDate, occupation);
+
+        ServicePlan servicePlan = switch (occupation) {
+            case "student" -> new StudentPlan();
+            default -> new StandardPlan();
+        };
+
+        context.userService()
+                .createUser(firstName, lastName, email, birthDate, occupation, servicePlan);
         return BankOperationResult.success();
     }
 }

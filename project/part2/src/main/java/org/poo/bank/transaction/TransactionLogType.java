@@ -10,4 +10,5 @@ public enum TransactionLogType {
     SPLIT_PAYMENT,
     TRANSFER,
     SAVINGS_WITHDRAW,
+    UPGRADE_PLAN
 }

@@ -19,6 +19,7 @@ import org.poo.bank.operation.impl.SpendingsReportQuery;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
+import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
 
 import java.util.Arrays;
@@ -47,7 +48,8 @@ final class BankOperationRegistry {
                     TransactionsReportQuery.class,
                     SpendingsReportQuery.class,
                     CollectInterest.class,
-                    WithdrawSavings.class
+                    WithdrawSavings.class,
+                    UpgradeServicePlan.class
             )
     );
 

@@ -10,6 +10,7 @@ import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
+import org.poo.bank.servicePlan.ServicePlanType;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public final class TransactionLogView {
     private final CardNumber card;
     private final Email cardHolder;
     private final IBAN account;
+    private final IBAN accountIBAN;
     @JsonProperty("commerciant")
     private final String merchant;
     private final Currency currency;
@@ -39,6 +41,7 @@ public final class TransactionLogView {
     private final TransactionLogType type;
     private final IBAN savingsAccountIBAN;
     private final IBAN classicAccountIBAN;
+    private final ServicePlanType newPlanType;
 
     @JsonProperty("amount")
     public Object getAmount() {

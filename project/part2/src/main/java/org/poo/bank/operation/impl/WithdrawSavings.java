@@ -90,9 +90,10 @@ public final class WithdrawSavings extends BankOperation<Void> {
         context.bankAccService().addFunds(destinationAccount, amount);
         context.bankAccService().removeFunds(savingsAccount, amountToWithdraw);
 
-        TransactionLog transactionLog = SavingsWithdrawLog.builder().amount(amount).timestamp(timestamp)
-                .classicAccountIBAN(destinationAccount.getIban())
-                .savingsAccountIBAN(savingsAccount.getIban()).build();
+        TransactionLog transactionLog =
+                SavingsWithdrawLog.builder().amount(amount).timestamp(timestamp)
+                        .classicAccountIBAN(destinationAccount.getIban())
+                        .savingsAccountIBAN(savingsAccount.getIban()).build();
         context.transactionLogService().logTransaction(savingsAccount.getIban(), transactionLog);
 
         return BankOperationResult.success();

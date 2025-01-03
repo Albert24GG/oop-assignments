@@ -26,6 +26,7 @@ import org.poo.bank.operation.impl.SpendingsReportQuery;
 import org.poo.bank.operation.impl.SplitPaymentRequest;
 import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
+import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
 import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.CardNumber;
@@ -33,6 +34,7 @@ import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 import org.poo.fileio.CommandInput;
+import org.poo.bank.servicePlan.ServicePlanType;
 
 import java.util.List;
 import java.util.Map;
@@ -181,6 +183,13 @@ public final class CommandFactory {
                                 .currency(Currency.of(input.getCurrency()))
                                 .timestamp(input.getTimestamp())
                                 .build();
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("upgradePlan", input -> {
+                        BankOperation<Void> operation =
+                                new UpgradeServicePlan(ServicePlanType.of(input.getNewPlanType()),
+                                        IBAN.of(input.getAccount()), input.getTimestamp());
                         return new CommandWitError<>(input, operation, "description");
                     })
             );
