@@ -11,6 +11,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
+import org.poo.bank.operation.impl.CashWithdraw;
 import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.CheckCardStatus;
 import org.poo.bank.operation.impl.CollectInterest;
@@ -33,6 +34,7 @@ import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
+import org.poo.bank.type.Location;
 import org.poo.fileio.CommandInput;
 import org.poo.bank.servicePlan.ServicePlanType;
 
@@ -190,6 +192,17 @@ public final class CommandFactory {
                         BankOperation<Void> operation =
                                 new UpgradeServicePlan(ServicePlanType.of(input.getNewPlanType()),
                                         IBAN.of(input.getAccount()), input.getTimestamp());
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("cashWithdrawal", input -> {
+                        BankOperation<Void> operation = CashWithdraw.builder()
+                                .cardNumber(CardNumber.of(input.getCardNumber()))
+                                .amount(input.getAmount())
+                                .ownerEmail(Email.of(input.getEmail()))
+                                .location(Location.of(input.getLocation()))
+                                .timestamp(input.getTimestamp())
+                                .build();
                         return new CommandWitError<>(input, operation, "description");
                     })
             );

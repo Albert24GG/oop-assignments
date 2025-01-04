@@ -1,33 +1,27 @@
 package org.poo.bank.transaction.impl;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
 import org.poo.bank.transaction.TransactionLogView;
-import org.poo.bank.type.IBAN;
+import org.poo.bank.type.Location;
 
 @Getter
 @SuperBuilder(toBuilder = true)
-public final class SavingsWithdrawLog extends TransactionLog {
-    @NonNull
-    private final Double amount;
-    private final IBAN savingsAccountIBAN;
-    private final IBAN classicAccountIBAN;
-
+public final class CashWithdrawLog extends TransactionLog {
+    private final double amount;
+    private final Location location;
 
     @Override
     public TransactionLogType getType() {
-        return TransactionLogType.SAVINGS_WITHDRAW;
+        return TransactionLogType.CASH_WITHDRAW;
     }
 
     @Override
     public TransactionLogView toView() {
         return super.toView().toBuilder()
                 .amountAsDouble(amount)
-                .savingsAccountIBAN(savingsAccountIBAN)
-                .classicAccountIBAN(classicAccountIBAN)
                 .build();
     }
 }
