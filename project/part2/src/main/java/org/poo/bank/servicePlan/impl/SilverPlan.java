@@ -13,8 +13,24 @@ public final class SilverPlan implements ServicePlan {
             ServicePlanType.GOLD, 250
     );
     private static final Map<ServicePlanType, ServicePlan> UPGRADE_OPTIONS = Map.of(
-            ServicePlanType.GOLD, new GoldPlan()
+            ServicePlanType.GOLD, GoldPlan.getInstance()
     );
+    private static SilverPlan instance = null;
+
+    private SilverPlan() {
+    }
+
+    /**
+     * Get the singleton instance of the silver plan
+     *
+     * @return the silver plan instance
+     */
+    public static SilverPlan getInstance() {
+        if (instance == null) {
+            instance = new SilverPlan();
+        }
+        return instance;
+    }
 
     @Override
     public double getTransactionCommission(final double transactionAmount) {

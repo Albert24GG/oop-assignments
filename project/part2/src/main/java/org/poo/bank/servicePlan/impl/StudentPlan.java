@@ -13,9 +13,25 @@ public final class StudentPlan implements ServicePlan {
             ServicePlanType.GOLD, 350
     );
     private static final Map<ServicePlanType, ServicePlan> UPGRADE_OPTIONS = Map.of(
-            ServicePlanType.SILVER, new SilverPlan(),
-            ServicePlanType.GOLD, new GoldPlan()
+            ServicePlanType.SILVER, SilverPlan.getInstance(),
+            ServicePlanType.GOLD, GoldPlan.getInstance()
     );
+    private static StudentPlan instance = null;
+
+    private StudentPlan() {
+    }
+
+    /**
+     * Get the singleton instance of the student plan
+     *
+     * @return the student plan instance
+     */
+    public static StudentPlan getInstance() {
+        if (instance == null) {
+            instance = new StudentPlan();
+        }
+        return instance;
+    }
 
     @Override
     public double getTransactionCommission(final double transactionAmount) {

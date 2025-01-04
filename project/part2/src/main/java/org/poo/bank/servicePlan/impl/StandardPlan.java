@@ -13,9 +13,25 @@ public final class StandardPlan implements ServicePlan {
             ServicePlanType.GOLD, 350
     );
     private static final Map<ServicePlanType, ServicePlan> UPGRADE_OPTIONS = Map.of(
-            ServicePlanType.SILVER, new SilverPlan(),
-            ServicePlanType.GOLD, new GoldPlan()
+            ServicePlanType.SILVER, SilverPlan.getInstance(),
+            ServicePlanType.GOLD, GoldPlan.getInstance()
     );
+    private static StandardPlan instance = null;
+
+    private StandardPlan() {
+    }
+
+    /**
+     * Get the singleton instance of the standard plan
+     *
+     * @return the standard plan instance
+     */
+    public static StandardPlan getInstance() {
+        if (instance == null) {
+            instance = new StandardPlan();
+        }
+        return instance;
+    }
 
     @Override
     public double getTransactionCommission(final double transactionAmount) {

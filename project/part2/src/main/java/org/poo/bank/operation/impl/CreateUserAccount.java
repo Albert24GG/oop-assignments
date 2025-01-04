@@ -32,8 +32,8 @@ public final class CreateUserAccount extends BankOperation<Void> {
             throws BankOperationException {
 
         ServicePlan servicePlan = switch (occupation) {
-            case "student" -> new StudentPlan();
-            default -> new StandardPlan();
+            case "student" -> StudentPlan.getInstance();
+            default -> StandardPlan.getInstance();
         };
 
         context.userService()
