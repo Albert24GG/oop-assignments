@@ -1,5 +1,6 @@
 package org.poo.bank.account;
 
+import org.poo.bank.servicePlan.ServicePlan;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -156,5 +157,15 @@ public final class BankAccService {
      */
     public boolean validateFunds(final BankAccount sender, final double amount) {
         return sender.getBalance() >= amount;
+    }
+
+    /**
+     * Get the service plan of the given account.
+     *
+     * @param account the account
+     * @return the service plan
+     */
+    public ServicePlan getServicePlan(final BankAccount account) {
+        return account.getOwner().getServicePlan();
     }
 }

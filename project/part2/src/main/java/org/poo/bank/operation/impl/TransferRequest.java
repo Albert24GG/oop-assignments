@@ -42,20 +42,23 @@ public final class TransferRequest extends BankOperation<Void> {
                         .orElseThrow(
                                 () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND)));
 
-        double sentAmount = amount;
+        // Calculate the amount to be removed from the sender account for the transfer
+        // (including commission)
+        double amountWithCommission = amount * (1
+                + context.bankAccService().getServicePlan(sender).getTransactionCommission(amount));
 
         TransactionLog sendTransactionLog;
         Optional<TransactionLog> receiveTransactionLog = Optional.empty();
-        if (!context.bankAccService().validateFunds(sender, sentAmount)) {
+        if (!context.bankAccService().validateFunds(sender, amountWithCommission)) {
             sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();
         } else {
             double receivedAmount = context.currencyExchangeService()
-                    .convert(sender.getCurrency(), receiver.getCurrency(), sentAmount);
+                    .convert(sender.getCurrency(), receiver.getCurrency(), amount);
 
-            context.bankAccService().removeFunds(sender, sentAmount);
+            context.bankAccService().removeFunds(sender, amountWithCommission);
             context.bankAccService().addFunds(receiver, receivedAmount);
 
             sendTransactionLog = TransferLog.builder()
@@ -63,7 +66,7 @@ public final class TransferRequest extends BankOperation<Void> {
                     .description(description)
                     .senderIBAN(sender.getIban())
                     .receiverIBAN(receiver.getIban())
-                    .amount(sentAmount + " " + sender.getCurrency())
+                    .amount(amount + " " + sender.getCurrency())
                     .transferType("sent")
                     .build();
 

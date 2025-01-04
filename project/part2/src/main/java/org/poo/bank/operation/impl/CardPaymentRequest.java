@@ -60,15 +60,18 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         BankAccount bankAccount = card.getLinkedAccount();
         double convertedAmount = context.currencyExchangeService()
                 .convert(currency, bankAccount.getCurrency(), amount);
+        double amountWithCommission = convertedAmount
+                * (1 + userAccount.getServicePlan().getTransactionCommission(amount));
 
-        if (!context.bankAccService().validateFunds(bankAccount, convertedAmount)) {
+
+        if (!context.bankAccService().validateFunds(bankAccount, amountWithCommission)) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Insufficient funds")
                     .build();
             context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
         } else {
-            context.bankAccService().removeFunds(bankAccount, convertedAmount);
+            context.bankAccService().removeFunds(bankAccount, amountWithCommission);
 
             TransactionLog transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)

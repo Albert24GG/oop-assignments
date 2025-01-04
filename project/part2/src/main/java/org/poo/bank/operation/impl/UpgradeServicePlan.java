@@ -10,6 +10,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.servicePlan.ServicePlan;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.transaction.impl.UpgradePlanLog;
@@ -33,17 +34,23 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
                 .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
         UserAccount userAccount = account.getOwner();
 
+        ServicePlan servicePlan = userAccount.getServicePlan();
         double upgradeFee;
         // Perform validations
         try {
-            if (newPlan == userAccount.getServicePlanType()) {
+            if (newPlan == servicePlan.getServicePlanType()) {
                 throw new BankOperationException(BankErrorType.INVALID_OPERATION,
                         String.format("The account already has the %s plan",
                                 newPlan.toString().toLowerCase()));
             }
+            upgradeFee = servicePlan.getUpgradeFee(newPlan).orElseThrow(
+                    () -> new BankOperationException(BankErrorType.INVALID_OPERATION,
+                            String.format("The %s plan cannot be upgraded to %s",
+                                    servicePlan.getServicePlanType().toString().toLowerCase(),
+                                    newPlan.toString().toLowerCase())));
 
             upgradeFee = context.currencyExchangeService().convert(Currency.of("RON"),
-                    account.getCurrency(), userAccount.getPlanUpgradeFee(newPlan));
+                    account.getCurrency(), upgradeFee);
             if (!context.bankAccService().validateFunds(account, upgradeFee)) {
                 throw new BankOperationException(BankErrorType.INSUFFICIENT_FUNDS);
             }

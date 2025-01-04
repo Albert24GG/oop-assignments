@@ -25,6 +25,7 @@ public final class UserAccount {
     @Getter
     private final Date birthDate;
     private final String occupation;
+    @Getter
     private ServicePlan servicePlan;
 
     /**
@@ -58,26 +59,6 @@ public final class UserAccount {
      */
     public List<BankAccount> getAccounts() {
         return List.copyOf(accounts);
-    }
-
-    /**
-     * Get the service plan type.
-     *
-     * @return the service plan type
-     */
-    public ServicePlanType getServicePlanType() {
-        return servicePlan.getServicePlanType();
-    }
-
-    /**
-     * Get the upgrade fee for the new service plan.
-     *
-     * @param newPlan the new service plan
-     * @return the upgrade fee
-     */
-    public double getPlanUpgradeFee(final ServicePlanType newPlan) {
-        return servicePlan.getUpgradeFee(newPlan)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid service plan upgrade"));
     }
 
     void upgradeServicePlan(final ServicePlanType newPlan) {
