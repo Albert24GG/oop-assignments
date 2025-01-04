@@ -10,6 +10,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.servicePlan.ServicePlan;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
@@ -30,9 +31,8 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        BankAccount account = context.bankAccService().getAccountByIban(accountIban)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
-        UserAccount userAccount = account.getOwner();
+        BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
+        UserAccount userAccount = bankAccount.getOwner();
 
         ServicePlan servicePlan = userAccount.getServicePlan();
         double upgradeFee;
@@ -49,23 +49,21 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
                                     servicePlan.getServicePlanType().toString().toLowerCase(),
                                     newPlan.toString().toLowerCase())));
 
-            upgradeFee = context.currencyExchangeService().convert(Currency.of("RON"),
-                    account.getCurrency(), upgradeFee);
-            if (!context.bankAccService().validateFunds(account, upgradeFee)) {
-                throw new BankOperationException(BankErrorType.INSUFFICIENT_FUNDS);
-            }
+            upgradeFee = BankOperationUtils.convertCurrency(context, Currency.of("RON"),
+                    bankAccount.getCurrency(), upgradeFee);
+
+            BankOperationUtils.validateFunds(context, bankAccount, upgradeFee);
         } catch (IllegalArgumentException e) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
                     .build();
-            context.transactionLogService().logTransaction(accountIban, transactionLog);
-
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
             // Ignore the exception and return a success result
             return BankOperationResult.success();
         }
 
-        context.bankAccService().removeFunds(account, upgradeFee);
+        BankOperationUtils.removeFunds(context, bankAccount, upgradeFee);
         context.userService().upgradePlan(userAccount, newPlan);
         TransactionLog transactionLog = UpgradePlanLog.builder()
                 .description("Upgrade plan")
@@ -73,7 +71,7 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
                 .accountIBAN(accountIban)
                 .newPlan(newPlan)
                 .build();
-        context.transactionLogService().logTransaction(accountIban, transactionLog);
+        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
 
         return BankOperationResult.success();
     }

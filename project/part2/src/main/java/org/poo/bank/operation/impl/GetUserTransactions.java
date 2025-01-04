@@ -4,11 +4,11 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.UserAccount;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogView;
 import org.poo.bank.type.Email;
@@ -25,10 +25,9 @@ public final class GetUserTransactions extends BankOperation<List<TransactionLog
     @Override
     protected BankOperationResult<List<TransactionLogView>> internalExecute(
             final BankOperationContext context) throws BankOperationException {
-        UserAccount user = context.userService().getUser(userEmail).orElseThrow(
-                () -> new BankOperationException(BankErrorType.USER_NOT_FOUND));
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
 
-        List<TransactionLogView> transactionViews = user.getAccounts().stream()
+        List<TransactionLogView> transactionViews = userAccount.getAccounts().stream()
                 .flatMap(
                         account -> context.transactionLogService().getLogs(account.getIban())
                                 .stream())

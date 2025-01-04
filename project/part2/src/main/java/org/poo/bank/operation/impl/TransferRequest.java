@@ -4,17 +4,15 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.transaction.impl.TransferLog;
 import org.poo.bank.type.IBAN;
-
-import java.util.Optional;
 
 @Builder
 @RequiredArgsConstructor
@@ -35,31 +33,23 @@ public final class TransferRequest extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount sender = context.bankAccService().getAccountByIban(senderAccount)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
-        BankAccount receiver = context.bankAccService().getAccountByAlias(receiverAccount)
-                .orElseGet(() -> context.bankAccService().getAccountByIban(IBAN.of(receiverAccount))
-                        .orElseThrow(
-                                () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND)));
+        BankAccount sender = BankOperationUtils.getBankAccountByIban(context, senderAccount);
+        BankAccount receiver =
+                BankOperationUtils.getBankAccountByAliasOrIban(context, receiverAccount);
 
-        // Calculate the amount to be removed from the sender account for the transfer
-        // (including commission)
-        double amountWithCommission = amount * (1
-                + context.bankAccService().getServicePlan(sender).getTransactionCommission(amount));
+        double amountWithCommission =
+                BankOperationUtils.calculateAmountWithCommission(sender, amount);
 
         TransactionLog sendTransactionLog;
-        Optional<TransactionLog> receiveTransactionLog = Optional.empty();
-        if (!context.bankAccService().validateFunds(sender, amountWithCommission)) {
-            sendTransactionLog = FailedOpLog.builder()
-                    .timestamp(timestamp)
-                    .description("Insufficient funds")
-                    .build();
-        } else {
+
+        try {
+            BankOperationUtils.validateFunds(context, sender, amountWithCommission);
+
             double receivedAmount = context.currencyExchangeService()
                     .convert(sender.getCurrency(), receiver.getCurrency(), amount);
 
-            context.bankAccService().removeFunds(sender, amountWithCommission);
-            context.bankAccService().addFunds(receiver, receivedAmount);
+            BankOperationUtils.removeFunds(context, sender, amountWithCommission);
+            BankOperationUtils.addFunds(context, receiver, receivedAmount);
 
             sendTransactionLog = TransferLog.builder()
                     .timestamp(timestamp)
@@ -70,16 +60,19 @@ public final class TransferRequest extends BankOperation<Void> {
                     .transferType("sent")
                     .build();
 
-            receiveTransactionLog = Optional.of(
-                    ((TransferLog) sendTransactionLog).toBuilder()
-                            .transferType("received")
-                            .amount(receivedAmount + " " + receiver.getCurrency())
-                            .build());
+            TransactionLog receiveTransactionLog = ((TransferLog) sendTransactionLog).toBuilder()
+                    .transferType("received")
+                    .amount(receivedAmount + " " + receiver.getCurrency())
+                    .build();
+            BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);
+        } catch (BankOperationException e) {
+            sendTransactionLog = FailedOpLog.builder()
+                    .timestamp(timestamp)
+                    .description(e.getMessage())
+                    .build();
         }
 
-        context.transactionLogService().logTransaction(sender.getIban(), sendTransactionLog);
-        receiveTransactionLog.ifPresent(
-                log -> context.transactionLogService().logTransaction(receiver.getIban(), log));
+        BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
         return BankOperationResult.success();
     }
 }

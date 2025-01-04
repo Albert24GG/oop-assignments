@@ -4,11 +4,11 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.type.IBAN;
 
 @Builder
@@ -22,10 +22,9 @@ public final class SetAccountMinBalance extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount account = context.bankAccService().getAccountByIban(accountIban)
-                .orElseThrow(
-                        () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
-        context.bankAccService().setMinBalance(account, minBalance);
+        BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
+
+        context.bankAccService().setMinBalance(bankAccount, minBalance);
         return BankOperationResult.success();
     }
 }

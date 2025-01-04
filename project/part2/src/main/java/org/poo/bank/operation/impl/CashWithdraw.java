@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CashWithdrawLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
@@ -36,42 +36,37 @@ public final class CashWithdraw extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        Card card = context.cardService().getCard(cardNumber)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
-        UserAccount userAccount = context.userService().getUser(ownerEmail)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.USER_NOT_FOUND));
+        Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        BankOperationUtils.validateCardOwnership(context, card, userAccount);
 
-        if (!context.cardService().validateCardOwnership(card, userAccount)) {
-            throw new BankOperationException(BankErrorType.USER_NOT_CARD_OWNER);
-        }
-
-        if (card.getStatus() == Card.Status.FROZEN) {
-            throw new BankOperationException(BankErrorType.CARD_FROZEN);
-        }
+        BankOperationUtils.validateCardStatus(context, card);
 
         BankAccount bankAccount = card.getLinkedAccount();
-        double convertedAmount = context.currencyExchangeService()
-                .convert(Currency.of("RON"), bankAccount.getCurrency(), amount);
-        double amountWithCommission = convertedAmount
-                * (1 + userAccount.getServicePlan().getTransactionCommission(convertedAmount));
+        double convertedAmount = BankOperationUtils.convertCurrency(context, Currency.of("RON"),
+                bankAccount.getCurrency(), amount);
+        double amountWithCommission =
+                BankOperationUtils.calculateAmountWithCommission(bankAccount, convertedAmount);
 
-        if (!context.bankAccService().validateFunds(bankAccount, amountWithCommission)) {
+        try {
+            BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
+
+            BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
+            TransactionLog transactionLog = CashWithdrawLog.builder()
+                    .description("Cash withdrawal of " + amount)
+                    .amount(amount)
+                    .location(location)
+                    .timestamp(timestamp)
+                    .build();
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+        } catch (BankOperationException e) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
-                    .description("Insufficient funds")
+                    .description(e.getMessage())
                     .build();
-            context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
-            return BankOperationResult.success();
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
         }
 
-        context.bankAccService().removeFunds(bankAccount, amountWithCommission);
-        TransactionLog transactionLog = CashWithdrawLog.builder()
-                .description("Cash withdrawal of " + amount)
-                .amount(amount)
-                .location(location)
-                .timestamp(timestamp)
-                .build();
-        context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
         return BankOperationResult.success();
     }
 }

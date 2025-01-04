@@ -9,6 +9,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.impl.SplitPaymentLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -36,16 +37,14 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
         }
 
         List<BankAccount> accounts = involvedAccounts.stream()
-                .map(accountIban -> context.bankAccService().getAccountByIban(accountIban)
-                        .orElseThrow(
-                                () -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND)))
+                .map(accountIban -> BankOperationUtils.getBankAccountByIban(context, accountIban))
                 .toList();
 
         double splitAmount = amount / accounts.size();
         // Convert the split amount to the currency of each account
         List<Double> convertedSplitAmounts = accounts.stream()
-                .map(account -> context.currencyExchangeService()
-                        .convert(currency, account.getCurrency(), splitAmount))
+                .map(account -> BankOperationUtils.convertCurrency(context, currency,
+                        account.getCurrency(), splitAmount))
                 .toList();
 
         // Check if all accounts have enough funds
@@ -78,15 +77,15 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
         ).orElseGet(
                 () -> {
                     IntStream.range(0, accounts.size())
-                            .forEach(i -> context.bankAccService()
-                                    .removeFunds(accounts.get(i), convertedSplitAmounts.get(i)));
+                            .forEach(i -> BankOperationUtils.removeFunds(context, accounts.get(i),
+                                    convertedSplitAmounts.get(i)));
                     return logBuilder.build();
                 }
 
         );
 
-        accounts.forEach(account -> context.transactionLogService()
-                .logTransaction(account.getIban(), transactionLog));
+        accounts.forEach(
+                account -> BankOperationUtils.logTransaction(context, account, transactionLog));
         return BankOperationResult.success();
     }
 }

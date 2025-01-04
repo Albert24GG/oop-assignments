@@ -7,11 +7,11 @@ import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CardPaymentLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
@@ -38,19 +38,16 @@ public final class CardPaymentRequest extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        Card card = context.cardService().getCard(cardNumber)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
-        UserAccount userAccount = context.userService().getUser(ownerEmail)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.USER_NOT_FOUND));
+        Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        BankOperationUtils.validateCardOwnership(context, card, userAccount);
 
-        if (!context.cardService().validateCardOwnership(card, userAccount)) {
-            throw new BankOperationException(BankErrorType.USER_NOT_CARD_OWNER);
-        }
-
-        if (card.getStatus() == Card.Status.FROZEN) {
+        try {
+            BankOperationUtils.validateCardStatus(context, card);
+        } catch (BankOperationException e) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
-                    .description("The card is frozen")
+                    .description(e.getMessage())
                     .build();
             context.transactionLogService()
                     .logTransaction(card.getLinkedAccount().getIban(), transactionLog);
@@ -58,20 +55,17 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         }
 
         BankAccount bankAccount = card.getLinkedAccount();
-        double convertedAmount = context.currencyExchangeService()
-                .convert(currency, bankAccount.getCurrency(), amount);
-        double amountWithCommission = convertedAmount
-                * (1 + userAccount.getServicePlan().getTransactionCommission(amount));
+        double convertedAmount =
+                BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
+                        amount);
+        double amountWithCommission =
+                BankOperationUtils.calculateAmountWithCommission(userAccount, convertedAmount);
 
 
-        if (!context.bankAccService().validateFunds(bankAccount, amountWithCommission)) {
-            TransactionLog transactionLog = FailedOpLog.builder()
-                    .timestamp(timestamp)
-                    .description("Insufficient funds")
-                    .build();
-            context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
-        } else {
-            context.bankAccService().removeFunds(bankAccount, amountWithCommission);
+        try {
+            BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
+
+            BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
 
             TransactionLog transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
@@ -79,13 +73,19 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .description("Card payment")
                     .merchant(merchant)
                     .build();
-            context.transactionLogService().logTransaction(bankAccount.getIban(), transactionLog);
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
                 new DeleteCard(cardNumber, timestamp).execute(context);
                 new CreateCard(ownerEmail, bankAccount.getIban(), card.getType(),
                         timestamp).execute(context);
             }
+        } catch (BankOperationException e) {
+            TransactionLog transactionLog = FailedOpLog.builder()
+                    .timestamp(timestamp)
+                    .description(e.getMessage())
+                    .build();
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
         }
 
         return BankOperationResult.success();

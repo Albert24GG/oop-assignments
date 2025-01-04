@@ -10,6 +10,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.report.MerchantSpending;
 import org.poo.bank.report.SpendingsReport;
 import org.poo.bank.transaction.TransactionLog;
@@ -33,10 +34,9 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
     protected BankOperationResult<SpendingsReport> internalExecute(
             final BankOperationContext context)
             throws BankOperationException {
-        BankAccount account = context.bankAccService().getAccountByIban(accountIban)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
+        BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
 
-        if (account.getType() == BankAccountType.SAVINGS) {
+        if (bankAccount.getType() == BankAccountType.SAVINGS) {
             throw new BankOperationException(BankErrorType.INVALID_OPERATION,
                     "This kind of report is not supported for a saving account");
         }
@@ -64,8 +64,8 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
         return BankOperationResult.success(
                 SpendingsReport.builder()
                         .iban(accountIban)
-                        .balance(account.getBalance())
-                        .currency(account.getCurrency())
+                        .balance(bankAccount.getBalance())
+                        .currency(bankAccount.getCurrency())
                         .transactions(transactions.stream().map(TransactionLog::toView).toList())
                         .merchants(merchants)
                         .build()

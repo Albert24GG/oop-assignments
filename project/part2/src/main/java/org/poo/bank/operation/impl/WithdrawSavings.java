@@ -11,6 +11,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.transaction.impl.SavingsWithdrawLog;
@@ -36,8 +37,7 @@ public final class WithdrawSavings extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount savingsAccount = context.bankAccService().getAccountByIban(accountIban)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
+        BankAccount savingsAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
         UserAccount userAccount = savingsAccount.getOwner();
 
         List<BankAccount> classicAccounts;
@@ -45,7 +45,6 @@ public final class WithdrawSavings extends BankOperation<Void> {
 
         // Perform validations
         try {
-
             int age = userAccount.getBirthDate().until(LocalDate.now()).getYears();
             if (age < MIN_AGE_TO_WITHDRAW) {
                 throw new BankOperationException(BankErrorType.AGE_RESTRICTION);
@@ -66,19 +65,14 @@ public final class WithdrawSavings extends BankOperation<Void> {
                         "Account is not of type savings.");
             }
 
+            amountToWithdraw = BankOperationUtils.convertCurrency(context, currency,
+                    savingsAccount.getCurrency(), amount);
 
-            // Valid operation, proceed with the withdrawal
-            amountToWithdraw = context.currencyExchangeService()
-                    .convert(currency, savingsAccount.getCurrency(), amount);
-
-            if (!context.bankAccService().validateFunds(savingsAccount, amountToWithdraw)) {
-                throw new BankOperationException(BankErrorType.INSUFFICIENT_FUNDS);
-            }
+            BankOperationUtils.validateFunds(context, savingsAccount, amountToWithdraw);
         } catch (BankOperationException e) {
             TransactionLog transactionLog =
                     FailedOpLog.builder().description(e.getMessage()).timestamp(timestamp).build();
-            context.transactionLogService()
-                    .logTransaction(savingsAccount.getIban(), transactionLog);
+            BankOperationUtils.logTransaction(context, savingsAccount.getIban(), transactionLog);
             // Ignore the error and return success
             return BankOperationResult.success();
         }
@@ -87,14 +81,14 @@ public final class WithdrawSavings extends BankOperation<Void> {
                 classicAccounts.stream().filter(account -> account.getCurrency() == currency)
                         .findFirst().orElseThrow(
                                 () -> new BankOperationException(BankErrorType.INVALID_OPERATION));
-        context.bankAccService().addFunds(destinationAccount, amount);
-        context.bankAccService().removeFunds(savingsAccount, amountToWithdraw);
+        BankOperationUtils.addFunds(context, destinationAccount, amount);
+        BankOperationUtils.removeFunds(context, savingsAccount, amountToWithdraw);
 
         TransactionLog transactionLog =
                 SavingsWithdrawLog.builder().amount(amount).timestamp(timestamp)
                         .classicAccountIBAN(destinationAccount.getIban())
                         .savingsAccountIBAN(savingsAccount.getIban()).build();
-        context.transactionLogService().logTransaction(savingsAccount.getIban(), transactionLog);
+        BankOperationUtils.logTransaction(context, savingsAccount.getIban(), transactionLog);
 
         return BankOperationResult.success();
     }

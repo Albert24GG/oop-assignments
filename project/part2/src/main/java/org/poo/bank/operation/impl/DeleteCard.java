@@ -5,11 +5,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.card.Card;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.type.CardNumber;
@@ -25,8 +25,7 @@ public final class DeleteCard extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        Card card = context.cardService().getCard(cardNumber)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
+        Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
 
         context.cardService().removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
@@ -38,7 +37,7 @@ public final class DeleteCard extends BankOperation<Void> {
                 .account(linkedAccount.getIban())
                 .description("The card has been destroyed")
                 .build();
-        context.transactionLogService().logTransaction(linkedAccount.getIban(), transactionLog);
+        BankOperationUtils.logTransaction(context, linkedAccount, transactionLog);
 
         return BankOperationResult.success();
     }

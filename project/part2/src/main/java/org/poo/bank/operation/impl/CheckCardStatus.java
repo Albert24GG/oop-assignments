@@ -4,11 +4,11 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.card.Card;
-import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.GenericLog;
 import org.poo.bank.type.CardNumber;
@@ -23,8 +23,7 @@ public final class CheckCardStatus extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        Card card = context.cardService().getCard(cardNumber).orElseThrow(
-                () -> new BankOperationException(BankErrorType.CARD_NOT_FOUND));
+        Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
 
         if (context.cardService().updateCardStatus(card) == Card.Status.TO_BE_FROZEN) {
             TransactionLog log = GenericLog.builder()
@@ -32,7 +31,7 @@ public final class CheckCardStatus extends BankOperation<Void> {
                     .description(
                             "You have reached the minimum amount of funds, the card will be frozen")
                     .build();
-            context.transactionLogService().logTransaction(card.getLinkedAccount().getIban(), log);
+            BankOperationUtils.logTransaction(context, card, log);
         }
         return BankOperationResult.success();
     }

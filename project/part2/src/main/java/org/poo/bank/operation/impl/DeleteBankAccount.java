@@ -10,6 +10,7 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.impl.AccountOpLog;
 import org.poo.bank.transaction.impl.FailedOpLog;
@@ -28,21 +29,18 @@ public final class DeleteBankAccount extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        UserAccount userAccount = context.userService().getUser(ownerEmail)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.USER_NOT_FOUND));
-        BankAccount bankAccount = context.bankAccService().getAccountByIban(accountIban)
-                .orElseThrow(() -> new BankOperationException(BankErrorType.ACCOUNT_NOT_FOUND));
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
 
-        if (!context.bankAccService().validateAccountOwnership(bankAccount, userAccount)) {
-            throw new BankOperationException(BankErrorType.USER_NOT_ACCOUNT_OWNER);
-        }
+        BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
 
         if (!context.bankAccService().canDeleteAccount(bankAccount)) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description("Account couldn't be deleted - there are funds remaining")
                     .build();
-            context.transactionLogService().logTransaction(accountIban, transactionLog);
+            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+
             throw new BankOperationException(BankErrorType.ACCOUNT_DELETION_FAILED);
         }
 
@@ -50,7 +48,7 @@ public final class DeleteBankAccount extends BankOperation<Void> {
                 .timestamp(timestamp)
                 .description("Account deleted")
                 .build();
-        context.transactionLogService().logTransaction(accountIban, transactionLog);
+        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
 
         // Remove the account and its cards
         context.bankAccService().removeAccount(bankAccount);
