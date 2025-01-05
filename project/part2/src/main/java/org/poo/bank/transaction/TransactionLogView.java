@@ -12,6 +12,8 @@ import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 import org.poo.bank.servicePlan.ServicePlanType;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -45,7 +47,12 @@ public final class TransactionLogView {
 
     @JsonProperty("amount")
     public Object getAmount() {
-        return amountAsDouble != null ? amountAsDouble : amountAsString;
+        if (amountAsDouble != null) {
+            return new BigDecimal(Double.toString(amountAsDouble)).setScale(2,
+                    RoundingMode.HALF_UP).doubleValue();
+        } else {
+            return amountAsString;
+        }
     }
 }
 
