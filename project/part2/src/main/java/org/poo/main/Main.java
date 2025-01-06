@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.bank.Bank;
+import org.poo.bank.merchant.CashbackType;
+import org.poo.bank.merchant.MerchantType;
 import org.poo.bank.type.Currency;
+import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
+import org.poo.bank.type.IBAN;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.command.Command;
@@ -93,7 +97,15 @@ public final class Main {
         // Add the users to the bank
         Arrays.stream(inputData.getUsers()).toList().forEach(user -> {
             bank.createUserAccount(user.getFirstName(), user.getLastName(),
-                    Email.of(user.getEmail()));
+                    Email.of(user.getEmail()), Date.of(user.getBirthDate()), user.getOccupation());
+        });
+
+        // Add the merchants to the bank
+        Arrays.stream(inputData.getCommerciants()).toList().forEach(merchant -> {
+            bank.addMerchant(merchant.getCommerciant(), merchant.getId(),
+                    IBAN.of(merchant.getAccount()),
+                    MerchantType.of(merchant.getType()),
+                    CashbackType.of(merchant.getCashbackStrategy()));
         });
 
         for (CommandInput cmdInput : inputData.getCommands()) {

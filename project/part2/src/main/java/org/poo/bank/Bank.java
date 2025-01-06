@@ -5,16 +5,21 @@ import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.UserService;
 import org.poo.bank.card.CardService;
 import org.poo.bank.currency.CurrencyExchangeService;
+import org.poo.bank.merchant.CashbackType;
+import org.poo.bank.merchant.MerchantService;
+import org.poo.bank.merchant.MerchantType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
 import org.poo.bank.transaction.TransactionLogService;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
+import org.poo.bank.type.IBAN;
 
 
 public final class Bank {
@@ -23,9 +28,11 @@ public final class Bank {
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
     private final TransactionLogService transactionLogService = new TransactionLogService();
+    private final MerchantService merchantService = new MerchantService();
     private final BankOperationContext bankOperationContext =
             new BankOperationContext(bankAccService,
-                    userService, cardService, transactionLogService, currencyExchangeService);
+                    userService, cardService, transactionLogService, currencyExchangeService,
+                    merchantService);
 
     /**
      * Register an exchange rate between two currencies.
@@ -58,6 +65,24 @@ public final class Bank {
                                                        @NonNull final String occupation) {
         return processOperation(
                 new CreateUserAccount(firstName, lastName, email, birthDate, occupation));
+    }
+
+    /**
+     * Add a new merchant.
+     *
+     * @param name         the name of the merchant
+     * @param id           the id of the merchant
+     * @param accountIban  the IBAN of the merchant
+     * @param type         the type of the merchant
+     * @param cashbackType the cashback type used by the merchant
+     * @return the result of the operation
+     */
+    public BankOperationResult<Void> addMerchant(@NonNull final String name,
+                                                 @NonNull final Integer id,
+                                                 @NonNull final IBAN accountIban,
+                                                 @NonNull final MerchantType type,
+                                                 @NonNull final CashbackType cashbackType) {
+        return processOperation(new AddMerchant(name, id, accountIban, type, cashbackType));
     }
 
 

@@ -1,6 +1,7 @@
 package org.poo.bank.operation;
 
 import org.poo.bank.operation.impl.AddFunds;
+import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.CashWithdraw;
 import org.poo.bank.operation.impl.ChangeInterestRate;
@@ -51,7 +52,8 @@ final class BankOperationRegistry {
                     CollectInterest.class,
                     WithdrawSavings.class,
                     UpgradeServicePlan.class,
-                    CashWithdraw.class
+                    CashWithdraw.class,
+                    AddMerchant.class
             )
     );
 

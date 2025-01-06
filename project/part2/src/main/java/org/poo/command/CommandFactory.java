@@ -126,7 +126,7 @@ public final class CommandFactory {
                                 .amount(input.getAmount())
                                 .description(input.getDescription())
                                 .currency(Currency.of(input.getCurrency()))
-                                .merchant(input.getCommerciant())
+                                .merchantName(input.getCommerciant())
                                 .timestamp(input.getTimestamp())
                                 .build();
                         return new CommandWitError<>(input, operation, "description");

@@ -20,7 +20,8 @@ public enum BankErrorType {
     CARD_FROZEN("Card is frozen"),
     AGE_RESTRICTION("You don't have the minimum age required."),
     INSUFFICIENT_FUNDS("Insufficient funds"),
-    INVALID_ACCOUNT_TYPE("Invalid account type");
+    INVALID_ACCOUNT_TYPE("Invalid account type"),
+    MERCHANT_NOT_FOUND("Merchant not found");
 
     private final String message;
 }

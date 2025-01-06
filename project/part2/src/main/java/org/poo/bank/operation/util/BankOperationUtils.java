@@ -3,6 +3,7 @@ package org.poo.bank.operation.util;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
+import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -77,6 +78,21 @@ public final class BankOperationUtils {
                                 .orElseThrow(
                                         () -> new BankOperationException(
                                                 BankErrorType.ACCOUNT_NOT_FOUND)));
+    }
+
+    /**
+     * Get the merchant associated with the name
+     *
+     * @param context      The bank operation context
+     * @param merchantName The name of the merchant
+     * @return The merchant
+     * @throws BankOperationException If the merchant is not found
+     */
+    public static Merchant getMerchantByName(final BankOperationContext context,
+                                             final String merchantName)
+            throws BankOperationException {
+        return context.merchantService().getMerchant(merchantName)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.MERCHANT_NOT_FOUND));
     }
 
     /**
