@@ -174,7 +174,8 @@ public final class CommandFactory {
 
                     Map.entry("addInterest", input -> {
                         BankOperation<Void> operation =
-                                new CollectInterest(IBAN.of(input.getAccount()));
+                                new CollectInterest(IBAN.of(input.getAccount()),
+                                        input.getTimestamp());
                         return new CommandWitError<>(input, operation, "description");
                     }),
 

@@ -12,7 +12,7 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.InterestOpLog;
+import org.poo.bank.transaction.impl.InterestChangeLog;
 import org.poo.bank.type.IBAN;
 
 @Builder
@@ -33,7 +33,7 @@ public final class ChangeInterestRate extends BankOperation<Void> {
                     "This is not a savings account");
         }
 
-        TransactionLog transactionLog = InterestOpLog.builder()
+        TransactionLog transactionLog = InterestChangeLog.builder()
                 .timestamp(timestamp)
                 .description("Interest rate of the account changed to " + newInterestRate)
                 .build();

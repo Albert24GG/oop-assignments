@@ -7,9 +7,9 @@ import org.poo.bank.transaction.TransactionLogType;
 
 @Getter
 @SuperBuilder(toBuilder = true)
-public final class InterestOpLog extends TransactionLog {
+public final class InterestChangeLog extends TransactionLog {
     @Override
     public TransactionLogType getType() {
-        return TransactionLogType.INTEREST_OPERATION;
+        return TransactionLogType.INTEREST_CHANGE;
     }
 }

@@ -39,7 +39,7 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
         if (bankAccount.getType() == BankAccountType.SAVINGS) {
             transactions = transactions.stream()
                     .filter(transactionLog -> transactionLog.getType()
-                            == TransactionLogType.INTEREST_OPERATION).toList();
+                            == TransactionLogType.INTEREST_CHANGE).toList();
         }
 
         return BankOperationResult.success(TransactionsReport.builder()
