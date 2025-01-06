@@ -71,7 +71,7 @@ public final class MerchantService {
      * @param merchant    the merchant for which the transaction is registered
      * @param bankAccount the bank account for which the transaction is registered
      * @param amount      the amount of the transaction in RON
-     * @return the discount that the user received for the transaction
+     * @return the discount that the user received for the transaction as a percentage (0.0 to 1.0)
      */
     public double registerTransaction(final Merchant merchant,
                                       final BankAccount bankAccount,

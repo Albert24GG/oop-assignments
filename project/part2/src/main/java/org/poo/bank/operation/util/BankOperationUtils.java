@@ -96,6 +96,21 @@ public final class BankOperationUtils {
     }
 
     /**
+     * Get the merchant associated with the IBAN
+     *
+     * @param context      The bank operation context
+     * @param merchantIban The IBAN of the merchant
+     * @return The merchant
+     * @throws BankOperationException If the merchant is not found
+     */
+    public static Merchant getMerchantByIban(final BankOperationContext context,
+                                             final IBAN merchantIban)
+            throws BankOperationException {
+        return context.merchantService().getMerchant(merchantIban)
+                .orElseThrow(() -> new BankOperationException(BankErrorType.MERCHANT_NOT_FOUND));
+    }
+
+    /**
      * Get the card associated with the card number and validate that the card is owned by the user
      * with the given email
      *
@@ -277,5 +292,26 @@ public final class BankOperationUtils {
                                 final BankAccount bankAccount,
                                 final double amount) {
         context.bankAccService().addFunds(bankAccount, amount);
+    }
+
+    /**
+     * Calculate the cashback percentage for a transaction
+     *
+     * @param context     The bank operation context
+     * @param merchant    The merchant
+     * @param bankAccount The bank account
+     * @param amount      The amount of the transaction
+     * @param currency    The currency of the transaction
+     * @return The cashback percentage (0.0 to 1.0)
+     */
+    public static double calculateTransactionCashback(final BankOperationContext context,
+                                                      final Merchant merchant,
+                                                      final BankAccount bankAccount,
+                                                      final double amount,
+                                                      final Currency currency) {
+        // Convert the amount to RON
+        double convertedAmount = convertCurrency(context, currency, Currency.of("RON"), amount);
+        return context.merchantService()
+                .registerTransaction(merchant, bankAccount, convertedAmount);
     }
 }

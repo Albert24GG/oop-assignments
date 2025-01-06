@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -34,8 +35,19 @@ public final class TransferRequest extends BankOperation<Void> {
             throws BankOperationException {
 
         BankAccount sender = BankOperationUtils.getBankAccountByIban(context, senderAccount);
-        BankAccount receiver =
-                BankOperationUtils.getBankAccountByAliasOrIban(context, receiverAccount);
+
+
+        Merchant merchant = null;
+        BankAccount receiver = null;
+
+        // Check if the receiver is a merchant or a user
+        try {
+            merchant =
+                    BankOperationUtils.getMerchantByIban(context, IBAN.of(receiverAccount));
+        } catch (BankOperationException e) {
+            receiver =
+                    BankOperationUtils.getBankAccountByAliasOrIban(context, receiverAccount);
+        }
 
         double amountWithCommission =
                 BankOperationUtils.calculateAmountWithCommission(context, sender, amount,
@@ -45,27 +57,27 @@ public final class TransferRequest extends BankOperation<Void> {
 
         try {
             BankOperationUtils.validateFunds(context, sender, amountWithCommission);
-
-            double receivedAmount = context.currencyExchangeService()
-                    .convert(sender.getCurrency(), receiver.getCurrency(), amount);
-
             BankOperationUtils.removeFunds(context, sender, amountWithCommission);
-            BankOperationUtils.addFunds(context, receiver, receivedAmount);
+
+            IBAN receiverIban;
+            // Handle the transfer depending on the receiver type
+            if (receiver != null) {
+                transferToUser(context, sender, receiver);
+                receiverIban = receiver.getIban();
+            } else {
+                transferToMerchant(context, sender, merchant);
+                receiverIban = merchant.getAccountIban();
+            }
 
             sendTransactionLog = TransferLog.builder()
                     .timestamp(timestamp)
                     .description(description)
                     .senderIBAN(sender.getIban())
-                    .receiverIBAN(receiver.getIban())
+                    .receiverIBAN(receiverIban)
                     .amount(amount + " " + sender.getCurrency())
                     .transferType("sent")
                     .build();
 
-            TransactionLog receiveTransactionLog = ((TransferLog) sendTransactionLog).toBuilder()
-                    .transferType("received")
-                    .amount(receivedAmount + " " + receiver.getCurrency())
-                    .build();
-            BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);
         } catch (BankOperationException e) {
             sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
@@ -75,5 +87,37 @@ public final class TransferRequest extends BankOperation<Void> {
 
         BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
         return BankOperationResult.success();
+    }
+
+    private void transferToUser(final BankOperationContext context,
+                                final BankAccount sender,
+                                final BankAccount receiver) {
+        double receivedAmount = context.currencyExchangeService()
+                .convert(sender.getCurrency(), receiver.getCurrency(), amount);
+        BankOperationUtils.addFunds(context, receiver, receivedAmount);
+
+        TransactionLog receiveTransactionLog = TransferLog.builder()
+                .timestamp(timestamp)
+                .description(description)
+                .senderIBAN(sender.getIban())
+                .receiverIBAN(receiver.getIban())
+                .amount(receivedAmount + " " + receiver.getCurrency())
+                .transferType("received")
+                .build();
+        BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);
+    }
+
+    private void transferToMerchant(final BankOperationContext context,
+                                    final BankAccount sender,
+                                    final Merchant merchant) {
+
+        // Calculate the cashback for the transaction
+        double cashbackPercentage =
+                BankOperationUtils.calculateTransactionCashback(context, merchant, sender, amount,
+                        sender.getCurrency());
+        double receivedCashback = amount * cashbackPercentage;
+
+        // Add the cashback to the sender account
+        BankOperationUtils.addFunds(context, sender, receivedCashback);
     }
 }

@@ -1,6 +1,5 @@
 package org.poo.bank.merchant;
 
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Getter(AccessLevel.PACKAGE)
 public final class Merchant {
+    @Getter
     private final String name;
+    @Getter
     private final int id;
+    @Getter
     private final IBAN accountIban;
+    @Getter
     private final MerchantType type;
     private final CashbackStrategy cashbackStrategy;
     private final Map<BankAccount, BankAccountData> bankAccountData = new HashMap<>();

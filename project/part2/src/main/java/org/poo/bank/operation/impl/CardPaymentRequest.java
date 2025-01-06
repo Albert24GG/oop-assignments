@@ -7,6 +7,7 @@ import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
+import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -40,6 +41,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
             throws BankOperationException {
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
         UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        Merchant merchant = BankOperationUtils.getMerchantByName(context, merchantName);
         BankOperationUtils.validateCardOwnership(context, card, userAccount);
 
         try {
@@ -66,7 +68,13 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         try {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
 
-            BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
+            // Apply cashback
+            double cashbackPercentage =
+                    BankOperationUtils.calculateTransactionCashback(context, merchant,
+                            bankAccount, convertedAmount, bankAccount.getCurrency());
+            double totalWithdrawn = amountWithCommission * (1 - cashbackPercentage);
+
+            BankOperationUtils.removeFunds(context, bankAccount, totalWithdrawn);
 
             TransactionLog transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
