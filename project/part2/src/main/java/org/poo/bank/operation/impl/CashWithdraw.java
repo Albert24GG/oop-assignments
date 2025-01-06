@@ -46,7 +46,8 @@ public final class CashWithdraw extends BankOperation<Void> {
         double convertedAmount = BankOperationUtils.convertCurrency(context, Currency.of("RON"),
                 bankAccount.getCurrency(), amount);
         double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(bankAccount, convertedAmount);
+                BankOperationUtils.calculateAmountWithCommission(context, bankAccount,
+                        convertedAmount, bankAccount.getCurrency());
 
         try {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);

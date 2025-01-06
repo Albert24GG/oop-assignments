@@ -203,27 +203,38 @@ public final class BankOperationUtils {
      * Calculate the amount to be withdrawn from the bank account for any transaction (including
      * commission)
      *
+     * @param context     The bank operation context
      * @param bankAccount The bank account
      * @param amount      The amount to be withdrawn
+     * @param currency    The currency of the amount
      * @return The amount to be withdrawn (including commission)
      */
-    public static double calculateAmountWithCommission(final BankAccount bankAccount,
-                                                       final double amount) {
-        return calculateAmountWithCommission(bankAccount.getOwner(), amount);
+    public static double calculateAmountWithCommission(final BankOperationContext context,
+                                                       final BankAccount bankAccount,
+                                                       final double amount,
+                                                       final Currency currency) {
+        return calculateAmountWithCommission(context, bankAccount.getOwner(), amount, currency);
     }
 
     /**
      * Calculate the amount to be withdrawn from the bank account for any transaction (including
      * commission)
      *
+     * @param context     The bank operation context
      * @param userAccount The user account
      * @param amount      The amount to be withdrawn
+     * @param currency    The currency of the amount
      * @return The amount to be withdrawn (including commission)
      */
-    public static double calculateAmountWithCommission(final UserAccount userAccount,
-                                                       final double amount) {
+    public static double calculateAmountWithCommission(final BankOperationContext context,
+                                                       final UserAccount userAccount,
+                                                       final double amount,
+                                                       final Currency currency) {
+        // Convert the amount to RON
+        double convertedAmount = convertCurrency(context, currency,
+                Currency.of("RON"), amount);
         return amount
-                * (1 + userAccount.getServicePlan().getTransactionCommission(amount));
+                * (1 + userAccount.getServicePlan().getTransactionCommission(convertedAmount));
     }
 
     /**

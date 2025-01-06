@@ -6,8 +6,8 @@ public interface ServicePlan {
     /**
      * Get the transaction commission for the current service plan
      *
-     * @param transactionAmount the transaction amount
-     * @return the transaction commission
+     * @param transactionAmount the transaction amount in RON
+     * @return the transaction commission as a percentage
      */
     double getTransactionCommission(double transactionAmount);
 

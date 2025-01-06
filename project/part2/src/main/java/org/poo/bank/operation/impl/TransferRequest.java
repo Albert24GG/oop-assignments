@@ -38,7 +38,8 @@ public final class TransferRequest extends BankOperation<Void> {
                 BankOperationUtils.getBankAccountByAliasOrIban(context, receiverAccount);
 
         double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(sender, amount);
+                BankOperationUtils.calculateAmountWithCommission(context, sender, amount,
+                        sender.getCurrency());
 
         TransactionLog sendTransactionLog;
 

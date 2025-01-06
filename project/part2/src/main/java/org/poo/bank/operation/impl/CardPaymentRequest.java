@@ -31,7 +31,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
     @NonNull
     private final Currency currency;
     @NonNull
-    private final String merchant;
+    private final String merchantName;
     private final double amount;
     private final int timestamp;
 
@@ -59,7 +59,8 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                 BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
                         amount);
         double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(userAccount, convertedAmount);
+                BankOperationUtils.calculateAmountWithCommission(context, userAccount,
+                        convertedAmount, bankAccount.getCurrency());
 
 
         try {
@@ -71,7 +72,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .timestamp(timestamp)
                     .amount(convertedAmount)
                     .description("Card payment")
-                    .merchant(merchant)
+                    .merchant(merchantName)
                     .build();
             BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
             // If the card is single use, renew it
