@@ -69,7 +69,7 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
                 .description("Upgrade plan")
                 .timestamp(timestamp)
                 .accountIBAN(accountIban)
-                .newPlan(newPlan)
+                .newPlanType(newPlan)
                 .build();
         BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
 

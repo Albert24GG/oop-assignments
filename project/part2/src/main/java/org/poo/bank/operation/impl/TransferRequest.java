@@ -74,7 +74,8 @@ public final class TransferRequest extends BankOperation<Void> {
                     .description(description)
                     .senderIBAN(sender.getIban())
                     .receiverIBAN(receiverIban)
-                    .amount(amount + " " + sender.getCurrency())
+                    .amount(amount)
+                    .currency(sender.getCurrency())
                     .transferType("sent")
                     .build();
 
@@ -101,7 +102,8 @@ public final class TransferRequest extends BankOperation<Void> {
                 .description(description)
                 .senderIBAN(sender.getIban())
                 .receiverIBAN(receiver.getIban())
-                .amount(receivedAmount + " " + receiver.getCurrency())
+                .amount(receivedAmount)
+                .currency(receiver.getCurrency())
                 .transferType("received")
                 .build();
         BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);

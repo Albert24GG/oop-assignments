@@ -4,7 +4,8 @@ import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.impl.UpgradePlanLogView;
 import org.poo.bank.type.IBAN;
 import org.poo.bank.servicePlan.ServicePlanType;
 
@@ -13,7 +14,7 @@ public final class UpgradePlanLog extends TransactionLog {
     @NonNull
     private final IBAN accountIBAN;
     @NonNull
-    private final ServicePlanType newPlan;
+    private final ServicePlanType newPlanType;
 
     @Override
     public TransactionLogType getType() {
@@ -22,9 +23,13 @@ public final class UpgradePlanLog extends TransactionLog {
 
     @Override
     public TransactionLogView toView() {
-        return super.toView().toBuilder()
+        return UpgradePlanLogView.builder()
+                .timestamp(getTimestamp())
+                .description(getDescription())
+                .error(getError())
+                .type(getType())
                 .accountIBAN(accountIBAN)
-                .newPlanType(newPlan)
+                .newPlanType(newPlanType)
                 .build();
     }
 }

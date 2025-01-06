@@ -1,19 +1,28 @@
 package org.poo.bank.transaction.impl;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.impl.TransferLogView;
+import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
 
 @Getter
 @SuperBuilder(toBuilder = true)
 public final class TransferLog extends TransactionLog {
+    @NonNull
     private final IBAN senderIBAN;
+    @NonNull
     private final IBAN receiverIBAN;
-    private final String amount;
+    @NonNull
+    private final Double amount;
+    @NonNull
+    private final Currency currency;
+    @NonNull
     private final String transferType;
 
     @Override
@@ -23,10 +32,15 @@ public final class TransferLog extends TransactionLog {
 
     @Override
     public TransactionLogView toView() {
-        return super.toView().toBuilder()
+        return TransferLogView.builder()
+                .timestamp(getTimestamp())
+                .description(getDescription())
+                .error(getError())
+                .type(getType())
                 .senderIBAN(senderIBAN)
                 .receiverIBAN(receiverIBAN)
-                .amountAsString(amount)
+                .amount(amount)
+                .currency(currency)
                 .transferType(transferType)
                 .build();
     }

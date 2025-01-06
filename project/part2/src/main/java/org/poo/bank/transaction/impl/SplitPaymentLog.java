@@ -5,7 +5,8 @@ import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.impl.SplitPaymentLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -28,10 +29,14 @@ public final class SplitPaymentLog extends TransactionLog {
 
     @Override
     public TransactionLogView toView() {
-        return super.toView().toBuilder()
+        return SplitPaymentLogView.builder()
+                .timestamp(getTimestamp())
+                .description(getDescription())
+                .error(getError())
+                .type(getType())
                 .currency(currency)
-                .amountAsDouble(amount)
-                .involvedAccounts(involvedAccounts)
+                .amount(amount)
+                .involvedAccounts(List.copyOf(involvedAccounts))
                 .build();
     }
 }

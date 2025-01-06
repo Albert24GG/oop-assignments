@@ -10,7 +10,7 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
 import org.poo.bank.type.Email;
 
 import java.util.Comparator;

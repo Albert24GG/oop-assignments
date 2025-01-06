@@ -9,7 +9,7 @@ public enum TransactionLogType {
     CARD_PAYMENT,
     SPLIT_PAYMENT,
     TRANSFER,
-    SAVINGS_WITHDRAW,
+    SAVINGS_WITHDRAWAL,
     UPGRADE_PLAN,
-    CASH_WITHDRAW,
+    CASH_WITHDRAWAL,
 }

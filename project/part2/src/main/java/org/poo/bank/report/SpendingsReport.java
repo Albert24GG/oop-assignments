@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Getter;
 import org.poo.bank.serialization.SerializationUtils;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 

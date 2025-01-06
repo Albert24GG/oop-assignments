@@ -3,6 +3,7 @@ package org.poo.bank.transaction;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
+import org.poo.bank.transaction.view.TransactionLogView;
 
 @SuperBuilder(toBuilder = true)
 @Getter
@@ -27,9 +28,10 @@ public abstract class TransactionLog {
     public TransactionLogView toView() {
         return TransactionLogView.builder()
                 .timestamp(timestamp)
+                .type(getType())
                 .description(description)
                 .error(error)
-                .type(getType())
                 .build();
     }
 }
+

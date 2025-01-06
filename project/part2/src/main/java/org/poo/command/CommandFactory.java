@@ -29,7 +29,7 @@ import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;

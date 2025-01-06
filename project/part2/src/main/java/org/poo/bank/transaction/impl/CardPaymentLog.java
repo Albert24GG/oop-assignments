@@ -5,7 +5,8 @@ import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.TransactionLogView;
+import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.impl.CardPaymentLogView;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -22,8 +23,12 @@ public final class CardPaymentLog extends TransactionLog {
 
     @Override
     public TransactionLogView toView() {
-        return super.toView().toBuilder()
-                .amountAsDouble(amount)
+        return CardPaymentLogView.builder()
+                .timestamp(getTimestamp())
+                .description(getDescription())
+                .error(getError())
+                .type(getType())
+                .amount(amount)
                 .merchant(merchant)
                 .build();
     }
