@@ -23,7 +23,7 @@ public final class TransferLogView extends TransactionLogView {
 
     @JsonProperty("amount")
     public String getAmountAsString() {
-        return BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_UP) + " " +
-                currency;
+        return BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()
+                + " " + currency;
     }
 }
