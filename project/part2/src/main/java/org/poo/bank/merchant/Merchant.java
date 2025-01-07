@@ -71,16 +71,16 @@ public final class Merchant {
 
         static final class TransactionCashback extends Discount {
             TransactionCashback(final double percentage, final MerchantType applicableType) {
-                super(percentage, Optional.of(applicableType));
+                super(percentage, applicableType);
             }
 
             @Override
-            public boolean isApplicableNow() {
+            boolean isApplicableNow() {
                 return false;
             }
 
             @Override
-            public boolean isApplicableOneTime() {
+            boolean isApplicableOneTime() {
                 return true;
             }
         }
@@ -135,16 +135,16 @@ public final class Merchant {
 
         static final class SpendingCashback extends Discount {
             SpendingCashback(final double percentage) {
-                super(percentage, Optional.empty());
+                super(percentage, null);
             }
 
             @Override
-            public boolean isApplicableNow() {
+            boolean isApplicableNow() {
                 return true;
             }
 
             @Override
-            public boolean isApplicableOneTime() {
+            boolean isApplicableOneTime() {
                 return false;
             }
         }

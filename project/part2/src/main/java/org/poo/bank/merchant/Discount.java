@@ -1,21 +1,19 @@
 package org.poo.bank.merchant;
 
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
 abstract class Discount {
     @Getter
     private final double percentage;
     // The type of merchant that the discount is applicable for (if any)
     // If the discount is applicable for all merchants, this field should be empty
     @Getter(AccessLevel.PACKAGE)
-    private final Optional<MerchantType> applicableType;
+    private final MerchantType applicableType;
 
     /**
      * Check if the discount is applicable for the same transaction.
@@ -24,14 +22,14 @@ abstract class Discount {
      *
      * @return true if the discount is applicable, false otherwise
      */
-    public abstract boolean isApplicableNow();
+    abstract boolean isApplicableNow();
 
     /**
      * Check if the discount is applicable only once.
      *
      * @return true if the discount is applicable only once, false otherwise
      */
-    public abstract boolean isApplicableOneTime();
+    abstract boolean isApplicableOneTime();
 
     /**
      * Check if the discount is applicable for the given merchant.
@@ -39,7 +37,8 @@ abstract class Discount {
      * @param merchant the merchant to check
      * @return true if the discount is applicable, false otherwise
      */
-    public final boolean isApplicableFor(final Merchant merchant) {
-        return applicableType.map(type -> type == merchant.getType()).orElse(true);
+    final boolean isApplicableFor(final Merchant merchant) {
+        return Optional.ofNullable(applicableType).map(type -> type == merchant.getType())
+                .orElse(true);
     }
 }
