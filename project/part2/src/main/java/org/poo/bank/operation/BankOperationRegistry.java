@@ -1,5 +1,6 @@
 package org.poo.bank.operation;
 
+import org.poo.bank.operation.impl.AcceptSplitPayment;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CardPaymentRequest;
@@ -15,6 +16,7 @@ import org.poo.bank.operation.impl.DeleteCard;
 import org.poo.bank.operation.impl.GetAllUsers;
 import org.poo.bank.operation.impl.GetUserTransactions;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
+import org.poo.bank.operation.impl.RejectSplitPayment;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
 import org.poo.bank.operation.impl.SpendingsReportQuery;
@@ -53,7 +55,9 @@ final class BankOperationRegistry {
                     WithdrawSavings.class,
                     UpgradeServicePlan.class,
                     CashWithdraw.class,
-                    AddMerchant.class
+                    AddMerchant.class,
+                    AcceptSplitPayment.class,
+                    RejectSplitPayment.class
             )
     );
 

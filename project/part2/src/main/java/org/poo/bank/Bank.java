@@ -5,6 +5,10 @@ import org.poo.bank.account.BankAccService;
 import org.poo.bank.account.UserService;
 import org.poo.bank.card.CardService;
 import org.poo.bank.currency.CurrencyExchangeService;
+import org.poo.bank.eventSystem.BankEventListener;
+import org.poo.bank.eventSystem.BankEventService;
+import org.poo.bank.eventSystem.events.SplitPaymentEvent;
+import org.poo.bank.eventSystem.handlers.SplitPaymentEventHandler;
 import org.poo.bank.merchant.CashbackType;
 import org.poo.bank.merchant.MerchantService;
 import org.poo.bank.merchant.MerchantType;
@@ -15,24 +19,33 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
+import org.poo.bank.splitPayment.SplitPaymentService;
 import org.poo.bank.transaction.TransactionLogService;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 
-
 public final class Bank {
+    private final BankEventService bankEventService = new BankEventService();
     private final CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();
     private final CardService cardService = new CardService();
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
     private final TransactionLogService transactionLogService = new TransactionLogService();
     private final MerchantService merchantService = new MerchantService();
+    private final SplitPaymentService splitPaymentService =
+            new SplitPaymentService(bankEventService);
     private final BankOperationContext bankOperationContext =
             new BankOperationContext(bankAccService,
                     userService, cardService, transactionLogService, currencyExchangeService,
-                    merchantService);
+                    merchantService, splitPaymentService);
+
+    // Register the event handlers
+    {
+        bankEventService.subscribe(new BankEventListener<>(SplitPaymentEvent.class,
+                new SplitPaymentEventHandler(bankOperationContext)));
+    }
 
     /**
      * Register an exchange rate between two currencies.

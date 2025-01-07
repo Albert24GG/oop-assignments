@@ -10,7 +10,8 @@ import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.impl.SplitPaymentLog;
+import org.poo.bank.splitPayment.SplitPayment;
+import org.poo.bank.splitPayment.SplitPaymentType;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -25,7 +26,10 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
     private final List<IBAN> involvedAccounts;
     @NonNull
     private final Currency currency;
-    private final double amount;
+    @NonNull
+    private final SplitPaymentType type;
+    @NonNull
+    private final List<Double> amountPerAccount;
     private final int timestamp;
 
     @Override
@@ -36,56 +40,37 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
                     "At least two accounts must be involved in a split payment");
         }
 
-        List<BankAccount> accounts = involvedAccounts.stream()
+        List<BankAccount> bankAccounts = involvedAccounts.stream()
                 .map(accountIban -> BankOperationUtils.getBankAccountByIban(context, accountIban))
                 .toList();
 
-        double splitAmount = amount / accounts.size();
-        // Convert the split amount to the currency of each account
-        List<Double> convertedSplitAmounts = accounts.stream()
-                .map(account -> BankOperationUtils.convertCurrency(context, currency,
-                        account.getCurrency(), splitAmount))
+        // Convert the amount for each account to the currency of the account
+        List<Double> convertedAmounts = IntStream.range(0, bankAccounts.size())
+                .mapToObj(i -> BankOperationUtils.convertCurrency(context, currency,
+                        bankAccounts.get(i).getCurrency(), amountPerAccount.get(i)))
                 .toList();
 
         // Check if all accounts have enough funds
-        Optional<BankAccount> lastAccountWithInsufficientFunds = IntStream.range(0, accounts.size())
-                .filter(
-                        i -> !context.bankAccService()
-                                .validateFunds(accounts.get(i), convertedSplitAmounts.get(i))
-                )
-                .reduce((a, b) -> b).stream()
-                .mapToObj(accounts::get)
-                .findFirst();
+        Optional<BankAccount> firstAccountWithInsufficientFunds =
+                IntStream.range(0, bankAccounts.size())
+                        .filter(
+                                i -> !context.bankAccService()
+                                        .validateFunds(bankAccounts.get(i), convertedAmounts.get(i))
+                        )
+                        .mapToObj(bankAccounts::get)
+                        .findFirst();
 
-        // Prepare the transaction log
-        var logBuilder = SplitPaymentLog.builder()
-                .description(
-                        String.format("Split payment of %.2f %s", amount, currency))
+        // Create the split payment
+        SplitPayment splitPayment = SplitPayment.builder()
                 .timestamp(timestamp)
-                .amount(splitAmount)
-                .involvedAccounts(involvedAccounts)
-                .currency(currency);
+                .involvedAccounts(bankAccounts)
+                .amountPerAccount(amountPerAccount)
+                .currency(currency)
+                .type(type)
+                .build();
 
+        context.splitPaymentService().registerPayment(splitPayment);
 
-        // If at least one account has insufficient funds, log the error and return
-        SplitPaymentLog transactionLog = lastAccountWithInsufficientFunds.<SplitPaymentLog>map(
-                account -> logBuilder
-                        .error(String.format(
-                                "Account %s has insufficient funds for a split payment.",
-                                account.getIban()))
-                        .build()
-        ).orElseGet(
-                () -> {
-                    IntStream.range(0, accounts.size())
-                            .forEach(i -> BankOperationUtils.removeFunds(context, accounts.get(i),
-                                    convertedSplitAmounts.get(i)));
-                    return logBuilder.build();
-                }
-
-        );
-
-        accounts.forEach(
-                account -> BankOperationUtils.logTransaction(context, account, transactionLog));
         return BankOperationResult.success();
     }
 }

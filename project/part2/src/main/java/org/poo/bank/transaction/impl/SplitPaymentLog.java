@@ -3,6 +3,7 @@ package org.poo.bank.transaction.impl;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
+import org.poo.bank.splitPayment.SplitPaymentType;
 import org.poo.bank.transaction.TransactionLog;
 import org.poo.bank.transaction.TransactionLogType;
 import org.poo.bank.transaction.view.TransactionLogView;
@@ -17,10 +18,12 @@ import java.util.List;
 public final class SplitPaymentLog extends TransactionLog {
     @NonNull
     private final Currency currency;
-    @NonNull
     private final Double amount;
+    private final List<Double> amountPerAccount;
     @NonNull
     private final List<IBAN> involvedAccounts;
+    @NonNull
+    private final SplitPaymentType type;
 
     @Override
     public TransactionLogType getType() {
@@ -37,6 +40,8 @@ public final class SplitPaymentLog extends TransactionLog {
                 .currency(currency)
                 .amount(amount)
                 .involvedAccounts(List.copyOf(involvedAccounts))
+                .amountPerAccount(amountPerAccount == null ? null : List.copyOf(amountPerAccount))
+                .splitPaymentType(type)
                 .build();
     }
 }

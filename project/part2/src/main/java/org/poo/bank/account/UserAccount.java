@@ -1,6 +1,7 @@
 package org.poo.bank.account;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.type.Date;
@@ -14,12 +15,16 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class UserAccount {
     @Getter
+    @EqualsAndHashCode.Include
     private final String firstName;
     @Getter
+    @EqualsAndHashCode.Include
     private final String lastName;
     @Getter
+    @EqualsAndHashCode.Include
     private final Email email;
     private final List<BankAccount> accounts = new ArrayList<>();
     @Getter

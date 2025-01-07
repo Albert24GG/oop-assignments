@@ -9,6 +9,7 @@ import org.poo.bank.card.CardType;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.operation.impl.AcceptSplitPayment;
 import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.CashWithdraw;
@@ -29,6 +30,7 @@ import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
+import org.poo.bank.splitPayment.SplitPaymentType;
 import org.poo.bank.transaction.view.TransactionLogView;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
@@ -38,6 +40,7 @@ import org.poo.bank.type.Location;
 import org.poo.fileio.CommandInput;
 import org.poo.bank.servicePlan.ServicePlanType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -158,11 +161,36 @@ public final class CommandFactory {
                     }),
 
                     Map.entry("splitPayment", input -> {
+                        SplitPaymentType type = SplitPaymentType.of(input.getSplitPaymentType());
+                        List<Double> amountPerAccount = switch (type) {
+                            case EQUAL -> Collections.nCopies(input.getAccounts().size(),
+                                    input.getAmount() / input.getAccounts().size());
+                            case CUSTOM -> input.getAmountForUsers();
+                        };
+
+
                         BankOperation<Void> operation = SplitPaymentRequest.builder()
                                 .involvedAccounts(
                                         input.getAccounts().stream().map(IBAN::of).toList())
                                 .currency(Currency.of(input.getCurrency()))
-                                .amount(input.getAmount())
+                                .type(type)
+                                .amountPerAccount(amountPerAccount)
+                                .timestamp(input.getTimestamp())
+                                .build();
+                        return new CommandWithouResultOrError<>(input, operation);
+                    }),
+
+                    Map.entry("acceptSplitPayment", input -> {
+                        BankOperation<Void> operation = AcceptSplitPayment.builder()
+                                .ownerEmail(Email.of(input.getEmail()))
+                                .timestamp(input.getTimestamp())
+                                .build();
+                        return new CommandWithouResultOrError<>(input, operation);
+                    }),
+
+                    Map.entry("rejectSplitPayment", input -> {
+                        BankOperation<Void> operation = AcceptSplitPayment.builder()
+                                .ownerEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
                                 .build();
                         return new CommandWithouResultOrError<>(input, operation);
