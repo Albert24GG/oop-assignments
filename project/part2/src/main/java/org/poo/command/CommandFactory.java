@@ -140,7 +140,7 @@ public final class CommandFactory {
                                 .amount(input.getAmount())
                                 .timestamp(input.getTimestamp())
                                 .build();
-                        return new CommandWithouResultOrError<>(input, operation);
+                        return new CommandWitError<>(input, operation, "description");
                     }),
 
                     Map.entry("checkCardStatus", input -> {

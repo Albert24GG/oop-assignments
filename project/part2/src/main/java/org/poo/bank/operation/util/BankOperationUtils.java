@@ -77,7 +77,7 @@ public final class BankOperationUtils {
                         () -> context.bankAccService().getAccountByIban(IBAN.of(accountAliasOrIban))
                                 .orElseThrow(
                                         () -> new BankOperationException(
-                                                BankErrorType.ACCOUNT_NOT_FOUND)));
+                                                BankErrorType.USER_NOT_FOUND)));
     }
 
     /**
