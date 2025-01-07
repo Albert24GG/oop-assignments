@@ -53,14 +53,13 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
                     bankAccount.getCurrency(), upgradeFee);
 
             BankOperationUtils.validateFunds(context, bankAccount, upgradeFee);
-        } catch (IllegalArgumentException e) {
+        } catch (BankOperationException e) {
             TransactionLog transactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
                     .build();
             BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
-            // Ignore the exception and return a success result
-            return BankOperationResult.success();
+            return BankOperationResult.silentError(e.getErrorType());
         }
 
         BankOperationUtils.removeFunds(context, bankAccount, upgradeFee);

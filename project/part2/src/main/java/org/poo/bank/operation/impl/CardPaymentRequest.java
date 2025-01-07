@@ -8,6 +8,7 @@ import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
 import org.poo.bank.merchant.Merchant;
+import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -39,6 +40,11 @@ public final class CardPaymentRequest extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
+        if (amount <= 0) {
+            return BankOperationResult.silentError(BankErrorType.INVALID_ARGUMENT,
+                    "Amount must be positive");
+        }
+
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
         UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
         Merchant merchant = BankOperationUtils.getMerchantByName(context, merchantName);
@@ -53,7 +59,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .build();
             context.transactionLogService()
                     .logTransaction(card.getLinkedAccount().getIban(), transactionLog);
-            return BankOperationResult.success();
+            return BankOperationResult.silentError(e.getErrorType());
         }
 
         BankAccount bankAccount = card.getLinkedAccount();
@@ -95,6 +101,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .description(e.getMessage())
                     .build();
             BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            return BankOperationResult.silentError(e.getErrorType());
         }
 
         return BankOperationResult.success();

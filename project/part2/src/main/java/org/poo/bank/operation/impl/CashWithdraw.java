@@ -66,6 +66,7 @@ public final class CashWithdraw extends BankOperation<Void> {
                     .description(e.getMessage())
                     .build();
             BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            return BankOperationResult.silentError(e.getErrorType());
         }
 
         return BankOperationResult.success();

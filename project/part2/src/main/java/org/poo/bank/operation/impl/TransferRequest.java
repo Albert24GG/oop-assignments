@@ -54,6 +54,7 @@ public final class TransferRequest extends BankOperation<Void> {
                         sender.getCurrency());
 
         TransactionLog sendTransactionLog;
+        BankOperationResult<Void> result;
 
         try {
             BankOperationUtils.validateFunds(context, sender, amountWithCommission);
@@ -78,16 +79,17 @@ public final class TransferRequest extends BankOperation<Void> {
                     .currency(sender.getCurrency())
                     .transferType("sent")
                     .build();
-
+            result = BankOperationResult.success();
         } catch (BankOperationException e) {
             sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
                     .build();
+            result = BankOperationResult.silentError(e.getErrorType());
         }
 
         BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
-        return BankOperationResult.success();
+        return result;
     }
 
     private void transferToUser(final BankOperationContext context,

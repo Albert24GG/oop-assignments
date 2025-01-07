@@ -269,14 +269,14 @@ public final class CommandFactory {
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             BankOperationResult<R> result = bank.processOperation(operation);
-            return result.isSuccess()
+            return result.isSuccess() || result.isSilentError()
                     ? Optional.empty()
                     : Optional.of(
                     CommandOutput.builder()
                             .command(getInput().getCommand())
                             .timestamp(getInput().getTimestamp())
                             .output(MAPPER.createObjectNode()
-                                    .put(errorFieldName, result.getMessage())
+                                    .put(errorFieldName, result.getMessage().get())
                                     .put("timestamp", getInput().getTimestamp()))
                             .build());
         }
@@ -351,7 +351,7 @@ public final class CommandFactory {
                 output.put("success", "Account deleted")
                         .put("timestamp", input.getTimestamp());
             } else {
-                output.put("error", result.getMessage())
+                output.put("error", result.getMessage().get())
                         .put("timestamp", input.getTimestamp());
             }
             return Optional.of(
@@ -391,7 +391,7 @@ public final class CommandFactory {
                                             .command(getInput().getCommand())
                                             .timestamp(getInput().getTimestamp())
                                             .output(MAPPER.createObjectNode()
-                                                    .put("description", result.getMessage())
+                                                    .put("description", result.getMessage().get())
                                                     .put("timestamp", getInput().getTimestamp()))
                                             .build()));
         }
@@ -425,10 +425,10 @@ public final class CommandFactory {
                             .orElseGet(() -> {
                                 if (result.getErrorType() == BankErrorType.INVALID_OPERATION) {
                                     return commandOutputBuilder.output(MAPPER.createObjectNode()
-                                            .put("error", result.getMessage()));
+                                            .put("error", result.getMessage().get()));
                                 } else {
                                     return commandOutputBuilder.output(MAPPER.createObjectNode()
-                                            .put("description", result.getMessage())
+                                            .put("description", result.getMessage().get())
                                             .put("timestamp", getInput().getTimestamp()));
                                 }
                             })

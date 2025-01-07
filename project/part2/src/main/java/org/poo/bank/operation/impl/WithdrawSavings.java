@@ -73,8 +73,7 @@ public final class WithdrawSavings extends BankOperation<Void> {
             TransactionLog transactionLog =
                     FailedOpLog.builder().description(e.getMessage()).timestamp(timestamp).build();
             BankOperationUtils.logTransaction(context, savingsAccount.getIban(), transactionLog);
-            // Ignore the error and return success
-            return BankOperationResult.success();
+            return BankOperationResult.silentError(e.getErrorType());
         }
 
         BankAccount destinationAccount =
