@@ -22,16 +22,19 @@ final class CashbackService {
 
     double registerTransaction(final Merchant merchant, final BankAccount bankAccount,
                                final double amount) {
-        // First, collect the pending discounts for the given bank account
-        // In the process, mark the discounts as applied and remove them from the pending list
-        double totalDiscount = getPendingDiscounts(bankAccount).stream()
+        // First, collect the applicable discounts
+        List<Discount> applicableDiscounts = getPendingDiscounts(bankAccount).stream()
                 .filter(discount -> discount.isApplicableFor(merchant))
-                .peek(discount -> {
-                    getPendingDiscounts(bankAccount).remove(discount);
-                    getAppliedDiscounts(bankAccount).add(discount);
-                })
+                .toList();
+
+        // Calculate total discount
+        double totalDiscount = applicableDiscounts.stream()
                 .map(Discount::getPercentage)
                 .reduce(0.0, Double::sum);
+
+        // Then update the collections
+        getPendingDiscounts(bankAccount).removeAll(applicableDiscounts);
+        getAppliedDiscounts(bankAccount).addAll(applicableDiscounts);
 
         Optional<Discount> discountOpt = merchant.registerTransaction(bankAccount, amount);
 

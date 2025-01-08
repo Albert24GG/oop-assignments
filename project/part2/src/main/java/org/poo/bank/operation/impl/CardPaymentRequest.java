@@ -7,6 +7,7 @@ import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
+import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
@@ -73,14 +74,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
 
         try {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
-
-            // Apply cashback
-            double cashbackPercentage =
-                    BankOperationUtils.calculateTransactionCashback(context, merchant,
-                            bankAccount, convertedAmount, bankAccount.getCurrency());
-            double totalWithdrawn = amountWithCommission * (1 - cashbackPercentage);
-
-            BankOperationUtils.removeFunds(context, bankAccount, totalWithdrawn);
+            BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
 
             TransactionLog transactionLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
@@ -89,6 +83,11 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .merchant(merchantName)
                     .build();
             BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+
+            // Trigger the transaction event
+            context.eventService()
+                    .post(new TransactionEvent(bankAccount, merchant, amount, currency));
+
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
                 new DeleteCard(cardNumber, timestamp).execute(context);

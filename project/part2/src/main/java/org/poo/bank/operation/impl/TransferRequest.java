@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -62,12 +63,17 @@ public final class TransferRequest extends BankOperation<Void> {
 
             IBAN receiverIban;
             // Handle the transfer depending on the receiver type
+
+            TransactionEvent transactionEvent;
             if (receiver != null) {
                 transferToUser(context, sender, receiver);
                 receiverIban = receiver.getIban();
+                transactionEvent =
+                        new TransactionEvent(sender, receiver, amount, sender.getCurrency());
             } else {
-                transferToMerchant(context, sender, merchant);
                 receiverIban = merchant.getAccountIban();
+                transactionEvent =
+                        new TransactionEvent(sender, merchant, amount, sender.getCurrency());
             }
 
             sendTransactionLog = TransferLog.builder()
@@ -79,16 +85,21 @@ public final class TransferRequest extends BankOperation<Void> {
                     .currency(sender.getCurrency())
                     .transferType("sent")
                     .build();
+            BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
+
+            // Trigger the transaction event
+            context.eventService().post(transactionEvent);
+
             result = BankOperationResult.success();
         } catch (BankOperationException e) {
             sendTransactionLog = FailedOpLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
                     .build();
+            BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
             result = BankOperationResult.silentError(e.getErrorType());
         }
 
-        BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
         return result;
     }
 
@@ -109,19 +120,5 @@ public final class TransferRequest extends BankOperation<Void> {
                 .transferType("received")
                 .build();
         BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);
-    }
-
-    private void transferToMerchant(final BankOperationContext context,
-                                    final BankAccount sender,
-                                    final Merchant merchant) {
-
-        // Calculate the cashback for the transaction
-        double cashbackPercentage =
-                BankOperationUtils.calculateTransactionCashback(context, merchant, sender, amount,
-                        sender.getCurrency());
-        double receivedCashback = amount * cashbackPercentage;
-
-        // Add the cashback to the sender account
-        BankOperationUtils.addFunds(context, sender, receivedCashback);
     }
 }

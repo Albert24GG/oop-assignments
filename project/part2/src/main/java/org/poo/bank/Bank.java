@@ -8,6 +8,8 @@ import org.poo.bank.currency.CurrencyExchangeService;
 import org.poo.bank.eventSystem.BankEventListener;
 import org.poo.bank.eventSystem.BankEventService;
 import org.poo.bank.eventSystem.events.SplitPaymentEvent;
+import org.poo.bank.eventSystem.events.TransactionEvent;
+import org.poo.bank.eventSystem.handlers.CashbackEventHandler;
 import org.poo.bank.eventSystem.handlers.SplitPaymentEventHandler;
 import org.poo.bank.merchant.CashbackType;
 import org.poo.bank.merchant.MerchantService;
@@ -39,12 +41,15 @@ public final class Bank {
     private final BankOperationContext bankOperationContext =
             new BankOperationContext(bankAccService,
                     userService, cardService, transactionLogService, currencyExchangeService,
-                    merchantService, splitPaymentService);
+                    merchantService, splitPaymentService, bankEventService);
 
     // Register the event handlers
     {
         bankEventService.subscribe(new BankEventListener<>(SplitPaymentEvent.class,
                 new SplitPaymentEventHandler(bankOperationContext)));
+
+        bankEventService.subscribe(new BankEventListener<>(TransactionEvent.class,
+                new CashbackEventHandler(bankOperationContext)));
     }
 
     /**
