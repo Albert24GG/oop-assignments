@@ -55,13 +55,8 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
 
             BankOperationUtils.validateFunds(context, bankAccount, upgradeFee);
         } catch (BankOperationException e) {
-            AuditLog auditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.ACCOUNT_PLAN_UPDATE)
-                    .description(e.getMessage())
-                    .build();
-            BankOperationUtils.recordLog(context, bankAccount, auditLog);
+            BankOperationUtils.logFailedOperation(context, bankAccount, timestamp,
+                    AuditLogType.ACCOUNT_PLAN_UPDATE, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
 

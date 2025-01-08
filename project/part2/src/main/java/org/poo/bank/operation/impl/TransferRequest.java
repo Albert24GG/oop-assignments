@@ -95,13 +95,8 @@ public final class TransferRequest extends BankOperation<Void> {
 
             result = BankOperationResult.success();
         } catch (BankOperationException e) {
-            sendAuditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.TRANSFER)
-                    .description(e.getMessage())
-                    .build();
-            BankOperationUtils.recordLog(context, sender, sendAuditLog);
+            BankOperationUtils.logFailedOperation(context, sender, timestamp,
+                    AuditLogType.TRANSFER, e);
             result = BankOperationResult.silentError(e.getErrorType());
         }
 

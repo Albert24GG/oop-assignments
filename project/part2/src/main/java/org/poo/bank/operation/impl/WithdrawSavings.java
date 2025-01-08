@@ -71,13 +71,8 @@ public final class WithdrawSavings extends BankOperation<Void> {
 
             BankOperationUtils.validateFunds(context, savingsAccount, amountToWithdraw);
         } catch (BankOperationException e) {
-            AuditLog auditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.SAVINGS_WITHDRAWAL)
-                    .description(e.getMessage())
-                    .build();
-            BankOperationUtils.recordLog(context, savingsAccount.getIban(), auditLog);
+            BankOperationUtils.logFailedOperation(context, savingsAccount, timestamp,
+                    AuditLogType.SAVINGS_WITHDRAWAL, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
 

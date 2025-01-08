@@ -8,6 +8,8 @@ import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogStatus;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -199,6 +201,42 @@ public final class BankOperationUtils {
                                  final BankAccount bankAccount,
                                  final AuditLog auditLog) {
         recordLog(context, bankAccount.getIban(), auditLog);
+    }
+
+    /**
+     * Log a failed operation
+     *
+     * @param context     The bank operation context
+     * @param accountIban The IBAN of the account
+     * @param timestamp   The timestamp of the operation
+     * @param logType     The type of the log
+     * @param e           The exception that caused the failure
+     */
+    public static void logFailedOperation(final BankOperationContext context,
+                                          final IBAN accountIban, final int timestamp, final
+                                          AuditLogType logType, final BankOperationException e) {
+        AuditLog log = AuditLog.builder()
+                .timestamp(timestamp)
+                .logStatus(AuditLogStatus.FAILURE)
+                .logType(logType)
+                .description(e.getMessage())
+                .build();
+        recordLog(context, accountIban, log);
+    }
+
+    /**
+     * Log a failed operation
+     *
+     * @param context     The bank operation context
+     * @param bankAccount The bank account
+     * @param timestamp   The timestamp of the operation
+     * @param logType     The type of the log
+     * @param e           The exception that caused the failure
+     */
+    public static void logFailedOperation(final BankOperationContext context,
+                                          final BankAccount bankAccount, final int timestamp, final
+                                          AuditLogType logType, final BankOperationException e) {
+        logFailedOperation(context, bankAccount.getIban(), timestamp, logType, e);
     }
 
     /**

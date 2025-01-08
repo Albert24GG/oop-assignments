@@ -55,14 +55,8 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         try {
             BankOperationUtils.validateCardStatus(context, card);
         } catch (BankOperationException e) {
-            AuditLog auditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .description(e.getMessage())
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.CARD_PAYMENT)
-                    .build();
-            context.auditLogService()
-                    .recordLog(card.getLinkedAccount().getIban(), auditLog);
+            BankOperationUtils.logFailedOperation(context, card.getLinkedAccount(), timestamp,
+                    AuditLogType.CARD_PAYMENT, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
 
@@ -100,13 +94,8 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                         timestamp).execute(context);
             }
         } catch (BankOperationException e) {
-            AuditLog auditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .description(e.getMessage())
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.CARD_PAYMENT)
-                    .build();
-            BankOperationUtils.recordLog(context, bankAccount, auditLog);
+            BankOperationUtils.logFailedOperation(context, bankAccount, timestamp,
+                    AuditLogType.CARD_PAYMENT, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
 

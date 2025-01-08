@@ -64,13 +64,8 @@ public final class CashWithdraw extends BankOperation<Void> {
                     .build();
             BankOperationUtils.recordLog(context, bankAccount, auditLog);
         } catch (BankOperationException e) {
-            AuditLog auditLog = AuditLog.builder()
-                    .timestamp(timestamp)
-                    .logStatus(AuditLogStatus.FAILURE)
-                    .logType(AuditLogType.CASH_WITHDRAWAL)
-                    .description(e.getMessage())
-                    .build();
-            BankOperationUtils.recordLog(context, bankAccount, auditLog);
+            BankOperationUtils.logFailedOperation(context, bankAccount, timestamp,
+                    AuditLogType.CASH_WITHDRAWAL, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
 
