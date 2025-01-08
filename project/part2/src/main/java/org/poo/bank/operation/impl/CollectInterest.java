@@ -10,9 +10,11 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.InterestIncomeLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
+import org.poo.bank.transaction.impl.InterestClaimLog;
 import org.poo.bank.type.IBAN;
 
 @Builder
@@ -39,14 +41,16 @@ public final class CollectInterest extends BankOperation<Void> {
 
         collectedInterest = bankAccount.getBalance() - collectedInterest;
 
-        TransactionLog transactionLog = InterestIncomeLog.builder()
+        AuditLog auditLog = InterestClaimLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.INTEREST_CLAIM)
                 .description("Interest rate income")
                 .amount(collectedInterest)
                 .currency(bankAccount.getCurrency())
                 .build();
 
-        BankOperationUtils.logTransaction(context, accountIban, transactionLog);
+        BankOperationUtils.recordLog(context, accountIban, auditLog);
 
         return BankOperationResult.success();
     }

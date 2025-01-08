@@ -23,7 +23,7 @@ import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
 import org.poo.bank.splitPayment.SplitPaymentService;
-import org.poo.bank.transaction.TransactionLogService;
+import org.poo.bank.transaction.AuditLogService;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;
@@ -35,13 +35,13 @@ public final class Bank {
     private final CardService cardService = new CardService();
     private final UserService userService = new UserService();
     private final BankAccService bankAccService = new BankAccService();
-    private final TransactionLogService transactionLogService = new TransactionLogService();
+    private final AuditLogService auditLogService = new AuditLogService();
     private final MerchantService merchantService = new MerchantService();
     private final SplitPaymentService splitPaymentService =
             new SplitPaymentService(bankEventService);
     private final BankOperationContext bankOperationContext =
             new BankOperationContext(bankAccService,
-                    userService, cardService, transactionLogService, currencyExchangeService,
+                    userService, cardService, auditLogService, currencyExchangeService,
                     merchantService, splitPaymentService, bankEventService);
 
     // Register the event handlers

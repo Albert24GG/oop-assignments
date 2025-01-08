@@ -10,10 +10,11 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.servicePlan.ServicePlan;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.UpgradePlanLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -54,23 +55,27 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
 
             BankOperationUtils.validateFunds(context, bankAccount, upgradeFee);
         } catch (BankOperationException e) {
-            TransactionLog transactionLog = FailedOpLog.builder()
+            AuditLog auditLog = AuditLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.ACCOUNT_PLAN_UPDATE)
                     .description(e.getMessage())
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
             return BankOperationResult.silentError(e.getErrorType());
         }
 
         BankOperationUtils.removeFunds(context, bankAccount, upgradeFee);
         context.userService().upgradePlan(userAccount, newPlan);
-        TransactionLog transactionLog = UpgradePlanLog.builder()
-                .description("Upgrade plan")
+        AuditLog auditLog = UpgradePlanLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.ACCOUNT_PLAN_UPDATE)
+                .description("Upgrade plan")
                 .accountIBAN(accountIban)
                 .newPlanType(newPlan)
                 .build();
-        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+        BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
         return BankOperationResult.success();
     }

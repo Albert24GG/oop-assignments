@@ -11,8 +11,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
@@ -37,14 +39,16 @@ public final class CreateCard extends BankOperation<Void> {
         BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
 
         Card newCard = context.cardService().createCard(bankAccount, type);
-        TransactionLog transactionLog = CardOpLog.builder()
+        AuditLog auditLog = CardOpLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.CARD_CREATION)
                 .card(newCard.getNumber())
                 .cardHolder(userAccount.getEmail())
                 .account(bankAccount.getIban())
                 .description("New card created")
                 .build();
-        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+        BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
         return BankOperationResult.success();
     }

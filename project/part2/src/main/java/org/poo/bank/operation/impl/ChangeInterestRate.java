@@ -10,9 +10,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.InterestChangeLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.type.IBAN;
 
 @Builder
@@ -33,13 +34,16 @@ public final class ChangeInterestRate extends BankOperation<Void> {
                     "This is not a savings account");
         }
 
-        TransactionLog transactionLog = InterestChangeLog.builder()
+        context.bankAccService().changeInterestRate(bankAccount, newInterestRate);
+
+        AuditLog auditLog = AuditLog.builder()
                 .timestamp(timestamp)
+                .logType(AuditLogType.INTEREST_RATE_UPDATE)
+                .logStatus(AuditLogStatus.SUCCESS)
                 .description("Interest rate of the account changed to " + newInterestRate)
                 .build();
-        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+        BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
-        context.bankAccService().changeInterestRate(bankAccount, newInterestRate);
         return BankOperationResult.success();
     }
 }

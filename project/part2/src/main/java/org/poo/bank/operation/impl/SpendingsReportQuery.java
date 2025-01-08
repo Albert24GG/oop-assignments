@@ -13,8 +13,9 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.report.MerchantSpending;
 import org.poo.bank.report.SpendingsReport;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.TransactionLogType;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogStatus;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.CardPaymentLog;
 import org.poo.bank.type.IBAN;
 
@@ -42,12 +43,13 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
         }
 
         // Get all card payments
-        List<TransactionLog>
+        List<AuditLog>
                 transactions =
-                context.transactionLogService()
-                        .getLogs(accountIban, startTimestamp, endTimestamp)
-                        .stream().filter(transactionLog -> transactionLog.getType()
-                                == TransactionLogType.CARD_PAYMENT)
+                context.auditLogService()
+                        .getLogs(accountIban, startTimestamp, endTimestamp).stream()
+                        .filter(log -> log.getLogType()
+                                == AuditLogType.CARD_PAYMENT
+                                && log.getLogStatus() == AuditLogStatus.SUCCESS)
                         .toList();
 
         // Group by merchant and sum the amounts to get the total spending per merchant
@@ -66,7 +68,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                         .iban(accountIban)
                         .balance(bankAccount.getBalance())
                         .currency(bankAccount.getCurrency())
-                        .transactions(transactions.stream().map(TransactionLog::toView).toList())
+                        .transactions(transactions.stream().map(AuditLog::toView).toList())
                         .merchants(merchants)
                         .build()
         );

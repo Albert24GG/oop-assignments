@@ -3,32 +3,30 @@ package org.poo.bank.transaction;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
-import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.AuditLogView;
 
 @SuperBuilder(toBuilder = true)
 @Getter
-public abstract class TransactionLog {
+public class AuditLog {
     @NonNull
     private final Integer timestamp;
+    @NonNull
+    private final AuditLogType logType;
+    @NonNull
+    private final AuditLogStatus logStatus;
     private final String description;
     private final String error;
-
-    /**
-     * Get the type of the transaction
-     *
-     * @return the type of the transaction
-     */
-    public abstract TransactionLogType getType();
 
     /**
      * Convert the transaction log to a view
      *
      * @return the transaction log view
      */
-    public TransactionLogView toView() {
-        return TransactionLogView.builder()
+    public AuditLogView toView() {
+        return AuditLogView.builder()
                 .timestamp(timestamp)
-                .type(getType())
+                .logStatus(logStatus)
+                .logType(logType)
                 .description(description)
                 .error(error)
                 .build();

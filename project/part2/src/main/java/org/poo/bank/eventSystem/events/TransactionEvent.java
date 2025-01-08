@@ -22,10 +22,11 @@ public final class TransactionEvent {
      *
      * @param senderBankAccount   the user that sends the money
      * @param receiverBankAccount the user that receives the money
-     * @param amount   the amount of the transaction
-     * @param currency the currency of the transaction
+     * @param amount              the amount of the transaction
+     * @param currency            the currency of the transaction
      */
-    public TransactionEvent(final BankAccount senderBankAccount, final BankAccount receiverBankAccount,
+    public TransactionEvent(final BankAccount senderBankAccount,
+                            final BankAccount receiverBankAccount,
                             final double amount,
                             final Currency currency) {
         this.senderBankAccount = senderBankAccount;
@@ -38,10 +39,10 @@ public final class TransactionEvent {
     /**
      * Creates a new transaction event between a user and a merchant.
      *
-     * @param senderBankAccount   the user that sends the money
-     * @param merchant the merchant that receives the money
-     * @param amount   the amount of the transaction
-     * @param currency the currency of the transaction
+     * @param senderBankAccount the user that sends the money
+     * @param merchant          the merchant that receives the money
+     * @param amount            the amount of the transaction
+     * @param currency          the currency of the transaction
      */
     public TransactionEvent(final BankAccount senderBankAccount, final Merchant merchant,
                             final double amount,

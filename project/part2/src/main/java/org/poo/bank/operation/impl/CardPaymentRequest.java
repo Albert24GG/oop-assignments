@@ -14,10 +14,11 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.CardPaymentLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -54,12 +55,14 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         try {
             BankOperationUtils.validateCardStatus(context, card);
         } catch (BankOperationException e) {
-            TransactionLog transactionLog = FailedOpLog.builder()
+            AuditLog auditLog = AuditLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.CARD_PAYMENT)
                     .build();
-            context.transactionLogService()
-                    .logTransaction(card.getLinkedAccount().getIban(), transactionLog);
+            context.auditLogService()
+                    .recordLog(card.getLinkedAccount().getIban(), auditLog);
             return BankOperationResult.silentError(e.getErrorType());
         }
 
@@ -76,13 +79,15 @@ public final class CardPaymentRequest extends BankOperation<Void> {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
             BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
 
-            TransactionLog transactionLog = CardPaymentLog.builder()
+            AuditLog auditLog = CardPaymentLog.builder()
                     .timestamp(timestamp)
-                    .amount(convertedAmount)
+                    .logStatus(AuditLogStatus.SUCCESS)
+                    .logType(AuditLogType.CARD_PAYMENT)
                     .description("Card payment")
+                    .amount(convertedAmount)
                     .merchant(merchantName)
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
             // Trigger the transaction event
             context.eventService()
@@ -95,11 +100,13 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                         timestamp).execute(context);
             }
         } catch (BankOperationException e) {
-            TransactionLog transactionLog = FailedOpLog.builder()
+            AuditLog auditLog = AuditLog.builder()
                     .timestamp(timestamp)
                     .description(e.getMessage())
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.CARD_PAYMENT)
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
             return BankOperationResult.silentError(e.getErrorType());
         }
 

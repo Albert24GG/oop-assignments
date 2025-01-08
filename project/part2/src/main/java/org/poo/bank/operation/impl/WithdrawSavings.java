@@ -11,9 +11,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.SavingsWithdrawLog;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -70,9 +71,13 @@ public final class WithdrawSavings extends BankOperation<Void> {
 
             BankOperationUtils.validateFunds(context, savingsAccount, amountToWithdraw);
         } catch (BankOperationException e) {
-            TransactionLog transactionLog =
-                    FailedOpLog.builder().description(e.getMessage()).timestamp(timestamp).build();
-            BankOperationUtils.logTransaction(context, savingsAccount.getIban(), transactionLog);
+            AuditLog auditLog = AuditLog.builder()
+                    .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.SAVINGS_WITHDRAWAL)
+                    .description(e.getMessage())
+                    .build();
+            BankOperationUtils.recordLog(context, savingsAccount.getIban(), auditLog);
             return BankOperationResult.silentError(e.getErrorType());
         }
 
@@ -83,11 +88,16 @@ public final class WithdrawSavings extends BankOperation<Void> {
         BankOperationUtils.addFunds(context, destinationAccount, amount);
         BankOperationUtils.removeFunds(context, savingsAccount, amountToWithdraw);
 
-        TransactionLog transactionLog =
-                SavingsWithdrawLog.builder().amount(amount).timestamp(timestamp)
-                        .classicAccountIBAN(destinationAccount.getIban())
-                        .savingsAccountIBAN(savingsAccount.getIban()).build();
-        BankOperationUtils.logTransaction(context, savingsAccount.getIban(), transactionLog);
+        AuditLog auditLog = SavingsWithdrawLog.builder()
+                .timestamp(timestamp)
+                .logStatus(AuditLogStatus.FAILURE)
+                .logType(AuditLogType.SAVINGS_WITHDRAWAL)
+                .description("Savings withdrawal")
+                .amount(amount)
+                .classicAccountIBAN(destinationAccount.getIban())
+                .savingsAccountIBAN(savingsAccount.getIban())
+                .build();
+        BankOperationUtils.recordLog(context, savingsAccount.getIban(), auditLog);
 
         return BankOperationResult.success();
     }

@@ -9,8 +9,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.CardOpLog;
 import org.poo.bank.type.CardNumber;
 
@@ -30,14 +32,16 @@ public final class DeleteCard extends BankOperation<Void> {
         context.cardService().removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();
 
-        TransactionLog transactionLog = CardOpLog.builder()
+        AuditLog auditLog = CardOpLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.CARD_DELETION)
                 .card(cardNumber)
                 .cardHolder(linkedAccount.getOwner().getEmail())
                 .account(linkedAccount.getIban())
                 .description("The card has been destroyed")
                 .build();
-        BankOperationUtils.logTransaction(context, linkedAccount, transactionLog);
+        BankOperationUtils.recordLog(context, linkedAccount, auditLog);
 
         return BankOperationResult.success();
     }

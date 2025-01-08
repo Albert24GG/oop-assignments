@@ -8,9 +8,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.GenericLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.type.CardNumber;
 
 @Builder
@@ -26,12 +27,14 @@ public final class CheckCardStatus extends BankOperation<Void> {
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
 
         if (context.cardService().updateCardStatus(card) == Card.Status.TO_BE_FROZEN) {
-            TransactionLog log = GenericLog.builder()
+            AuditLog log = AuditLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.CARD_STATUS_CHECK)
                     .description(
                             "You have reached the minimum amount of funds, the card will be frozen")
                     .build();
-            BankOperationUtils.logTransaction(context, card, log);
+            BankOperationUtils.recordLog(context, card, log);
         }
         return BankOperationResult.success();
     }

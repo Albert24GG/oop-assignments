@@ -8,12 +8,11 @@ import java.util.Optional;
 
 @Builder(access = lombok.AccessLevel.PRIVATE)
 @Getter
-public class BankOperationResult<T> {
+public final class BankOperationResult<T> {
     private final boolean success;
     private final BankErrorType errorType;
     private final boolean silentError;
     private final String message;
-    @Builder.Default
     private final T payload;
 
     public Optional<T> getPayload() {

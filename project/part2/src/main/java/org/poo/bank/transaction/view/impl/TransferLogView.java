@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.AuditLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 @Getter
 @SuperBuilder(toBuilder = true)
-public final class TransferLogView extends TransactionLogView {
+public final class TransferLogView extends AuditLogView {
     private final IBAN senderIBAN;
     private final IBAN receiverIBAN;
     @JsonIgnore

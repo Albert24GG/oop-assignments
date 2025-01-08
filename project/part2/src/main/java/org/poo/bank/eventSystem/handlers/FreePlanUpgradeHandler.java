@@ -6,10 +6,10 @@ import org.poo.bank.eventSystem.BankEventHandler;
 import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.servicePlan.ServicePlanType;
-import org.poo.bank.transaction.TransactionLogType;
+import org.poo.bank.transaction.AuditLogType;
 
 @RequiredArgsConstructor
-public class FreePlanUpgradeHandler implements BankEventHandler<TransactionEvent> {
+public final class FreePlanUpgradeHandler implements BankEventHandler<TransactionEvent> {
     private static final int SILVER_TO_GOLD_TRANSACTION_THRESHOLD = 5;
 
     private final BankOperationContext context;
@@ -24,9 +24,9 @@ public class FreePlanUpgradeHandler implements BankEventHandler<TransactionEvent
         }
 
         long transactionCount =
-                context.transactionLogService().getLogs(senderBankAccount.getIban())
-                        .stream().filter(log -> log.getType() == TransactionLogType.CARD_PAYMENT ||
-                                log.getType() == TransactionLogType.TRANSFER)
+                context.auditLogService().getLogs(senderBankAccount.getIban())
+                        .stream().filter(log -> log.getLogType() == AuditLogType.CARD_PAYMENT
+                                || log.getLogType() == AuditLogType.TRANSFER)
                         .count();
 
         if (transactionCount >= SILVER_TO_GOLD_TRANSACTION_THRESHOLD) {

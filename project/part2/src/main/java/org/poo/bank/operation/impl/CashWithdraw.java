@@ -10,10 +10,11 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.CashWithdrawLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -53,19 +54,23 @@ public final class CashWithdraw extends BankOperation<Void> {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
 
             BankOperationUtils.removeFunds(context, bankAccount, amountWithCommission);
-            TransactionLog transactionLog = CashWithdrawLog.builder()
+            AuditLog auditLog = CashWithdrawLog.builder()
+                    .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.SUCCESS)
+                    .logType(AuditLogType.CASH_WITHDRAWAL)
                     .description("Cash withdrawal of " + amount)
                     .amount(amount)
                     .location(location)
-                    .timestamp(timestamp)
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
         } catch (BankOperationException e) {
-            TransactionLog transactionLog = FailedOpLog.builder()
+            AuditLog auditLog = AuditLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.CASH_WITHDRAWAL)
                     .description(e.getMessage())
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
             return BankOperationResult.silentError(e.getErrorType());
         }
 

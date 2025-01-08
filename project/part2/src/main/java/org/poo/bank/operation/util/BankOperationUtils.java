@@ -7,7 +7,7 @@ import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
-import org.poo.bank.transaction.TransactionLog;
+import org.poo.bank.transaction.AuditLog;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -176,42 +176,42 @@ public final class BankOperationUtils {
     }
 
     /**
-     * Log a transaction
+     * Record a log
      *
-     * @param context        The bank operation context
-     * @param accountIban    The IBAN of the account
-     * @param transactionLog The transaction log
+     * @param context     The bank operation context
+     * @param accountIban The IBAN of the account
+     * @param auditLog    The log to be recorded
      */
-    public static void logTransaction(final BankOperationContext context,
-                                      final IBAN accountIban,
-                                      final TransactionLog transactionLog) {
-        context.transactionLogService().logTransaction(accountIban, transactionLog);
+    public static void recordLog(final BankOperationContext context,
+                                 final IBAN accountIban,
+                                 final AuditLog auditLog) {
+        context.auditLogService().recordLog(accountIban, auditLog);
+    }
+
+    /**
+     * Record a log
+     *
+     * @param context     The bank operation context
+     * @param bankAccount The bank account
+     * @param auditLog    The log to be recorded
+     */
+    public static void recordLog(final BankOperationContext context,
+                                 final BankAccount bankAccount,
+                                 final AuditLog auditLog) {
+        recordLog(context, bankAccount.getIban(), auditLog);
     }
 
     /**
      * Log a transaction
      *
-     * @param context        The bank operation context
-     * @param bankAccount    The bank account
-     * @param transactionLog The transaction log
+     * @param context  The bank operation context
+     * @param card     The card
+     * @param auditLog The transaction log
      */
-    public static void logTransaction(final BankOperationContext context,
-                                      final BankAccount bankAccount,
-                                      final TransactionLog transactionLog) {
-        logTransaction(context, bankAccount.getIban(), transactionLog);
-    }
-
-    /**
-     * Log a transaction
-     *
-     * @param context        The bank operation context
-     * @param card           The card
-     * @param transactionLog The transaction log
-     */
-    public static void logTransaction(final BankOperationContext context,
-                                      final Card card,
-                                      final TransactionLog transactionLog) {
-        logTransaction(context, card.getLinkedAccount().getIban(), transactionLog);
+    public static void recordLog(final BankOperationContext context,
+                                 final Card card,
+                                 final AuditLog auditLog) {
+        recordLog(context, card.getLinkedAccount().getIban(), auditLog);
     }
 
     /**

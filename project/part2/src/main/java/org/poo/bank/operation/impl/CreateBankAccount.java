@@ -10,9 +10,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.AccountOpLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
 
@@ -38,11 +39,13 @@ public final class CreateBankAccount extends BankOperation<Void> {
                                         BankErrorType.USER_NOT_FOUND)), currency, type,
                         interestRate);
 
-        TransactionLog transactionLog = AccountOpLog.builder()
+        AuditLog auditLog = AuditLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.ACCOUNT_CREATION)
                 .description("New account created")
                 .build();
-        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+        BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
         return BankOperationResult.success();
     }

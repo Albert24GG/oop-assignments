@@ -31,7 +31,7 @@ import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
 import org.poo.bank.splitPayment.SplitPaymentType;
-import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.view.AuditLogView;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -56,7 +56,7 @@ public final class CommandFactory {
                     }),
 
                     Map.entry("printTransactions", input -> {
-                        BankOperation<List<TransactionLogView>> operation =
+                        BankOperation<List<AuditLogView>> operation =
                                 new GetUserTransactions(Email.of(input.getEmail()));
                         return new CommandWithResult<>(input, operation);
                     }),

@@ -10,10 +10,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.AccountOpLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 
@@ -35,24 +35,29 @@ public final class DeleteBankAccount extends BankOperation<Void> {
         BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
 
         if (!context.bankAccService().canDeleteAccount(bankAccount)) {
-            TransactionLog transactionLog = FailedOpLog.builder()
+            AuditLog auditLog = AuditLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.ACCOUNT_DELETION)
                     .description("Account couldn't be deleted - there are funds remaining")
                     .build();
-            BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
+            BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
             throw new BankOperationException(BankErrorType.ACCOUNT_DELETION_FAILED);
         }
 
-        TransactionLog transactionLog = AccountOpLog.builder()
-                .timestamp(timestamp)
-                .description("Account deleted")
-                .build();
-        BankOperationUtils.logTransaction(context, bankAccount, transactionLog);
-
         // Remove the account and its cards
         context.bankAccService().removeAccount(bankAccount);
         bankAccount.getCards().forEach(context.cardService()::removeCard);
+
+        AuditLog auditLog = AuditLog.builder()
+                .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.ACCOUNT_DELETION)
+                .description("Account deleted")
+                .build();
+        BankOperationUtils.recordLog(context, bankAccount, auditLog);
+
         return BankOperationResult.success();
     }
 }

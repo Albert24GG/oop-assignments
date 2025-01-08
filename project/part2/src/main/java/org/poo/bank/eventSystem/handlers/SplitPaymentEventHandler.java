@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class SplitPaymentEventHandler implements BankEventHandler<SplitPaymentEvent> {
+public final class SplitPaymentEventHandler implements BankEventHandler<SplitPaymentEvent> {
     private final BankOperationContext bankOperationContext;
 
     @Override
@@ -27,7 +27,7 @@ public class SplitPaymentEventHandler implements BankEventHandler<SplitPaymentEv
         // If the split payment was rejected, log the transaction and return
         if (event.getType() == SplitPaymentEvent.Type.REJECTED) {
             involvedAccounts.forEach(account -> {
-                BankOperationUtils.logTransaction(bankOperationContext, account, log);
+                BankOperationUtils.recordLog(bankOperationContext, account, log);
             });
             return;
         }
@@ -65,7 +65,7 @@ public class SplitPaymentEventHandler implements BankEventHandler<SplitPaymentEv
                 });
 
         involvedAccounts.forEach(account -> {
-            BankOperationUtils.logTransaction(bankOperationContext, account, finalLog);
+            BankOperationUtils.recordLog(bankOperationContext, account, finalLog);
         });
     }
 }

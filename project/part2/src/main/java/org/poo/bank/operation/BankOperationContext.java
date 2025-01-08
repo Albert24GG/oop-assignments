@@ -7,12 +7,12 @@ import org.poo.bank.card.CardService;
 import org.poo.bank.eventSystem.BankEventService;
 import org.poo.bank.merchant.MerchantService;
 import org.poo.bank.splitPayment.SplitPaymentService;
-import org.poo.bank.transaction.TransactionLogService;
+import org.poo.bank.transaction.AuditLogService;
 
 public record BankOperationContext(BankAccService bankAccService,
                                    UserService userService,
                                    CardService cardService,
-                                   TransactionLogService transactionLogService,
+                                   AuditLogService auditLogService,
                                    CurrencyExchangeService currencyExchangeService,
                                    MerchantService merchantService,
                                    SplitPaymentService splitPaymentService,

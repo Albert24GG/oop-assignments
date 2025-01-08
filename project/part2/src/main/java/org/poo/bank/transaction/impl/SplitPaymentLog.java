@@ -4,9 +4,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.splitPayment.SplitPaymentType;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.TransactionLogType;
-import org.poo.bank.transaction.view.TransactionLogView;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.view.AuditLogView;
 import org.poo.bank.transaction.view.impl.SplitPaymentLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @Getter
 @SuperBuilder(toBuilder = true)
-public final class SplitPaymentLog extends TransactionLog {
+public final class SplitPaymentLog extends AuditLog {
     @NonNull
     private final Currency currency;
     private final Double amount;
@@ -26,22 +25,12 @@ public final class SplitPaymentLog extends TransactionLog {
     private final SplitPaymentType type;
 
     @Override
-    public TransactionLogType getType() {
-        return TransactionLogType.SPLIT_PAYMENT;
-    }
-
-    @Override
-    public TransactionLogView toView() {
-        return SplitPaymentLogView.builder()
-                .timestamp(getTimestamp())
-                .description(getDescription())
-                .error(getError())
-                .type(getType())
+    public AuditLogView toView() {
+        return AuditLogView.fromBase(super.toView(), SplitPaymentLogView.builder()
                 .currency(currency)
                 .amount(amount)
                 .involvedAccounts(List.copyOf(involvedAccounts))
                 .amountPerAccount(amountPerAccount == null ? null : List.copyOf(amountPerAccount))
-                .splitPaymentType(type)
-                .build();
+                .splitPaymentType(type));
     }
 }

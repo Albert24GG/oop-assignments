@@ -10,9 +10,10 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
+import org.poo.bank.transaction.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.TransactionLog;
-import org.poo.bank.transaction.impl.FailedOpLog;
+import org.poo.bank.transaction.AuditLog;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.TransferLog;
 import org.poo.bank.type.IBAN;
 
@@ -54,7 +55,7 @@ public final class TransferRequest extends BankOperation<Void> {
                 BankOperationUtils.calculateAmountWithCommission(context, sender, amount,
                         sender.getCurrency());
 
-        TransactionLog sendTransactionLog;
+        AuditLog sendAuditLog;
         BankOperationResult<Void> result;
 
         try {
@@ -76,8 +77,10 @@ public final class TransferRequest extends BankOperation<Void> {
                         new TransactionEvent(sender, merchant, amount, sender.getCurrency());
             }
 
-            sendTransactionLog = TransferLog.builder()
+            sendAuditLog = TransferLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.SUCCESS)
+                    .logType(AuditLogType.TRANSFER)
                     .description(description)
                     .senderIBAN(sender.getIban())
                     .receiverIBAN(receiverIban)
@@ -85,18 +88,20 @@ public final class TransferRequest extends BankOperation<Void> {
                     .currency(sender.getCurrency())
                     .transferType("sent")
                     .build();
-            BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
+            BankOperationUtils.recordLog(context, sender, sendAuditLog);
 
             // Trigger the transaction event
             context.eventService().post(transactionEvent);
 
             result = BankOperationResult.success();
         } catch (BankOperationException e) {
-            sendTransactionLog = FailedOpLog.builder()
+            sendAuditLog = AuditLog.builder()
                     .timestamp(timestamp)
+                    .logStatus(AuditLogStatus.FAILURE)
+                    .logType(AuditLogType.TRANSFER)
                     .description(e.getMessage())
                     .build();
-            BankOperationUtils.logTransaction(context, sender, sendTransactionLog);
+            BankOperationUtils.recordLog(context, sender, sendAuditLog);
             result = BankOperationResult.silentError(e.getErrorType());
         }
 
@@ -110,8 +115,10 @@ public final class TransferRequest extends BankOperation<Void> {
                 .convert(sender.getCurrency(), receiver.getCurrency(), amount);
         BankOperationUtils.addFunds(context, receiver, receivedAmount);
 
-        TransactionLog receiveTransactionLog = TransferLog.builder()
+        AuditLog receiveAuditLog = TransferLog.builder()
                 .timestamp(timestamp)
+                .logStatus(AuditLogStatus.SUCCESS)
+                .logType(AuditLogType.TRANSFER)
                 .description(description)
                 .senderIBAN(sender.getIban())
                 .receiverIBAN(receiver.getIban())
@@ -119,6 +126,6 @@ public final class TransferRequest extends BankOperation<Void> {
                 .currency(receiver.getCurrency())
                 .transferType("received")
                 .build();
-        BankOperationUtils.logTransaction(context, receiver, receiveTransactionLog);
+        BankOperationUtils.recordLog(context, receiver, receiveAuditLog);
     }
 }

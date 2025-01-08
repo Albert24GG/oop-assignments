@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class TransactionLogService {
-    private final Map<IBAN, List<TransactionLog>> logs = new HashMap<>();
+public final class AuditLogService {
+    private final Map<IBAN, List<AuditLog>> logs = new HashMap<>();
 
     /**
-     * Logs a transaction.
+     * Records am audit log for a given account.
      *
      * @param account the IBAN of the account to log the transaction for
-     * @param log     the transaction log to log
+     * @param log     the log to record
      */
-    public void logTransaction(final IBAN account,
-                               final TransactionLog log) {
+    public void recordLog(final IBAN account,
+                          final AuditLog log) {
         logs.computeIfAbsent(account, k -> new ArrayList<>()).add(log);
     }
 
@@ -28,7 +28,7 @@ public final class TransactionLogService {
      * @param account the IBAN of the account to get the transaction logs for
      * @return the transaction logs for the account, or an empty list if the account does not exist
      */
-    public List<TransactionLog> getLogs(final IBAN account) {
+    public List<AuditLog> getLogs(final IBAN account) {
         return List.copyOf(logs.getOrDefault(account, Collections.emptyList()));
     }
 
@@ -41,8 +41,8 @@ public final class TransactionLogService {
      * @return the transaction logs for the account within the time range, or an empty list if the
      * account does not exist
      */
-    public List<TransactionLog> getLogs(final IBAN account, final int startTimestamp,
-                                        final int endTimestamp) {
+    public List<AuditLog> getLogs(final IBAN account, final int startTimestamp,
+                                  final int endTimestamp) {
         return logs.getOrDefault(account, Collections.emptyList()).stream()
                 .filter(log -> log.getTimestamp() >= startTimestamp
                         && log.getTimestamp() <= endTimestamp)

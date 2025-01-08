@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.splitPayment.SplitPayment;
+import org.poo.bank.transaction.AuditLogStatus;
+import org.poo.bank.transaction.AuditLogType;
 import org.poo.bank.transaction.impl.SplitPaymentLog;
 
 @Getter
@@ -45,9 +47,11 @@ public final class SplitPaymentEvent {
     public SplitPaymentLog getTransactionLog() {
         double totalAmount = payment.getAmountPerAccount().stream().reduce(0.0, Double::sum);
         var transactionLog = SplitPaymentLog.builder()
+                .timestamp(payment.getTimestamp())
+                .logType(AuditLogType.SPLIT_PAYMENT)
+                .logStatus(type == Type.ACCEPTED ? AuditLogStatus.SUCCESS : AuditLogStatus.FAILURE)
                 .description(String.format("Split payment of %.2f %s", totalAmount,
                         payment.getCurrency()))
-                .timestamp(payment.getTimestamp())
                 .type(payment.getType())
                 .currency(payment.getCurrency())
                 .involvedAccounts(
