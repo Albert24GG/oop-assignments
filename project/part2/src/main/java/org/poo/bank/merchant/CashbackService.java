@@ -9,56 +9,56 @@ import java.util.Map;
 import java.util.Optional;
 
 final class CashbackService {
-    private final Map<BankAccount, List<Discount>> pendingDiscounts = new HashMap<>();
-    private final Map<BankAccount, List<Discount>> appliedDiscounts = new HashMap<>();
+    private final Map<BankAccount, List<Cashback>> pendingDiscounts = new HashMap<>();
+    private final Map<BankAccount, List<Cashback>> appliedDiscounts = new HashMap<>();
 
-    private List<Discount> getPendingDiscounts(final BankAccount bankAccount) {
+    private List<Cashback> getPendingDiscounts(final BankAccount bankAccount) {
         return pendingDiscounts.computeIfAbsent(bankAccount, k -> new ArrayList<>());
     }
 
-    private List<Discount> getAppliedDiscounts(final BankAccount bankAccount) {
+    private List<Cashback> getAppliedDiscounts(final BankAccount bankAccount) {
         return appliedDiscounts.computeIfAbsent(bankAccount, k -> new ArrayList<>());
     }
 
-    double registerTransaction(final Merchant merchant, final BankAccount bankAccount,
-                               final double amount) {
+    Discount registerTransaction(final Merchant merchant, final BankAccount bankAccount,
+                                 final double amount) {
         // First, collect the applicable discounts
-        List<Discount> applicableDiscounts = getPendingDiscounts(bankAccount).stream()
-                .filter(discount -> discount.isApplicableFor(merchant))
+        List<Cashback> applicableCashbacks = getPendingDiscounts(bankAccount).stream()
+                .filter(cashback -> cashback.isApplicableFor(merchant))
                 .toList();
 
         // Calculate total discount
-        double totalDiscount = applicableDiscounts.stream()
-                .map(Discount::getPercentage)
+        double totalDiscount = applicableCashbacks.stream()
+                .map(Cashback::getPercentage)
                 .reduce(0.0, Double::sum);
 
         // Then update the collections
-        getPendingDiscounts(bankAccount).removeAll(applicableDiscounts);
-        getAppliedDiscounts(bankAccount).addAll(applicableDiscounts);
+        getPendingDiscounts(bankAccount).removeAll(applicableCashbacks);
+        getAppliedDiscounts(bankAccount).addAll(applicableCashbacks);
 
-        Optional<Discount> discountOpt = merchant.registerTransaction(bankAccount, amount);
+        Optional<Cashback> discountOpt = merchant.registerTransaction(bankAccount, amount);
 
         // If the discount is not present, return the total discount
         if (discountOpt.isEmpty()) {
-            return totalDiscount;
+            return new PercentageDiscount(totalDiscount);
         }
 
-        Discount discount = discountOpt.get();
+        Cashback cashback = discountOpt.get();
         // If the discount is one time only, and it has already been applied, ignore it
-        if (discount.isApplicableOneTime()
-                && getAppliedDiscounts(bankAccount).contains(discount)) {
-            return totalDiscount;
+        if (cashback.isApplicableOneTime()
+                && getAppliedDiscounts(bankAccount).contains(cashback)) {
+            return new PercentageDiscount(totalDiscount);
         }
 
         // If the discount is applicable now, apply it and return the new total discount
-        if (discount.isApplicableNow()) {
-            getAppliedDiscounts(bankAccount).add(discount);
-            return totalDiscount + discount.getPercentage();
+        if (cashback.isApplicableNow()) {
+            getAppliedDiscounts(bankAccount).add(cashback);
+            return new PercentageDiscount(totalDiscount + cashback.getPercentage());
         } else {
             // Otherwise, add it to the pending discounts and return the total discount
-            getPendingDiscounts(bankAccount).add(discount);
+            getPendingDiscounts(bankAccount).add(cashback);
         }
 
-        return totalDiscount;
+        return new PercentageDiscount(totalDiscount);
     }
 }

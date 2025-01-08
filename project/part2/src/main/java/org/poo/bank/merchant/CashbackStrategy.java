@@ -13,6 +13,6 @@ interface CashbackStrategy {
      * @return an {@link Optional} containing the discount that the user received, or an empty
      * {@link Optional} if the user did not receive any discount
      */
-    Optional<Discount> registerTransaction(BankAccount bankAccount,
+    Optional<Cashback> registerTransaction(BankAccount bankAccount,
                                            double amount);
 }

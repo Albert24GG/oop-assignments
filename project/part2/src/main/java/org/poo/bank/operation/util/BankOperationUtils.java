@@ -3,6 +3,7 @@ package org.poo.bank.operation.util;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
+import org.poo.bank.merchant.Discount;
 import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperationContext;
@@ -340,13 +341,13 @@ public final class BankOperationUtils {
      * @param bankAccount The bank account
      * @param amount      The amount of the transaction
      * @param currency    The currency of the transaction
-     * @return The cashback percentage (0.0 to 1.0)
+     * @return The cashback as a Discount
      */
-    public static double calculateTransactionCashback(final BankOperationContext context,
-                                                      final Merchant merchant,
-                                                      final BankAccount bankAccount,
-                                                      final double amount,
-                                                      final Currency currency) {
+    public static Discount calculateTransactionCashback(final BankOperationContext context,
+                                                        final Merchant merchant,
+                                                        final BankAccount bankAccount,
+                                                        final double amount,
+                                                        final Currency currency) {
         // Convert the amount to RON
         double convertedAmount = convertCurrency(context, currency, Currency.of("RON"), amount);
         return context.merchantService()

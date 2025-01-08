@@ -38,7 +38,7 @@ public final class Merchant {
         return bankAccountData.computeIfAbsent(bankAccount, k -> new BankAccountData());
     }
 
-    Optional<Discount> registerTransaction(final BankAccount bankAccount, final double amount) {
+    Optional<Cashback> registerTransaction(final BankAccount bankAccount, final double amount) {
         return cashbackStrategy.registerTransaction(bankAccount, amount);
     }
 
@@ -69,7 +69,7 @@ public final class Merchant {
             return merchant.new TransactionBasedCashback();
         }
 
-        static final class TransactionCashback extends Discount {
+        static final class TransactionCashback extends Cashback {
             TransactionCashback(final double percentage, final MerchantType applicableType) {
                 super(percentage, applicableType);
             }
@@ -87,7 +87,7 @@ public final class Merchant {
 
 
         @Override
-        public Optional<Discount> registerTransaction(final BankAccount bankAccount,
+        public Optional<Cashback> registerTransaction(final BankAccount bankAccount,
                                                       final double amount) {
             BankAccountData data = getBankAccountData(bankAccount);
             data.registerTransaction(amount);
@@ -133,7 +133,7 @@ public final class Merchant {
             return merchant.new SpendingBasedCashback();
         }
 
-        static final class SpendingCashback extends Discount {
+        static final class SpendingCashback extends Cashback {
             SpendingCashback(final double percentage) {
                 super(percentage, null);
             }
@@ -150,7 +150,7 @@ public final class Merchant {
         }
 
         @Override
-        public Optional<Discount> registerTransaction(final BankAccount bankAccount,
+        public Optional<Cashback> registerTransaction(final BankAccount bankAccount,
                                                       final double amount) {
             BankAccountData data = getBankAccountData(bankAccount);
             data.registerTransaction(amount);
