@@ -10,6 +10,7 @@ import org.poo.bank.eventSystem.BankEventService;
 import org.poo.bank.eventSystem.events.SplitPaymentEvent;
 import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.eventSystem.handlers.CashbackEventHandler;
+import org.poo.bank.eventSystem.handlers.FreePlanUpgradeHandler;
 import org.poo.bank.eventSystem.handlers.SplitPaymentEventHandler;
 import org.poo.bank.merchant.CashbackType;
 import org.poo.bank.merchant.MerchantService;
@@ -50,6 +51,9 @@ public final class Bank {
 
         bankEventService.subscribe(new BankEventListener<>(TransactionEvent.class,
                 new CashbackEventHandler(bankOperationContext)));
+
+        bankEventService.subscribe(new BankEventListener<>(TransactionEvent.class,
+                new FreePlanUpgradeHandler(bankOperationContext)));
     }
 
     /**
