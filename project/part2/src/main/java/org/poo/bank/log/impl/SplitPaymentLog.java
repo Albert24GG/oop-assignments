@@ -1,12 +1,12 @@
-package org.poo.bank.transaction.impl;
+package org.poo.bank.log.impl;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.splitPayment.SplitPaymentType;
-import org.poo.bank.transaction.AuditLog;
-import org.poo.bank.transaction.view.AuditLogView;
-import org.poo.bank.transaction.view.impl.SplitPaymentLogView;
+import org.poo.bank.log.AuditLog;
+import org.poo.bank.log.view.AuditLogView;
+import org.poo.bank.log.view.impl.SplitPaymentLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 

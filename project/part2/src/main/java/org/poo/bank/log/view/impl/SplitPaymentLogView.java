@@ -1,10 +1,10 @@
-package org.poo.bank.transaction.view.impl;
+package org.poo.bank.log.view.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.poo.bank.splitPayment.SplitPaymentType;
-import org.poo.bank.transaction.view.AuditLogView;
+import org.poo.bank.log.view.AuditLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 

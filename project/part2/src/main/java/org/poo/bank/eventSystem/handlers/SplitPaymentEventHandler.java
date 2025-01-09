@@ -7,7 +7,7 @@ import org.poo.bank.eventSystem.events.SplitPaymentEvent;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.splitPayment.SplitPayment;
-import org.poo.bank.transaction.impl.SplitPaymentLog;
+import org.poo.bank.log.impl.SplitPaymentLog;
 
 import java.util.List;
 import java.util.Optional;

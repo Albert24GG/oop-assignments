@@ -6,7 +6,7 @@ import org.poo.bank.eventSystem.BankEventHandler;
 import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.servicePlan.ServicePlanType;
-import org.poo.bank.transaction.AuditLogType;
+import org.poo.bank.log.AuditLogType;
 
 @RequiredArgsConstructor
 public final class FreePlanUpgradeHandler implements BankEventHandler<TransactionEvent> {

@@ -23,7 +23,7 @@ import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.CreateUserAccount;
 import org.poo.bank.operation.impl.RegisterExchangeRate;
 import org.poo.bank.splitPayment.SplitPaymentService;
-import org.poo.bank.transaction.AuditLogService;
+import org.poo.bank.log.AuditLogService;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Date;
 import org.poo.bank.type.Email;

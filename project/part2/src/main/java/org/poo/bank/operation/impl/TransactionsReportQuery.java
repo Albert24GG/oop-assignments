@@ -11,8 +11,8 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.report.TransactionsReport;
-import org.poo.bank.transaction.AuditLog;
-import org.poo.bank.transaction.AuditLogType;
+import org.poo.bank.log.AuditLog;
+import org.poo.bank.log.AuditLogType;
 import org.poo.bank.type.IBAN;
 
 import java.util.List;

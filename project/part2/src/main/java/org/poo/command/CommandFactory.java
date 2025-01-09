@@ -31,7 +31,7 @@ import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
 import org.poo.bank.splitPayment.SplitPaymentType;
-import org.poo.bank.transaction.view.AuditLogView;
+import org.poo.bank.log.view.AuditLogView;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;

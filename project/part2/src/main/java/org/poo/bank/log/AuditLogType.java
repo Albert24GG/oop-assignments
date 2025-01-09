@@ -1,4 +1,4 @@
-package org.poo.bank.transaction;
+package org.poo.bank.log;
 
 public enum AuditLogType {
     // Account operations

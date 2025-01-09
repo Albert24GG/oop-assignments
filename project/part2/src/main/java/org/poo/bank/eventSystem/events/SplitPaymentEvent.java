@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.splitPayment.SplitPayment;
-import org.poo.bank.transaction.AuditLogStatus;
-import org.poo.bank.transaction.AuditLogType;
-import org.poo.bank.transaction.impl.SplitPaymentLog;
+import org.poo.bank.log.AuditLogStatus;
+import org.poo.bank.log.AuditLogType;
+import org.poo.bank.log.impl.SplitPaymentLog;
 
 @Getter
 @RequiredArgsConstructor

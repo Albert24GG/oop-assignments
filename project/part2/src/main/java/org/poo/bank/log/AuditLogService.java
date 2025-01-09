@@ -1,4 +1,4 @@
-package org.poo.bank.transaction;
+package org.poo.bank.log;
 
 import org.poo.bank.type.IBAN;
 

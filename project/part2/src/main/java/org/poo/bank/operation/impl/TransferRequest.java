@@ -10,11 +10,11 @@ import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.operation.BankOperationResult;
-import org.poo.bank.transaction.AuditLogStatus;
+import org.poo.bank.log.AuditLogStatus;
 import org.poo.bank.operation.util.BankOperationUtils;
-import org.poo.bank.transaction.AuditLog;
-import org.poo.bank.transaction.AuditLogType;
-import org.poo.bank.transaction.impl.TransferLog;
+import org.poo.bank.log.AuditLog;
+import org.poo.bank.log.AuditLogType;
+import org.poo.bank.log.impl.TransferLog;
 import org.poo.bank.type.IBAN;
 
 @Builder

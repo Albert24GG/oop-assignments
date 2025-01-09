@@ -3,7 +3,7 @@ package org.poo.bank.report;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
-import org.poo.bank.transaction.view.AuditLogView;
+import org.poo.bank.log.view.AuditLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 

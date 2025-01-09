@@ -7,7 +7,7 @@ import org.poo.bank.card.CardService;
 import org.poo.bank.eventSystem.BankEventService;
 import org.poo.bank.merchant.MerchantService;
 import org.poo.bank.splitPayment.SplitPaymentService;
-import org.poo.bank.transaction.AuditLogService;
+import org.poo.bank.log.AuditLogService;
 
 public record BankOperationContext(BankAccService bankAccService,
                                    UserService userService,

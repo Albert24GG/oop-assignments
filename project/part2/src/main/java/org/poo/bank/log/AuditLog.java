@@ -1,9 +1,9 @@
-package org.poo.bank.transaction;
+package org.poo.bank.log;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
-import org.poo.bank.transaction.view.AuditLogView;
+import org.poo.bank.log.view.AuditLogView;
 
 @SuperBuilder(toBuilder = true)
 @Getter

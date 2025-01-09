@@ -1,11 +1,11 @@
-package org.poo.bank.transaction.view;
+package org.poo.bank.log.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.poo.bank.transaction.AuditLogStatus;
-import org.poo.bank.transaction.AuditLogType;
+import org.poo.bank.log.AuditLogStatus;
+import org.poo.bank.log.AuditLogType;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder(toBuilder = true)

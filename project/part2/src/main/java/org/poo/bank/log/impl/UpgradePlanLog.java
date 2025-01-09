@@ -1,10 +1,10 @@
-package org.poo.bank.transaction.impl;
+package org.poo.bank.log.impl;
 
 import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
-import org.poo.bank.transaction.AuditLog;
-import org.poo.bank.transaction.view.AuditLogView;
-import org.poo.bank.transaction.view.impl.UpgradePlanLogView;
+import org.poo.bank.log.AuditLog;
+import org.poo.bank.log.view.AuditLogView;
+import org.poo.bank.log.view.impl.UpgradePlanLogView;
 import org.poo.bank.type.IBAN;
 import org.poo.bank.servicePlan.ServicePlanType;
 
