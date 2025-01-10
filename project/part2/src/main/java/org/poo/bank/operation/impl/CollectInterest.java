@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.SavingsAccount;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -37,7 +38,7 @@ public final class CollectInterest extends BankOperation<Void> {
 
         double collectedInterest = bankAccount.getBalance();
 
-        context.bankAccService().collectInterest(bankAccount);
+        context.bankAccService().collectInterest((SavingsAccount) bankAccount);
 
         collectedInterest = bankAccount.getBalance() - collectedInterest;
 

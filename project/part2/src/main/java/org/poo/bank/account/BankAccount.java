@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.poo.bank.account.impl.ClassicBankAcc;
-import org.poo.bank.account.impl.SavingsBankAcc;
 import org.poo.bank.card.Card;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
@@ -47,8 +45,8 @@ public abstract class BankAccount {
                                      @NonNull final Currency currency,
                                      final double interestRate) {
         BankAccount newAccount = switch (type) {
-            case SAVINGS -> new SavingsBankAcc(owner, currency, interestRate);
-            case CLASSIC -> new ClassicBankAcc(owner, currency);
+            case SAVINGS -> new SavingsAccount(owner, currency, interestRate);
+            case CLASSIC -> new ClassicAccount(owner, currency);
             case null -> null;
         };
 
@@ -106,8 +104,4 @@ public abstract class BankAccount {
         }
         this.minBalance = minBalance;
     }
-
-    protected abstract void changeInterestRate(double interestRate);
-
-    protected abstract void collectInterest();
 }

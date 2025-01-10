@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.SavingsAccount;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -34,7 +35,7 @@ public final class ChangeInterestRate extends BankOperation<Void> {
                     "This is not a savings account");
         }
 
-        context.bankAccService().changeInterestRate(bankAccount, newInterestRate);
+        context.bankAccService().changeInterestRate((SavingsAccount) bankAccount, newInterestRate);
 
         AuditLog auditLog = AuditLog.builder()
                 .timestamp(timestamp)

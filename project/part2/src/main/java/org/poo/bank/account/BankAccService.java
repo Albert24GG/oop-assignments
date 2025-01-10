@@ -107,23 +107,21 @@ public final class BankAccService {
     }
 
     /**
-     * Change the interest rate of the given account.
-     * This operation is only supported for savings accounts.
+     * Change the interest rate of the given savings account.
      *
-     * @param account      the account
+     * @param account      the savings account
      * @param interestRate the new interest rate
      */
-    public void changeInterestRate(final BankAccount account, final double interestRate) {
+    public void changeInterestRate(final SavingsAccount account, final double interestRate) {
         account.changeInterestRate(interestRate);
     }
 
     /**
-     * Collect interest for the given account.
-     * This operation is only supported for savings accounts.
+     * Collect interest for the given savings account.
      *
-     * @param account the account
+     * @param account the savings account
      */
-    public void collectInterest(final BankAccount account) {
+    public void collectInterest(final SavingsAccount account) {
         account.collectInterest();
     }
 
