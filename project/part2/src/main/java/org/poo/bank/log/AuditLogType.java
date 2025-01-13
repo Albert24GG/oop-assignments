@@ -16,6 +16,7 @@ public enum AuditLogType {
     TRANSFER,
     CASH_WITHDRAWAL,
     SPLIT_PAYMENT,
+    DEPOSIT,
 
 
     // Interest related operations

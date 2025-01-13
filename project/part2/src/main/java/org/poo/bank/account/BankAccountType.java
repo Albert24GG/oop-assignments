@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.NonNull;
 
 public enum BankAccountType {
-    SAVINGS, CLASSIC;
+    SAVINGS,
+    CLASSIC,
+    BUSINESS;
 
     /**
      * Gets the bank account type from a string

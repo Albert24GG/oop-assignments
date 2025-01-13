@@ -166,4 +166,46 @@ public final class BankAccService {
     public ServicePlan getServicePlan(final BankAccount account) {
         return account.getOwner().getServicePlan();
     }
+
+    /**
+     * Add a member to the business account.
+     *
+     * @param account the business account
+     * @param user    the user to add
+     * @param role    the role of the user
+     * @throws IllegalArgumentException if the role is {@link BusinessAccountRole#OWNER}
+     */
+    public void addBusinessAccountMember(final BusinessAccount account, final UserAccount user,
+                                         final BusinessAccountRole role) {
+        if (role == BusinessAccountRole.OWNER) {
+            throw new IllegalArgumentException("Cannot add an owner");
+        }
+        account.addMemberAccount(user, role);
+    }
+
+    /**
+     * Set the spending limit for the given business account role.
+     *
+     * @param account       the business account
+     * @param role          the role
+     * @param spendingLimit the spending limit
+     */
+    public void setBusinessAccountSpendingLimit(final BusinessAccount account,
+                                                final BusinessAccountRole role,
+                                                final double spendingLimit) {
+        account.setSpendingLimit(role, spendingLimit);
+    }
+
+    /**
+     * Set the deposit limit for the given business account role.
+     *
+     * @param account      the business account
+     * @param role         the role
+     * @param depositLimit the deposit limit
+     */
+    public void setBusinessAccountDepositLimit(final BusinessAccount account,
+                                               final BusinessAccountRole role,
+                                               final double depositLimit) {
+        account.setDepositLimit(role, depositLimit);
+    }
 }

@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.BusinessAccount;
+import org.poo.bank.account.BusinessOperation;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
@@ -29,7 +32,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
     @NonNull
     private final CardNumber cardNumber;
     @NonNull
-    private final Email ownerEmail;
+    private final Email userEmail;
     @NonNull
     private final String description;
     @NonNull
@@ -48,9 +51,18 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         }
 
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
-        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
         Merchant merchant = BankOperationUtils.getMerchantByName(context, merchantName);
-        BankOperationUtils.validateCardOwnership(context, card, userAccount);
+        BankAccount bankAccount = card.getLinkedAccount();
+
+        // Validate permissions
+        if (bankAccount.getType() == BankAccountType.BUSINESS) {
+            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                    userAccount,
+                    new BusinessOperation.CardPayment(amount));
+        } else {
+            BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
+        }
 
         try {
             BankOperationUtils.validateCardStatus(context, card);
@@ -60,7 +72,6 @@ public final class CardPaymentRequest extends BankOperation<Void> {
             return BankOperationResult.silentError(e.getErrorType());
         }
 
-        BankAccount bankAccount = card.getLinkedAccount();
         double convertedAmount =
                 BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
                         amount);
@@ -80,6 +91,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .description("Card payment")
                     .amount(convertedAmount)
                     .merchant(merchantName)
+                    .userAccount(userAccount)
                     .build();
             BankOperationUtils.recordLog(context, bankAccount, auditLog);
 
@@ -90,7 +102,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
                 new DeleteCard(cardNumber, timestamp).execute(context);
-                new CreateCard(ownerEmail, bankAccount.getIban(), card.getType(),
+                new CreateCard(userEmail, bankAccount.getIban(), card.getType(),
                         timestamp).execute(context);
             }
         } catch (BankOperationException e) {

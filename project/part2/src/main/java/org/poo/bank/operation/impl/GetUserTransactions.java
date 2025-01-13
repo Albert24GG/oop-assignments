@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.UserAccount;
+import org.poo.bank.log.AuditLogType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -31,6 +32,7 @@ public final class GetUserTransactions extends BankOperation<List<AuditLogView>>
                 .flatMap(
                         account -> context.auditLogService().getLogs(account.getIban())
                                 .stream())
+                .filter(auditLog -> auditLog.getLogType() != AuditLogType.DEPOSIT)
                 .sorted(Comparator.comparing(AuditLog::getTimestamp))
                 .map(AuditLog::toView)
                 .toList();

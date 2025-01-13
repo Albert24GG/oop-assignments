@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.BusinessAccount;
+import org.poo.bank.account.BusinessOperation;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.card.CardType;
@@ -23,7 +26,7 @@ import org.poo.bank.type.IBAN;
 @RequiredArgsConstructor
 public final class CreateCard extends BankOperation<Void> {
     @NonNull
-    private final Email ownerEmail;
+    private final Email userEmail;
     @NonNull
     private final IBAN accountIban;
     @NonNull
@@ -33,10 +36,17 @@ public final class CreateCard extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
         BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
 
-        BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
+        // Validate permissions
+        if (bankAccount.getType() == BankAccountType.BUSINESS) {
+            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                    userAccount,
+                    new BusinessOperation.AddCard());
+        } else {
+            BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
+        }
 
         Card newCard = context.cardService().createCard(bankAccount, type);
         AuditLog auditLog = CardOpLog.builder()

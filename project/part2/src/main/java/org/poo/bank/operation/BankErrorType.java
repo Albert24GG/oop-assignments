@@ -21,7 +21,8 @@ public enum BankErrorType {
     AGE_RESTRICTION("You don't have the minimum age required."),
     INSUFFICIENT_FUNDS("Insufficient funds"),
     INVALID_ACCOUNT_TYPE("Invalid account type"),
-    MERCHANT_NOT_FOUND("Merchant not found");
+    MERCHANT_NOT_FOUND("Merchant not found"),
+    PERMISSION_DENIED("Permission denied");
 
     private final String message;
 }

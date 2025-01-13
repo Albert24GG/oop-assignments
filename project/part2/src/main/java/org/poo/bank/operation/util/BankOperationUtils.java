@@ -1,6 +1,8 @@
 package org.poo.bank.operation.util;
 
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BusinessAccount;
+import org.poo.bank.account.BusinessOperation;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.merchant.Discount;
@@ -353,4 +355,25 @@ public final class BankOperationUtils {
         return context.merchantService()
                 .registerTransaction(merchant, bankAccount, convertedAmount);
     }
+
+    /**
+     * Validate the permissions of the user for the operation
+     * This method is used only for business accounts
+     *
+     * @param context         The bank operation context
+     * @param businessAccount The business account
+     * @param userAccount     The user account
+     * @param operation       The operation
+     * @throws BankOperationException If the user does not have the required permissions
+     */
+    public static void validatePermissions(final BankOperationContext context,
+                                           final BusinessAccount businessAccount,
+                                           final UserAccount userAccount, final
+                                           BusinessOperation operation) {
+        if (!operation.validateUserPermission(businessAccount, userAccount)) {
+            throw new BankOperationException(BankErrorType.PERMISSION_DENIED,
+                    "You are not authorized to make this transaction");
+        }
+    }
+
 }

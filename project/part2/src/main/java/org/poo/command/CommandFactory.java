@@ -4,16 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bank.Bank;
 import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.BusinessAccountRole;
 import org.poo.bank.account.UserView;
 import org.poo.bank.card.CardType;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.impl.AcceptSplitPayment;
+import org.poo.bank.operation.impl.AddBusinessAssociate;
 import org.poo.bank.operation.impl.AddFunds;
+import org.poo.bank.operation.impl.BusinessReportQuery;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.CashWithdraw;
 import org.poo.bank.operation.impl.ChangeInterestRate;
+import org.poo.bank.operation.impl.ChangeSpendingLimit;
 import org.poo.bank.operation.impl.CheckCardStatus;
 import org.poo.bank.operation.impl.CollectInterest;
 import org.poo.bank.operation.impl.CreateBankAccount;
@@ -30,6 +34,8 @@ import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
+import org.poo.bank.report.business.BusinessReport;
+import org.poo.bank.report.business.BusinessReportType;
 import org.poo.bank.splitPayment.SplitPaymentType;
 import org.poo.bank.log.view.AuditLogView;
 import org.poo.bank.type.CardNumber;
@@ -74,7 +80,7 @@ public final class CommandFactory {
 
                     Map.entry("createCard", input -> {
                         BankOperation<Void> operation = CreateCard.builder()
-                                .ownerEmail(Email.of(input.getEmail()))
+                                .userEmail(Email.of(input.getEmail()))
                                 .accountIban(IBAN.of(input.getAccount()))
                                 .type(CardType.DEBIT)
                                 .timestamp(input.getTimestamp())
@@ -84,7 +90,7 @@ public final class CommandFactory {
 
                     Map.entry("createOneTimeCard", input -> {
                         BankOperation<Void> operation = CreateCard.builder()
-                                .ownerEmail(Email.of(input.getEmail()))
+                                .userEmail(Email.of(input.getEmail()))
                                 .accountIban(IBAN.of(input.getAccount()))
                                 .type(CardType.SINGLE_USE)
                                 .timestamp(input.getTimestamp())
@@ -94,6 +100,7 @@ public final class CommandFactory {
 
                     Map.entry("addFunds", input -> {
                         BankOperation<Void> operation = new AddFunds(IBAN.of(input.getAccount()),
+                                Email.of(input.getEmail()),
                                 input.getAmount(), input.getTimestamp());
                         return new CommandWithouResultOrError<>(input, operation);
                     }),
@@ -125,7 +132,7 @@ public final class CommandFactory {
                     Map.entry("payOnline", input -> {
                         BankOperation<Void> operation = CardPaymentRequest.builder()
                                 .cardNumber(CardNumber.of(input.getCardNumber()))
-                                .ownerEmail(Email.of(input.getEmail()))
+                                .userEmail(Email.of(input.getEmail()))
                                 .amount(input.getAmount())
                                 .description(input.getDescription())
                                 .currency(Currency.of(input.getCurrency()))
@@ -233,6 +240,36 @@ public final class CommandFactory {
                                 .timestamp(input.getTimestamp())
                                 .build();
                         return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("addNewBusinessAssociate", input -> {
+                        BankOperation<Void> operation = AddBusinessAssociate.builder()
+                                .accountIban(IBAN.of(input.getAccount()))
+                                .role(BusinessAccountRole.of(input.getRole()))
+                                .userEmail(Email.of(input.getEmail()))
+                                .timestamp(input.getTimestamp())
+                                .build();
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("changeSpendingLimit", input -> {
+                        BankOperation<Void> operation = ChangeSpendingLimit.builder()
+                                .accountIban(IBAN.of(input.getAccount()))
+                                .spendingLimit(input.getAmount())
+                                .userEmail(Email.of(input.getEmail()))
+                                .timestamp(input.getTimestamp())
+                                .build();
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("businessReport", input -> {
+                        BankOperation<BusinessReport> operation = BusinessReportQuery.builder()
+                                .accountIban(IBAN.of(input.getAccount()))
+                                .type(BusinessReportType.of(input.getType()))
+                                .startTimestamp(input.getStartTimestamp())
+                                .endTimestamp(input.getEndTimestamp())
+                                .build();
+                        return new CommandWithResult<>(input, operation);
                     })
             );
 

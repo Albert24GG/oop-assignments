@@ -41,18 +41,18 @@ public abstract class BankAccount {
      *                     accounts
      * @return the new bank account
      */
-    static BankAccount createAccount(final BankAccountType type, @NonNull final UserAccount owner,
+    static BankAccount createAccount(@NonNull final BankAccountType type,
+                                     @NonNull final UserAccount owner,
                                      @NonNull final Currency currency,
                                      final double interestRate) {
         BankAccount newAccount = switch (type) {
             case SAVINGS -> new SavingsAccount(owner, currency, interestRate);
             case CLASSIC -> new ClassicAccount(owner, currency);
-            case null -> null;
+            case BUSINESS -> new BusinessAccount(owner, currency);
         };
 
-        if (newAccount != null) {
-            owner.addAccount(newAccount);
-        }
+        owner.addAccount(newAccount);
+
         return newAccount;
     }
 

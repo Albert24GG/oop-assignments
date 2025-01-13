@@ -35,6 +35,7 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
                 transactions =
                 context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp);
 
+
         // For savings accounts, only interest operations are shown
         if (bankAccount.getType() == BankAccountType.SAVINGS) {
             transactions = transactions.stream()

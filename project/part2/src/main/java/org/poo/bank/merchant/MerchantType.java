@@ -12,13 +12,13 @@ public enum MerchantType {
      *
      * @param type the string to be converted to a MerchantType enum value
      * @return the MerchantType enum value corresponding to the given string
-     * or null if the string does not correspond to any MerchantType enum value
+     * @throws IllegalArgumentException if the given string is not a valid MerchantType
      */
     public static MerchantType of(@NonNull final String type) {
         try {
             return MerchantType.valueOf(type.strip().toUpperCase());
         } catch (IllegalArgumentException e) {
-            return null;
+            throw new IllegalArgumentException("Invalid merchant type: " + type);
         }
     }
 
