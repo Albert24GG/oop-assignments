@@ -19,10 +19,12 @@ public final class CardService {
      *
      * @param account the bank account of the card
      * @param type    the type of the card
+     * @param creator the user that is creating the card
      * @return the created card
      */
-    public Card createCard(final BankAccount account, final CardType type) {
-        Card card = Card.createCard(type, account);
+    public Card createCard(final BankAccount account, final CardType type,
+                           final UserAccount creator) {
+        Card card = Card.createCard(type, account, creator);
         cards.put(card.getNumber(), card);
         return card;
     }

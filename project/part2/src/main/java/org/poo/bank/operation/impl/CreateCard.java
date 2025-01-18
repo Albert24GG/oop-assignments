@@ -48,7 +48,7 @@ public final class CreateCard extends BankOperation<Void> {
             BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
         }
 
-        Card newCard = context.cardService().createCard(bankAccount, type);
+        Card newCard = context.cardService().createCard(bankAccount, type, userAccount);
         AuditLog auditLog = CardOpLog.builder()
                 .timestamp(timestamp)
                 .logStatus(AuditLogStatus.SUCCESS)

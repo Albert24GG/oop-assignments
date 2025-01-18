@@ -16,6 +16,7 @@ import org.poo.bank.operation.impl.AddFunds;
 import org.poo.bank.operation.impl.BusinessReportQuery;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.CashWithdraw;
+import org.poo.bank.operation.impl.ChangeDepositLimit;
 import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.ChangeSpendingLimit;
 import org.poo.bank.operation.impl.CheckCardStatus;
@@ -110,6 +111,7 @@ public final class CommandFactory {
                     Map.entry("deleteCard", input -> {
                         BankOperation<Void> operation =
                                 new DeleteCard(CardNumber.of(input.getCardNumber()),
+                                        Email.of(input.getEmail()),
                                         input.getTimestamp());
                         return new CommandWithouResultOrError<>(input, operation);
                     }),
@@ -145,6 +147,7 @@ public final class CommandFactory {
                     Map.entry("sendMoney", input -> {
                         BankOperation<Void> operation = TransferRequest.builder()
                                 .senderAccount(IBAN.of(input.getAccount()))
+                                .userEmail(Email.of(input.getEmail()))
                                 .receiverAccount(input.getReceiver())
                                 .description(input.getDescription())
                                 .amount(input.getAmount())
@@ -255,7 +258,17 @@ public final class CommandFactory {
                     Map.entry("changeSpendingLimit", input -> {
                         BankOperation<Void> operation = ChangeSpendingLimit.builder()
                                 .accountIban(IBAN.of(input.getAccount()))
-                                .spendingLimit(input.getAmount())
+                                .newLimit(input.getAmount())
+                                .userEmail(Email.of(input.getEmail()))
+                                .timestamp(input.getTimestamp())
+                                .build();
+                        return new CommandWitError<>(input, operation, "description");
+                    }),
+
+                    Map.entry("changeDepositLimit", input -> {
+                        BankOperation<Void> operation = ChangeDepositLimit.builder()
+                                .accountIban(IBAN.of(input.getAccount()))
+                                .newLimit(input.getAmount())
                                 .userEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
                                 .build();

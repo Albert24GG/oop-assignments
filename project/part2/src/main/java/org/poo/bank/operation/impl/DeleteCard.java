@@ -4,6 +4,10 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.BusinessAccount;
+import org.poo.bank.account.BusinessOperation;
+import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -15,12 +19,15 @@ import org.poo.bank.log.AuditLog;
 import org.poo.bank.log.AuditLogType;
 import org.poo.bank.log.impl.CardOpLog;
 import org.poo.bank.type.CardNumber;
+import org.poo.bank.type.Email;
 
 @Builder
 @RequiredArgsConstructor
 public final class DeleteCard extends BankOperation<Void> {
     @NonNull
     private final CardNumber cardNumber;
+    @NonNull
+    private final Email userEmail;
     private final int timestamp;
 
     @Override
@@ -28,6 +35,19 @@ public final class DeleteCard extends BankOperation<Void> {
             throws BankOperationException {
 
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
+        BankAccount bankAccount = card.getLinkedAccount();
+
+        // Validate permissions
+        if (bankAccount.getType() == BankAccountType.BUSINESS) {
+            BusinessOperation op =
+                    card.createdBy(userAccount) ? new BusinessOperation.RemoveCardSameOwner()
+                            : new BusinessOperation.RemoveCardDifferentOwner();
+            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                    userAccount, op);
+        } else {
+            BankOperationUtils.validateCardOwnership(context, card, userAccount);
+        }
 
         context.cardService().removeCard(card);
         BankAccount linkedAccount = card.getLinkedAccount();

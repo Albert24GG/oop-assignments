@@ -101,7 +101,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
 
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
-                new DeleteCard(cardNumber, timestamp).execute(context);
+                new DeleteCard(cardNumber, userEmail, timestamp).execute(context);
                 new CreateCard(userEmail, bankAccount.getIban(), card.getType(),
                         timestamp).execute(context);
             }

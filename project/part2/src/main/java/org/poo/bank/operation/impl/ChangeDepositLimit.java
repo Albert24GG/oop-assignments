@@ -20,7 +20,7 @@ import org.poo.bank.type.IBAN;
 
 @Builder
 @RequiredArgsConstructor
-public final class ChangeSpendingLimit extends BankOperation<Void> {
+public final class ChangeDepositLimit extends BankOperation<Void> {
     @NonNull
     private final IBAN accountIban;
     @NonNull
@@ -42,14 +42,14 @@ public final class ChangeSpendingLimit extends BankOperation<Void> {
         UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
         try {
             BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
-                    userAccount, new BusinessOperation.SetSpendingLimit());
+                    userAccount, new BusinessOperation.SetDepositLimit());
         } catch (BankOperationException e) {
             throw new BankOperationException(BankErrorType.PERMISSION_DENIED,
-                    "You must be owner in order to change spending limit.");
+                    "You must be owner in order to change deposit limit.");
         }
 
-        // Set the spending limit only for employees
-        context.bankAccService().setBusinessAccountSpendingLimit((BusinessAccount) bankAccount,
+        // Set the deposit limit only for employees
+        context.bankAccService().setBusinessAccountDepositLimit((BusinessAccount) bankAccount,
                 BusinessAccountRole.EMPLOYEE, newLimit);
 
         return BankOperationResult.success();

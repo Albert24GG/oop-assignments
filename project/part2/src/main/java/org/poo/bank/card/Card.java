@@ -17,6 +17,7 @@ public abstract class Card {
 
     @EqualsAndHashCode.Exclude
     private final BankAccount linkedAccount;
+    private final UserAccount creator;
     private final CardType type;
     @Setter(lombok.AccessLevel.PROTECTED)
     private CardNumber number = CardNumber.generate();
@@ -26,10 +27,11 @@ public abstract class Card {
         ACTIVE, FROZEN, TO_BE_FROZEN, WARNING_LOW_BALANCE
     }
 
-    static Card createCard(final CardType type, final BankAccount account) {
+    static Card createCard(final CardType type, final BankAccount account,
+                           final UserAccount creator) {
         Card card = switch (type) {
-            case DEBIT -> new DebitCard(account);
-            case SINGLE_USE -> new SingleUseCard(account);
+            case DEBIT -> new DebitCard(account, creator);
+            case SINGLE_USE -> new SingleUseCard(account, creator);
             case null -> null;
         };
         if (card != null) {
@@ -69,5 +71,15 @@ public abstract class Card {
             default -> status;
         };
         return status;
+    }
+
+    /**
+     * Checks if a user is the creator of the card
+     *
+     * @param user the user to check
+     * @return {@code true} if the user is the creator of the card, {@code false} otherwise
+     */
+    public boolean createdBy(final UserAccount user) {
+        return creator.equals(user);
     }
 }

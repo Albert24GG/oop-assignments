@@ -7,6 +7,7 @@ import org.poo.bank.operation.impl.AddMerchant;
 import org.poo.bank.operation.impl.BusinessReportQuery;
 import org.poo.bank.operation.impl.CardPaymentRequest;
 import org.poo.bank.operation.impl.CashWithdraw;
+import org.poo.bank.operation.impl.ChangeDepositLimit;
 import org.poo.bank.operation.impl.ChangeInterestRate;
 import org.poo.bank.operation.impl.ChangeSpendingLimit;
 import org.poo.bank.operation.impl.CheckCardStatus;
@@ -63,6 +64,7 @@ final class BankOperationRegistry {
                     RejectSplitPayment.class,
                     AddBusinessAssociate.class,
                     ChangeSpendingLimit.class,
+                    ChangeDepositLimit.class,
                     BusinessReportQuery.class
             )
     );

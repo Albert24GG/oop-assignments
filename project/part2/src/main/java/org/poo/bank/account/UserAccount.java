@@ -28,6 +28,7 @@ public final class UserAccount {
     private final Email email;
     private final List<BankAccount> accounts = new ArrayList<>();
     @Getter
+    @EqualsAndHashCode.Include
     private final Date birthDate;
     private final String occupation;
     @Getter

@@ -4,6 +4,10 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
+import org.poo.bank.account.BankAccountType;
+import org.poo.bank.account.BusinessAccount;
+import org.poo.bank.account.BusinessOperation;
+import org.poo.bank.account.UserAccount;
 import org.poo.bank.eventSystem.events.TransactionEvent;
 import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankOperation;
@@ -15,6 +19,7 @@ import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.log.AuditLog;
 import org.poo.bank.log.AuditLogType;
 import org.poo.bank.log.impl.TransferLog;
+import org.poo.bank.type.Email;
 import org.poo.bank.type.IBAN;
 
 @Builder
@@ -29,6 +34,8 @@ public final class TransferRequest extends BankOperation<Void> {
     private final String receiverAccount;
     @NonNull
     private final String description;
+    @NonNull
+    private final Email userEmail;
     private final double amount;
     private final int timestamp;
 
@@ -37,7 +44,7 @@ public final class TransferRequest extends BankOperation<Void> {
             throws BankOperationException {
 
         BankAccount sender = BankOperationUtils.getBankAccountByIban(context, senderAccount);
-
+        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
 
         Merchant merchant = null;
         BankAccount receiver = null;
@@ -54,6 +61,11 @@ public final class TransferRequest extends BankOperation<Void> {
         double amountWithCommission =
                 BankOperationUtils.calculateAmountWithCommission(context, sender, amount,
                         sender.getCurrency());
+        // Validate the permissions of the user in case of a business account
+        if (sender.getType() == BankAccountType.BUSINESS) {
+            BankOperationUtils.validatePermissions(context, (BusinessAccount) sender, userAccount,
+                    new BusinessOperation.Transfer(amountWithCommission));
+        }
 
         AuditLog sendAuditLog;
         BankOperationResult<Void> result;
