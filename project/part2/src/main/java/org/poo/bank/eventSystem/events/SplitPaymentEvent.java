@@ -65,7 +65,7 @@ public final class SplitPaymentEvent {
         }
 
         if (type == Type.REJECTED) {
-            transactionLog.error("One user rejected the payment");
+            transactionLog.error("One user rejected the payment.");
         }
 
         return transactionLog.build();
