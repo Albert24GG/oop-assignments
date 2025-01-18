@@ -27,6 +27,7 @@ import org.poo.bank.operation.impl.DeleteBankAccount;
 import org.poo.bank.operation.impl.DeleteCard;
 import org.poo.bank.operation.impl.GetAllUsers;
 import org.poo.bank.operation.impl.GetUserTransactions;
+import org.poo.bank.operation.impl.RejectSplitPayment;
 import org.poo.bank.operation.impl.SetAccountAlias;
 import org.poo.bank.operation.impl.SetAccountMinBalance;
 import org.poo.bank.operation.impl.SpendingsReportQuery;
@@ -195,15 +196,15 @@ public final class CommandFactory {
                                 .ownerEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
                                 .build();
-                        return new CommandWithouResultOrError<>(input, operation);
+                        return new CommandWitError<>(input, operation, "description");
                     }),
 
                     Map.entry("rejectSplitPayment", input -> {
-                        BankOperation<Void> operation = AcceptSplitPayment.builder()
+                        BankOperation<Void> operation = RejectSplitPayment.builder()
                                 .ownerEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
                                 .build();
-                        return new CommandWithouResultOrError<>(input, operation);
+                        return new CommandWitError<>(input, operation, "description");
                     }),
 
                     Map.entry("report", ReportCmd::new),
