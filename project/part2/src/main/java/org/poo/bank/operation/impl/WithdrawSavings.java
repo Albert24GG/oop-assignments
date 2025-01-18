@@ -77,7 +77,7 @@ public final class WithdrawSavings extends BankOperation<Void> {
         }
 
         BankAccount destinationAccount =
-                classicAccounts.stream().filter(account -> account.getCurrency() == currency)
+                classicAccounts.stream().filter(account -> account.getCurrency().equals(currency))
                         .findFirst().orElseThrow(
                                 () -> new BankOperationException(BankErrorType.INVALID_OPERATION));
         BankOperationUtils.addFunds(context, destinationAccount, amount);
