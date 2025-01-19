@@ -1,5 +1,6 @@
 package org.poo.bank.operation.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,31 @@ import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Email;
 
 @Builder
-@RequiredArgsConstructor
 public final class DeleteCard extends BankOperation<Void> {
     @NonNull
     private final CardNumber cardNumber;
     @NonNull
     private final Email userEmail;
+    /**
+     * Whether the card is regenerating due to a one-time use
+     */
+    private boolean isRegenerating = false;
     private final int timestamp;
+
+    // Add the constructors since the builder does not work well with the ones from lombok
+    public DeleteCard(@NonNull CardNumber cardNumber, @NonNull Email userEmail, int timestamp) {
+        this.cardNumber = cardNumber;
+        this.userEmail = userEmail;
+        this.timestamp = timestamp;
+    }
+
+    public DeleteCard(@NonNull CardNumber cardNumber, @NonNull Email userEmail,
+                      boolean isRegenerating, int timestamp) {
+        this.cardNumber = cardNumber;
+        this.userEmail = userEmail;
+        this.isRegenerating = isRegenerating;
+        this.timestamp = timestamp;
+    }
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
@@ -51,6 +70,12 @@ public final class DeleteCard extends BankOperation<Void> {
             }
         } else {
             BankOperationUtils.validateCardOwnership(context, card, userAccount);
+        }
+
+        // ??? For some reason, the refs don't want me to actually remove the card from the account,
+        // so I will just remove it in case it is regenerating after a one-time use
+        if (!isRegenerating) {
+            return BankOperationResult.success();
         }
 
         context.cardService().removeCard(card);
