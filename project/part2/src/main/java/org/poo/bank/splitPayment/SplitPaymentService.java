@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class SplitPaymentService {
-    private final Map<UserAccount, List<SplitPayment>> accountPayments = new HashMap<>();
+    private final Map<UserAccount, Map<SplitPaymentType, List<SplitPayment>>> accountPayments =
+            new HashMap<>();
     private final BankEventService eventService;
 
     private enum PaymentStatus {
@@ -28,7 +29,8 @@ public class SplitPaymentService {
      */
     public void registerPayment(final SplitPayment payment) {
         payment.getAccountsInvolved().forEach(account -> {
-            accountPayments.computeIfAbsent(account.getOwner(), k -> new ArrayList<>())
+            accountPayments.computeIfAbsent(account.getOwner(), k -> new HashMap<>())
+                    .computeIfAbsent(payment.getType(), k -> new ArrayList<>())
                     .add(payment);
         });
     }
@@ -43,7 +45,8 @@ public class SplitPaymentService {
 
         payment.getAccountsInvolved().forEach(account -> {
             Optional.ofNullable(accountPayments.get(account.getOwner()))
-                    .ifPresent(payments -> payments.remove(payment));
+                    .flatMap(payments -> Optional.ofNullable(payments.get(payment.getType())))
+                    .ifPresent(paymentsOfType -> paymentsOfType.remove(payment));
         });
     }
 
@@ -52,12 +55,14 @@ public class SplitPaymentService {
      *
      * @param userAccount the account to confirm the payment for. The first payment of the user
      *                    will be confirmed.
+     * @param type        the type of the payment to confirm
      */
-    public void confirmPayment(final UserAccount userAccount) {
-        accountPayments.getOrDefault(userAccount, List.of()).stream().findFirst()
+    public void confirmPayment(final UserAccount userAccount, final SplitPaymentType type) {
+        accountPayments.getOrDefault(userAccount, Map.of()).getOrDefault(type, List.of()).stream()
+                .findFirst()
                 .ifPresent(payment -> {
                     payment.confirmPayment(userAccount);
-                    accountPayments.get(userAccount).remove(payment);
+                    accountPayments.get(userAccount).get(type).remove(payment);
                     if (payment.isPaymentConfirmed()) {
                         finalizePayment(payment, PaymentStatus.ACCEPTED);
                     }
@@ -69,9 +74,11 @@ public class SplitPaymentService {
      *
      * @param userAccount the account to reject the payment for. The first payment of the user
      *                    will be rejected.
+     * @param type        the type of the payment to reject
      */
-    public void rejectPayment(final UserAccount userAccount) {
-        accountPayments.getOrDefault(userAccount, List.of()).stream().findFirst()
+    public void rejectPayment(final UserAccount userAccount, final SplitPaymentType type) {
+        accountPayments.getOrDefault(userAccount, Map.of()).getOrDefault(type, List.of()).stream()
+                .findFirst()
                 .ifPresent(payment -> {
                     finalizePayment(payment, PaymentStatus.REJECTED);
                 });

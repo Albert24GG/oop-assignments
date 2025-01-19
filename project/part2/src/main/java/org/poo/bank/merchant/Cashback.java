@@ -1,12 +1,14 @@
 package org.poo.bank.merchant;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@EqualsAndHashCode
 abstract class Cashback {
     @Getter
     private final double percentage;

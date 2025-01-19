@@ -1,6 +1,7 @@
 package org.poo.bank.merchant;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
@@ -108,6 +109,7 @@ public final class Merchant {
             return merchant.new TransactionBasedCashback();
         }
 
+        @EqualsAndHashCode(callSuper = true)
         static final class TransactionCashback extends Cashback {
             TransactionCashback(final double percentage, final MerchantType applicableType) {
                 super(percentage, applicableType);
@@ -169,6 +171,7 @@ public final class Merchant {
          */
         private final Map<BankAccount, Double> accountSpending = new HashMap<>();
 
+        @EqualsAndHashCode(callSuper = true)
         static final class SpendingCashback extends Cashback {
             SpendingCashback(final double percentage) {
                 super(percentage, null);

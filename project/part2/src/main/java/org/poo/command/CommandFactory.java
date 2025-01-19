@@ -195,6 +195,7 @@ public final class CommandFactory {
                         BankOperation<Void> operation = AcceptSplitPayment.builder()
                                 .ownerEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
+                                .splitPaymentType(SplitPaymentType.of(input.getSplitPaymentType()))
                                 .build();
                         return new CommandWitError<>(input, operation, "description");
                     }),
@@ -203,6 +204,7 @@ public final class CommandFactory {
                         BankOperation<Void> operation = RejectSplitPayment.builder()
                                 .ownerEmail(Email.of(input.getEmail()))
                                 .timestamp(input.getTimestamp())
+                                .splitPaymentType(SplitPaymentType.of(input.getSplitPaymentType()))
                                 .build();
                         return new CommandWitError<>(input, operation, "description");
                     }),
