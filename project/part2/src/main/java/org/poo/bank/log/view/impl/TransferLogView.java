@@ -8,8 +8,6 @@ import org.poo.bank.log.view.AuditLogView;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.IBAN;
 
-import java.math.BigDecimal;
-
 @Getter
 @SuperBuilder(toBuilder = true)
 public final class TransferLogView extends AuditLogView {
@@ -23,7 +21,6 @@ public final class TransferLogView extends AuditLogView {
 
     @JsonProperty("amount")
     public String getAmountAsString() {
-        return BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()
-                + " " + currency;
+        return amount + " " + currency;
     }
 }
