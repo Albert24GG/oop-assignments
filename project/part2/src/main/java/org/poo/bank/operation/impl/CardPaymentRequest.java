@@ -55,15 +55,26 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         Merchant merchant = BankOperationUtils.getMerchantByName(context, merchantName);
         BankAccount bankAccount = card.getLinkedAccount();
 
+        double convertedAmount =
+                BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
+                        amount);
+        double amountWithCommission =
+                BankOperationUtils.calculateAmountWithCommission(context, userAccount,
+                        convertedAmount, bankAccount.getCurrency());
+
         // Validate permissions
         if (bankAccount.getType() == BankAccountType.BUSINESS) {
+            BusinessAccount businessAccount = (BusinessAccount) bankAccount;
+            if (!businessAccount.getAccountMembers().contains(userAccount)) {
+                // ??? I just have no clue anymore who generated the refs
+                return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
+            }
             try {
                 BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
                         userAccount,
-                        new BusinessOperation.CardPayment(amount));
+                        new BusinessOperation.CardPayment(amountWithCommission));
             } catch (BankOperationException e) {
-                // ??? For some reason, the expected error type is CARD_NOT_FOUND
-                return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
+                return BankOperationResult.silentError(e.getErrorType());
             }
         } else {
             BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
@@ -76,14 +87,6 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     AuditLogType.CARD_PAYMENT, e);
             return BankOperationResult.silentError(e.getErrorType());
         }
-
-        double convertedAmount =
-                BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
-                        amount);
-        double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(context, userAccount,
-                        convertedAmount, bankAccount.getCurrency());
-
 
         try {
             BankOperationUtils.validateFunds(context, bankAccount, amountWithCommission);
