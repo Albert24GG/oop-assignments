@@ -3,13 +3,13 @@ package org.poo.bank.account;
 import lombok.Getter;
 import org.poo.bank.type.Currency;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public final class BusinessAccount extends BankAccount {
-    private final Map<UserAccount, BusinessAccountRole> accountMembers = new HashMap<>();
+    private final Map<UserAccount, BusinessAccountRole> accountMembers = new LinkedHashMap<>();
     private final Map<BusinessAccountRole, AccountRoleRestrictions> roleRestrictions = Map.of(
             BusinessAccountRole.OWNER, new AccountRoleRestrictions(BusinessAccountRole.OWNER),
             BusinessAccountRole.MANAGER, new AccountRoleRestrictions(BusinessAccountRole.MANAGER),

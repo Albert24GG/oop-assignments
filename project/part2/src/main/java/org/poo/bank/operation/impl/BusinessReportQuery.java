@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Builder
@@ -81,6 +82,7 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
         record UserEntry(UserAccount userAccount, double amount) {
         }
 
+        // Group all user transactions by merchant
         Map<Merchant, List<UserEntry>> merchantTransactions = Stream.concat(
                         logs.stream()
                                 .filter(log -> log.getLogType() == AuditLogType.CARD_PAYMENT)
@@ -100,43 +102,47 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
                                         log.getAmount()),
                                 Collectors.toList())));
 
+        // Generate the merchant reports, sorted by the merchant name
         List<MerchantBusinessReport.MerchantReport> merchantReports =
-                merchantTransactions.entrySet().stream().map(entry -> {
-                    Merchant merchant = entry.getKey();
-                    Map<UserEntry, Double> userEntries = entry.getValue().stream()
-                            .collect(Collectors.groupingBy(Function.identity(),
-                                    Collectors.summingDouble(UserEntry::amount)));
-                    return MerchantBusinessReport.MerchantReport.builder()
-                            .merchantName(merchant.getName())
-                            .totalReceived(
-                                    userEntries.values().stream().mapToDouble(Double::doubleValue)
-                                            .sum())
-                            .employees(
-                                    userEntries.keySet().stream()
-                                            .filter(userEntry ->
-                                                    businessAccount.getRole(userEntry.userAccount)
-                                                            .get()
-                                                            == BusinessAccountRole.EMPLOYEE)
-                                            .map(userEntry ->
-                                                    userEntry.userAccount().getLastName() + " "
-                                                            +
-                                                            userEntry.userAccount().getFirstName())
-                                            .toList()
-                            )
-                            .managers(
-                                    userEntries.keySet().stream()
-                                            .filter(userEntry ->
-                                                    businessAccount.getRole(userEntry.userAccount)
-                                                            .get()
-                                                            == BusinessAccountRole.MANAGER)
-                                            .map(userEntry ->
-                                                    userEntry.userAccount().getLastName() + " "
-                                                            +
-                                                            userEntry.userAccount().getFirstName())
-                                            .toList()
-                            )
-                            .build();
-                }).toList();
+                merchantTransactions.entrySet().stream()
+                        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+                        .map(entry -> {
+                            Merchant merchant = entry.getKey();
+                            Map<UserEntry, Double> userEntries = entry.getValue().stream()
+                                    .collect(Collectors.groupingBy(Function.identity(),
+                                            Collectors.summingDouble(UserEntry::amount)));
+                            return MerchantBusinessReport.MerchantReport.builder()
+                                    .merchantName(merchant.getName())
+                                    .totalReceived(
+                                            userEntries.values().stream()
+                                                    .mapToDouble(Double::doubleValue)
+                                                    .sum())
+                                    .employees(
+                                            userEntries.keySet().stream()
+                                                    .filter(userEntry ->
+                                                            businessAccount.getRole(
+                                                                            userEntry.userAccount)
+                                                                    .get()
+                                                                    == BusinessAccountRole.EMPLOYEE)
+                                                    .map(userEntry -> String.format("%s %s",
+                                                            userEntry.userAccount().getLastName(),
+                                                            userEntry.userAccount().getFirstName()))
+                                                    .toList()
+                                    )
+                                    .managers(
+                                            userEntries.keySet().stream()
+                                                    .filter(userEntry ->
+                                                            businessAccount.getRole(
+                                                                            userEntry.userAccount)
+                                                                    .get()
+                                                                    == BusinessAccountRole.MANAGER)
+                                                    .map(userEntry -> String.format("%s %s",
+                                                            userEntry.userAccount().getLastName(),
+                                                            userEntry.userAccount().getFirstName()))
+                                                    .toList()
+                                    )
+                                    .build();
+                        }).toList();
         return MerchantBusinessReport.builder()
                 .accountIban(accountIban)
                 .balance(businessAccount.getBalance())
@@ -153,6 +159,7 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
         List<AuditLog> logs =
                 context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp);
 
+        // Group all user transactions by user, filtering based on a predicate, and sum the amounts
         Function<Predicate<AuditLog>, Map<UserAccount, Double>> groupAndSumLogsByUser =
                 (logFilter) ->
                         logs.stream()
@@ -167,22 +174,31 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
                                         log -> log.getSenderUserAccount().get(),
                                         Collectors.summingDouble(UserTransactionLog::getAmount)));
 
+        // Group all user spending's
         Map<UserAccount, Double> memberSpendings = groupAndSumLogsByUser.apply(
                 log -> log.getLogType() == AuditLogType.CARD_PAYMENT
                         || (log.getLogType() == AuditLogType.TRANSFER
                         && ((TransferLog) log).getTransferType() == TransferLog.TransferType.SENT));
 
+        // Group all user deposits
         Map<UserAccount, Double> memberDeposits = groupAndSumLogsByUser.apply(
                 log -> log.getLogType() == AuditLogType.DEPOSIT);
 
+        // Set the order of the members based on the order they were added to the account
+        List<UserAccount> accountMembers = businessAccount.getAccountMembers();
+        Map<UserAccount, Integer> membersOrder = IntStream.range(0, accountMembers.size())
+                .boxed()
+                .collect(Collectors.toMap(accountMembers::get, Function.identity()));
+
+        // Generate the member reports
         Function<BusinessAccountRole, List<TransactionBusinessReport.MemberReport>>
                 generateMemberReports = (role) ->
                 businessAccount.getAccountMembers().stream()
                         .filter(member -> businessAccount.getRole(member).get() == role)
-                        .sorted(Comparator.comparing(UserAccount::getFirstName)
-                                .thenComparing(UserAccount::getLastName))
+                        .sorted(Comparator.comparing(membersOrder::get))
                         .map(member -> TransactionBusinessReport.MemberReport.builder()
-                                .name(member.getLastName() + " " + member.getFirstName())
+                                .name(String.format("%s %s", member.getLastName(),
+                                        member.getFirstName()))
                                 .spent(memberSpendings.getOrDefault(member, 0.0))
                                 .deposited(memberDeposits.getOrDefault(member, 0.0))
                                 .build())
