@@ -24,7 +24,7 @@ public abstract class Card {
     private Status status = Status.ACTIVE;
 
     public enum Status {
-        ACTIVE, FROZEN, TO_BE_FROZEN, WARNING_LOW_BALANCE
+        ACTIVE, FROZEN, TO_BE_FROZEN
     }
 
     static Card createCard(final CardType type, final BankAccount account,
@@ -59,13 +59,7 @@ public abstract class Card {
         status = switch (status) {
             case ACTIVE -> {
                 double balanceDiff = linkedAccount.getBalance() - linkedAccount.getMinBalance();
-                if (balanceDiff <= 0) {
-                    yield Status.TO_BE_FROZEN;
-                } else if (balanceDiff < LOW_BALANCE_THRESHOLD) {
-                    yield Status.WARNING_LOW_BALANCE;
-                } else {
-                    yield status;
-                }
+                yield balanceDiff <= 0 ? Status.TO_BE_FROZEN : status;
             }
             case TO_BE_FROZEN -> Status.FROZEN;
             default -> status;
