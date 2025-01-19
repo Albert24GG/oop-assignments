@@ -22,6 +22,9 @@ public final class CashbackEventHandler implements BankEventHandler<TransactionE
                 BankOperationUtils.calculateTransactionCashback(context, event.getMerchant(),
                         event.getSenderBankAccount(), event.getAmount(),
                         event.getCurrency()).apply(event.getAmount());
+        if (receivedCashback == 0) {
+            return;
+        }
 
         // Convert the cashback to the sender account currency
         double convertedCashback =
