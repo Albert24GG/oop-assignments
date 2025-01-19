@@ -39,8 +39,16 @@ public final class AddBusinessAssociate extends BankOperation<Void> {
         }
 
         UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
+
+        BusinessAccount businessAccount = (BusinessAccount) bankAccount;
+        // Check if the user is already a member of the business account
+        if (businessAccount.getAccountMembers().contains(userAccount)) {
+            return BankOperationResult.silentError(BankErrorType.INVALID_OPERATION,
+                    "User is already a member of the business account");
+        }
+
         context.bankAccService()
-                .addBusinessAccountMember((BusinessAccount) bankAccount, userAccount, role);
+                .addBusinessAccountMember(businessAccount, userAccount, role);
 
         return BankOperationResult.success();
     }
