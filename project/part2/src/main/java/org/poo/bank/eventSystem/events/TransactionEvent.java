@@ -17,6 +17,8 @@ public final class TransactionEvent {
     private final double amount;
     private final Currency currency;
 
+    private final int timestamp;
+
     /**
      * Creates a new transaction event between a user and a user.
      *
@@ -24,16 +26,19 @@ public final class TransactionEvent {
      * @param receiverBankAccount the user that receives the money
      * @param amount              the amount of the transaction
      * @param currency            the currency of the transaction
+     * @param timestamp           the timestamp of the transaction
      */
     public TransactionEvent(final BankAccount senderBankAccount,
                             final BankAccount receiverBankAccount,
                             final double amount,
-                            final Currency currency) {
+                            final Currency currency,
+                            final int timestamp) {
         this.senderBankAccount = senderBankAccount;
         this.receiverBankAccount = receiverBankAccount;
         this.merchant = null;
         this.amount = amount;
         this.currency = currency;
+        this.timestamp = timestamp;
     }
 
     /**
@@ -43,14 +48,17 @@ public final class TransactionEvent {
      * @param merchant          the merchant that receives the money
      * @param amount            the amount of the transaction
      * @param currency          the currency of the transaction
+     * @param timestamp         the timestamp of the transaction
      */
     public TransactionEvent(final BankAccount senderBankAccount, final Merchant merchant,
                             final double amount,
-                            final Currency currency) {
+                            final Currency currency,
+                            final int timestamp) {
         this.senderBankAccount = senderBankAccount;
         this.receiverBankAccount = null;
         this.merchant = merchant;
         this.amount = amount;
         this.currency = currency;
+        this.timestamp = timestamp;
     }
 }

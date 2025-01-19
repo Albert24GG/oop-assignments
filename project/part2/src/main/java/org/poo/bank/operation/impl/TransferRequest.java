@@ -88,12 +88,12 @@ public final class TransferRequest extends BankOperation<Void> {
                 receiverIban = receiverAccount.getIban();
                 transactionEvent =
                         new TransactionEvent(senderAccount, receiverAccount, amount,
-                                senderAccount.getCurrency());
+                                senderAccount.getCurrency(), timestamp);
             } else {
                 receiverIban = merchant.getAccountIban();
                 transactionEvent =
                         new TransactionEvent(senderAccount, merchant, amount,
-                                senderAccount.getCurrency());
+                                senderAccount.getCurrency(), timestamp);
             }
 
             sendAuditLog = TransferLog.builder()

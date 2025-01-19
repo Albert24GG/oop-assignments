@@ -66,7 +66,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
         if (bankAccount.getType() == BankAccountType.BUSINESS) {
             BusinessAccount businessAccount = (BusinessAccount) bankAccount;
             if (!businessAccount.getAccountMembers().contains(userAccount)) {
-                // ??? I just have no clue anymore who generated the refs
+                //  I don't know why, but this is what the refs say
                 return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
             }
             try {
@@ -105,7 +105,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
 
             // Trigger the transaction event
             context.eventService()
-                    .post(new TransactionEvent(bankAccount, merchant, amount, currency));
+                    .post(new TransactionEvent(bankAccount, merchant, amount, currency, timestamp));
 
             // If the card is single use, renew it
             if (card.getType() == CardType.SINGLE_USE) {
