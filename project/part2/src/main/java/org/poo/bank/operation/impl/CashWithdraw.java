@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.UserAccount;
 import org.poo.bank.card.Card;
+import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
 import org.poo.bank.operation.BankOperationException;
@@ -39,7 +40,13 @@ public final class CashWithdraw extends BankOperation<Void> {
             throws BankOperationException {
         Card card = BankOperationUtils.getCardByNumber(context, cardNumber);
         UserAccount userAccount = BankOperationUtils.getUserByEmail(context, ownerEmail);
-        BankOperationUtils.validateCardOwnership(context, card, userAccount);
+
+        // For some reason, CARD_NOT_FOUND should be a returned in this case according to the refs
+        try {
+            BankOperationUtils.validateCardOwnership(context, card, userAccount);
+        } catch (BankOperationException e) {
+            return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
+        }
 
         BankOperationUtils.validateCardStatus(context, card);
 

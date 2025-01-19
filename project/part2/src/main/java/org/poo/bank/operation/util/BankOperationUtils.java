@@ -13,6 +13,7 @@ import org.poo.bank.operation.BankOperationException;
 import org.poo.bank.log.AuditLog;
 import org.poo.bank.log.AuditLogStatus;
 import org.poo.bank.log.AuditLogType;
+import org.poo.bank.servicePlan.ServicePlan;
 import org.poo.bank.type.CardNumber;
 import org.poo.bank.type.Currency;
 import org.poo.bank.type.Email;
@@ -269,7 +270,8 @@ public final class BankOperationUtils {
                                                        final BankAccount bankAccount,
                                                        final double amount,
                                                        final Currency currency) {
-        return calculateAmountWithCommission(context, bankAccount.getOwner(), amount, currency);
+        return calculateAmountWithCommission(context, bankAccount.getOwner().getServicePlan(),
+                amount, currency);
     }
 
     /**
@@ -277,20 +279,20 @@ public final class BankOperationUtils {
      * commission)
      *
      * @param context     The bank operation context
-     * @param userAccount The user account
+     * @param accountPlan The service plan of the account
      * @param amount      The amount to be withdrawn
      * @param currency    The currency of the amount
      * @return The amount to be withdrawn (including commission)
      */
     public static double calculateAmountWithCommission(final BankOperationContext context,
-                                                       final UserAccount userAccount,
+                                                       final ServicePlan accountPlan,
                                                        final double amount,
                                                        final Currency currency) {
         // Convert the amount to RON
         double convertedAmount = convertCurrency(context, currency,
                 Currency.of("RON"), amount);
         return amount
-                * (1 + userAccount.getServicePlan().getTransactionCommission(convertedAmount));
+                * (1 + accountPlan.getTransactionCommission(convertedAmount));
     }
 
     /**

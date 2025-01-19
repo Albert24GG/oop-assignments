@@ -59,7 +59,8 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                 BankOperationUtils.convertCurrency(context, currency, bankAccount.getCurrency(),
                         amount);
         double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(context, userAccount,
+                BankOperationUtils.calculateAmountWithCommission(context,
+                        bankAccount.getOwner().getServicePlan(),
                         convertedAmount, bankAccount.getCurrency());
 
         // Validate permissions
@@ -77,7 +78,13 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                 return BankOperationResult.silentError(e.getErrorType());
             }
         } else {
-            BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
+            // For some reason, CARD_NOT_FOUND should be a returned in this case according to the
+            // refs
+            try {
+                BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
+            } catch (BankOperationException e) {
+                return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
+            }
         }
 
         try {
