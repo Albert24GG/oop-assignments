@@ -31,17 +31,12 @@ public final class TransactionsReportQuery extends BankOperation<TransactionsRep
             throws BankOperationException {
         BankAccount bankAccount = BankOperationUtils.getBankAccountByIban(context, accountIban);
 
+        // Filter out deposit operations since they are not shown in the report
         List<AuditLog>
                 transactions =
-                context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp);
-
-
-        // For savings accounts, only interest operations are shown
-        if (bankAccount.getType() == BankAccountType.SAVINGS) {
-            transactions = transactions.stream()
-                    .filter(auditLog -> auditLog.getLogType()
-                            == AuditLogType.INTEREST_RATE_UPDATE).toList();
-        }
+                context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp)
+                        .stream().filter(auditLog -> auditLog.getLogType() != AuditLogType.DEPOSIT)
+                        .toList();
 
         return BankOperationResult.success(TransactionsReport.builder()
                 .iban(accountIban)
