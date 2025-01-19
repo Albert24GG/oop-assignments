@@ -41,7 +41,7 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
         try {
             if (newPlan == servicePlan.getServicePlanType()) {
                 throw new BankOperationException(BankErrorType.INVALID_OPERATION,
-                        String.format("The account already has the %s plan",
+                        String.format("The user already has the %s plan.",
                                 newPlan.toString().toLowerCase()));
             }
             upgradeFee = servicePlan.getUpgradeFee(newPlan).orElseThrow(
