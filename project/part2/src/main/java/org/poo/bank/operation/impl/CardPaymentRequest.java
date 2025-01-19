@@ -57,9 +57,14 @@ public final class CardPaymentRequest extends BankOperation<Void> {
 
         // Validate permissions
         if (bankAccount.getType() == BankAccountType.BUSINESS) {
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
-                    userAccount,
-                    new BusinessOperation.CardPayment(amount));
+            try {
+                BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                        userAccount,
+                        new BusinessOperation.CardPayment(amount));
+            } catch (BankOperationException e) {
+                // ??? For some reason, the expected error type is CARD_NOT_FOUND
+                return BankOperationResult.error(BankErrorType.CARD_NOT_FOUND);
+            }
         } else {
             BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
         }

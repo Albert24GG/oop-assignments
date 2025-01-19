@@ -39,8 +39,12 @@ public final class AddFunds extends BankOperation<Void> {
 
         // Validate permissions
         if (bankAccount.getType() == BankAccountType.BUSINESS) {
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
-                    userAccount, new BusinessOperation.AddFunds(amount));
+            try {
+                BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                        userAccount, new BusinessOperation.AddFunds(amount));
+            } catch (BankOperationException e) {
+                return BankOperationResult.silentError(e.getErrorType());
+            }
         } else {
             BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
         }

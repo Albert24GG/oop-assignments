@@ -43,8 +43,12 @@ public final class DeleteCard extends BankOperation<Void> {
             BusinessOperation op =
                     card.createdBy(userAccount) ? new BusinessOperation.RemoveCardSameOwner()
                             : new BusinessOperation.RemoveCardDifferentOwner();
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
-                    userAccount, op);
+            try {
+                BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                        userAccount, op);
+            } catch (BankOperationException e) {
+                return BankOperationResult.silentError(e.getErrorType());
+            }
         } else {
             BankOperationUtils.validateCardOwnership(context, card, userAccount);
         }

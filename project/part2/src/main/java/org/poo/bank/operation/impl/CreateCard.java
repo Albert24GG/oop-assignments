@@ -41,9 +41,13 @@ public final class CreateCard extends BankOperation<Void> {
 
         // Validate permissions
         if (bankAccount.getType() == BankAccountType.BUSINESS) {
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
-                    userAccount,
-                    new BusinessOperation.AddCard());
+            try {
+                BankOperationUtils.validatePermissions(context, (BusinessAccount) bankAccount,
+                        userAccount,
+                        new BusinessOperation.AddCard());
+            } catch (BankOperationException e) {
+                return BankOperationResult.silentError(e.getErrorType());
+            }
         } else {
             BankOperationUtils.validateAccountOwnership(context, bankAccount, userAccount);
         }

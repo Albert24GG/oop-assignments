@@ -63,9 +63,13 @@ public final class TransferRequest extends BankOperation<Void> {
                         senderAccount.getCurrency());
         // Validate the permissions of the user in case of a business account
         if (senderAccount.getType() == BankAccountType.BUSINESS) {
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) senderAccount,
-                    senderUserAccount,
-                    new BusinessOperation.Transfer(amountWithCommission));
+            try {
+                BankOperationUtils.validatePermissions(context, (BusinessAccount) senderAccount,
+                        senderUserAccount,
+                        new BusinessOperation.Transfer(amountWithCommission));
+            } catch (BankOperationException e) {
+                return BankOperationResult.silentError(e.getErrorType());
+            }
         }
 
         AuditLog sendAuditLog;
