@@ -81,7 +81,7 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
         record UserEntry(UserAccount userAccount, double amount) {
         }
 
-        Map<Merchant, List<UserEntry>> x = Stream.concat(
+        Map<Merchant, List<UserEntry>> merchantTransactions = Stream.concat(
                         logs.stream()
                                 .filter(log -> log.getLogType() == AuditLogType.CARD_PAYMENT)
                                 .map(log -> (TransactionLog) log),
@@ -100,35 +100,43 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
                                         log.getAmount()),
                                 Collectors.toList())));
 
-        List<MerchantBusinessReport.MerchantReport> y = x.entrySet().stream().map(entry -> {
-            Merchant merchant = entry.getKey();
-            Map<UserEntry, Double> userEntries = entry.getValue().stream()
-                    .collect(Collectors.groupingBy(Function.identity(),
-                            Collectors.summingDouble(UserEntry::amount)));
-            return MerchantBusinessReport.MerchantReport.builder()
-                    .merchantName(merchant.getName())
-                    .totalReceived(
-                            userEntries.values().stream().mapToDouble(Double::doubleValue).sum())
-                    .employees(
-                            userEntries.keySet().stream()
-                                    .filter(userEntry ->
-                                            businessAccount.getRole(userEntry.userAccount).get()
-                                                    == BusinessAccountRole.EMPLOYEE)
-                                    .map(userEntry -> userEntry.userAccount().getLastName() + " "
-                                            + userEntry.userAccount().getFirstName())
-                                    .toList()
-                    )
-                    .managers(
-                            userEntries.keySet().stream()
-                                    .filter(userEntry ->
-                                            businessAccount.getRole(userEntry.userAccount).get()
-                                                    == BusinessAccountRole.MANAGER)
-                                    .map(userEntry -> userEntry.userAccount().getLastName() + " "
-                                            + userEntry.userAccount().getFirstName())
-                                    .toList()
-                    )
-                    .build();
-        }).toList();
+        List<MerchantBusinessReport.MerchantReport> merchantReports =
+                merchantTransactions.entrySet().stream().map(entry -> {
+                    Merchant merchant = entry.getKey();
+                    Map<UserEntry, Double> userEntries = entry.getValue().stream()
+                            .collect(Collectors.groupingBy(Function.identity(),
+                                    Collectors.summingDouble(UserEntry::amount)));
+                    return MerchantBusinessReport.MerchantReport.builder()
+                            .merchantName(merchant.getName())
+                            .totalReceived(
+                                    userEntries.values().stream().mapToDouble(Double::doubleValue)
+                                            .sum())
+                            .employees(
+                                    userEntries.keySet().stream()
+                                            .filter(userEntry ->
+                                                    businessAccount.getRole(userEntry.userAccount)
+                                                            .get()
+                                                            == BusinessAccountRole.EMPLOYEE)
+                                            .map(userEntry ->
+                                                    userEntry.userAccount().getLastName() + " "
+                                                            +
+                                                            userEntry.userAccount().getFirstName())
+                                            .toList()
+                            )
+                            .managers(
+                                    userEntries.keySet().stream()
+                                            .filter(userEntry ->
+                                                    businessAccount.getRole(userEntry.userAccount)
+                                                            .get()
+                                                            == BusinessAccountRole.MANAGER)
+                                            .map(userEntry ->
+                                                    userEntry.userAccount().getLastName() + " "
+                                                            +
+                                                            userEntry.userAccount().getFirstName())
+                                            .toList()
+                            )
+                            .build();
+                }).toList();
         return MerchantBusinessReport.builder()
                 .accountIban(accountIban)
                 .balance(businessAccount.getBalance())
@@ -136,7 +144,7 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
                 .spendingLimit(businessAccount.getEmployeeSpendingLimit().orElse(Double.MAX_VALUE))
                 .depositLimit(businessAccount.getEmployeeDepositLimit().orElse(Double.MAX_VALUE))
                 .type(BusinessReportType.COMMERCIANT)
-                .merchants(y)
+                .merchants(merchantReports)
                 .build();
     }
 
