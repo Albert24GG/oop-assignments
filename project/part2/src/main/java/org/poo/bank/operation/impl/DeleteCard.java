@@ -1,9 +1,7 @@
 package org.poo.bank.operation.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.poo.bank.account.BankAccount;
 import org.poo.bank.account.BankAccountType;
 import org.poo.bank.account.BusinessAccount;
@@ -35,14 +33,15 @@ public final class DeleteCard extends BankOperation<Void> {
     private final int timestamp;
 
     // Add the constructors since the builder does not work well with the ones from lombok
-    public DeleteCard(@NonNull CardNumber cardNumber, @NonNull Email userEmail, int timestamp) {
+    public DeleteCard(@NonNull final CardNumber cardNumber, @NonNull final Email userEmail,
+                      final int timestamp) {
         this.cardNumber = cardNumber;
         this.userEmail = userEmail;
         this.timestamp = timestamp;
     }
 
-    public DeleteCard(@NonNull CardNumber cardNumber, @NonNull Email userEmail,
-                      boolean isRegenerating, int timestamp) {
+    public DeleteCard(@NonNull final CardNumber cardNumber, @NonNull final Email userEmail,
+                      final boolean isRegenerating, final int timestamp) {
         this.cardNumber = cardNumber;
         this.userEmail = userEmail;
         this.isRegenerating = isRegenerating;
