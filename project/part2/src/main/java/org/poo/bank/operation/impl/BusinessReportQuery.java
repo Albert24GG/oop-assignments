@@ -11,7 +11,10 @@ import org.poo.bank.account.UserAccount;
 import org.poo.bank.log.AuditLog;
 import org.poo.bank.log.AuditLogStatus;
 import org.poo.bank.log.AuditLogType;
+import org.poo.bank.log.impl.TransferLog;
+import org.poo.bank.log.interfaces.TransactionLog;
 import org.poo.bank.log.interfaces.UserTransactionLog;
+import org.poo.bank.merchant.Merchant;
 import org.poo.bank.operation.BankErrorType;
 import org.poo.bank.operation.BankOperation;
 import org.poo.bank.operation.BankOperationContext;
@@ -20,15 +23,17 @@ import org.poo.bank.operation.BankOperationResult;
 import org.poo.bank.operation.util.BankOperationUtils;
 import org.poo.bank.report.business.BusinessReport;
 import org.poo.bank.report.business.BusinessReportType;
-import org.poo.bank.report.business.impl.BusinessMemberReport;
+import org.poo.bank.report.business.impl.MerchantBusinessReport;
 import org.poo.bank.report.business.impl.TransactionBusinessReport;
 import org.poo.bank.type.IBAN;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Builder
 @RequiredArgsConstructor
@@ -57,32 +62,129 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
             case TRANSACTION:
                 return BankOperationResult.success(
                         getTransactionReport(context, (BusinessAccount) bankAccount));
+            case COMMERCIANT:
+                return BankOperationResult.success(
+                        getMerchantReport(context, (BusinessAccount) bankAccount));
             default:
                 throw new BankOperationException(BankErrorType.INVALID_ARGUMENT,
                         "Invalid report type");
         }
     }
 
+    private MerchantBusinessReport getMerchantReport(final BankOperationContext context,
+                                                     final BusinessAccount businessAccount) {
+        List<AuditLog> logs =
+                context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp)
+                        .stream().filter(log -> log.getLogStatus() == AuditLogStatus.SUCCESS)
+                        .toList();
+
+        record UserEntry(UserAccount userAccount, double amount) {
+        }
+
+        Map<Merchant, List<UserEntry>> x = Stream.concat(
+                        logs.stream()
+                                .filter(log -> log.getLogType() == AuditLogType.CARD_PAYMENT)
+                                .map(log -> (TransactionLog) log),
+                        logs.stream()
+                                .filter(log -> log.getLogType() == AuditLogType.TRANSFER)
+                                .map(log -> (TransferLog) log)
+                                .filter(log -> log.getTransferType()
+                                        == TransferLog.TransferType.SENT)
+                                .filter(log -> log.getRecipientMerchant().isPresent()))
+                .filter(log -> businessAccount.getRole(log.getSenderUserAccount().get())
+                        .get() != BusinessAccountRole.OWNER)
+                .collect(Collectors.groupingBy(
+                        log -> log.getRecipientMerchant().get(),
+                        Collectors.mapping(
+                                log -> new UserEntry(log.getSenderUserAccount().get(),
+                                        log.getAmount()),
+                                Collectors.toList())));
+
+        List<MerchantBusinessReport.MerchantReport> y = x.entrySet().stream().map(entry -> {
+            Merchant merchant = entry.getKey();
+            Map<UserEntry, Double> userEntries = entry.getValue().stream()
+                    .collect(Collectors.groupingBy(Function.identity(),
+                            Collectors.summingDouble(UserEntry::amount)));
+            return MerchantBusinessReport.MerchantReport.builder()
+                    .merchantName(merchant.getName())
+                    .totalReceived(
+                            userEntries.values().stream().mapToDouble(Double::doubleValue).sum())
+                    .employees(
+                            userEntries.keySet().stream()
+                                    .filter(userEntry ->
+                                            businessAccount.getRole(userEntry.userAccount).get()
+                                                    == BusinessAccountRole.EMPLOYEE)
+                                    .map(userEntry -> userEntry.userAccount().getLastName() + " "
+                                            + userEntry.userAccount().getFirstName())
+                                    .toList()
+                    )
+                    .managers(
+                            userEntries.keySet().stream()
+                                    .filter(userEntry ->
+                                            businessAccount.getRole(userEntry.userAccount).get()
+                                                    == BusinessAccountRole.MANAGER)
+                                    .map(userEntry -> userEntry.userAccount().getLastName() + " "
+                                            + userEntry.userAccount().getFirstName())
+                                    .toList()
+                    )
+                    .build();
+        }).toList();
+        return MerchantBusinessReport.builder()
+                .accountIban(accountIban)
+                .balance(businessAccount.getBalance())
+                .currency(businessAccount.getCurrency())
+                .spendingLimit(businessAccount.getEmployeeSpendingLimit().orElse(Double.MAX_VALUE))
+                .depositLimit(businessAccount.getEmployeeDepositLimit().orElse(Double.MAX_VALUE))
+                .type(BusinessReportType.COMMERCIANT)
+                .merchants(y)
+                .build();
+    }
 
     private TransactionBusinessReport getTransactionReport(final BankOperationContext context,
                                                            final BusinessAccount businessAccount) {
         List<AuditLog> logs =
                 context.auditLogService().getLogs(accountIban, startTimestamp, endTimestamp);
 
-        Map<UserAccount, Double> memberSpendings = groupAndSumLogsByUser(logs, businessAccount,
-                log -> log.getLogType() == AuditLogType.CARD_PAYMENT
-                        || log.getLogType() == AuditLogType.TRANSFER);
+        Function<Predicate<AuditLog>, Map<UserAccount, Double>> groupAndSumLogsByUser =
+                (logFilter) ->
+                        logs.stream()
+                                .filter(logFilter)
+                                .filter(log -> log.getLogStatus() == AuditLogStatus.SUCCESS)
+                                .map(log -> (UserTransactionLog) log)
+                                .filter(log ->
+                                        businessAccount.getRole(log.getSenderUserAccount().get())
+                                                .get()
+                                                != BusinessAccountRole.OWNER)
+                                .collect(Collectors.groupingBy(
+                                        log -> log.getSenderUserAccount().get(),
+                                        Collectors.summingDouble(UserTransactionLog::getAmount)));
 
-        Map<UserAccount, Double> memberDeposits = groupAndSumLogsByUser(logs, businessAccount,
+        Map<UserAccount, Double> memberSpendings = groupAndSumLogsByUser.apply(
+                log -> log.getLogType() == AuditLogType.CARD_PAYMENT
+                        || (log.getLogType() == AuditLogType.TRANSFER
+                        && ((TransferLog) log).getTransferType() == TransferLog.TransferType.SENT));
+
+        Map<UserAccount, Double> memberDeposits = groupAndSumLogsByUser.apply(
                 log -> log.getLogType() == AuditLogType.DEPOSIT);
 
-        List<UserAccount> members = businessAccount.getAccountMembers();
+        Function<BusinessAccountRole, List<TransactionBusinessReport.MemberReport>>
+                generateMemberReports = (role) ->
+                businessAccount.getAccountMembers().stream()
+                        .filter(member -> businessAccount.getRole(member).get() == role)
+                        .sorted(Comparator.comparing(UserAccount::getFirstName)
+                                .thenComparing(UserAccount::getLastName))
+                        .map(member -> TransactionBusinessReport.MemberReport.builder()
+                                .name(member.getLastName() + " " + member.getFirstName())
+                                .spent(memberSpendings.getOrDefault(member, 0.0))
+                                .deposited(memberDeposits.getOrDefault(member, 0.0))
+                                .build())
+                        .toList();
 
-        List<BusinessMemberReport> employeeReports = generateMemberReports(members, businessAccount,
-                memberSpendings, memberDeposits, BusinessAccountRole.EMPLOYEE);
+        List<TransactionBusinessReport.MemberReport> employeeReports =
+                generateMemberReports.apply(BusinessAccountRole.EMPLOYEE);
 
-        List<BusinessMemberReport> managerReports = generateMemberReports(members, businessAccount,
-                memberSpendings, memberDeposits, BusinessAccountRole.MANAGER);
+        List<TransactionBusinessReport.MemberReport> managerReports =
+                generateMemberReports.apply(BusinessAccountRole.MANAGER);
 
         return TransactionBusinessReport.builder()
                 .accountIban(accountIban)
@@ -99,36 +201,5 @@ public final class BusinessReportQuery extends BankOperation<BusinessReport> {
                         memberDeposits.values().stream().mapToDouble(Double::doubleValue).sum())
                 .build();
 
-    }
-
-    private Map<UserAccount, Double> groupAndSumLogsByUser(final List<AuditLog> logs,
-                                                           final BusinessAccount businessAccount,
-                                                           final Predicate<AuditLog> logFilter) {
-        return logs.stream()
-                .filter(logFilter)
-                .filter(log -> log.getLogStatus() == AuditLogStatus.SUCCESS)
-                .map(log -> (UserTransactionLog) log)
-                .filter(log -> businessAccount.getRole(log.getUserAccount()).get()
-                        != BusinessAccountRole.OWNER)
-                .collect(Collectors.groupingBy(UserTransactionLog::getUserAccount,
-                        Collectors.summingDouble(UserTransactionLog::getAmount)));
-    }
-
-    private List<BusinessMemberReport> generateMemberReports(
-            final List<UserAccount> members,
-            final BusinessAccount businessAccount,
-            final Map<UserAccount, Double> memberSpendings,
-            final Map<UserAccount, Double> memberDeposits,
-            final BusinessAccountRole role) {
-        return members.stream()
-                .filter(member -> businessAccount.getRole(member).get() == role)
-                .sorted(Comparator.comparing(UserAccount::getFirstName)
-                        .thenComparing(UserAccount::getLastName))
-                .map(member -> BusinessMemberReport.builder()
-                        .name(member.getLastName() + " " + member.getFirstName())
-                        .spent(memberSpendings.getOrDefault(member, 0.0))
-                        .deposited(memberDeposits.getOrDefault(member, 0.0))
-                        .build())
-                .toList();
     }
 }

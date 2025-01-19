@@ -147,9 +147,9 @@ public final class CommandFactory {
 
                     Map.entry("sendMoney", input -> {
                         BankOperation<Void> operation = TransferRequest.builder()
-                                .senderAccount(IBAN.of(input.getAccount()))
+                                .senderIban(IBAN.of(input.getAccount()))
                                 .userEmail(Email.of(input.getEmail()))
-                                .receiverAccount(input.getReceiver())
+                                .receiverIdentifier(input.getReceiver())
                                 .description(input.getDescription())
                                 .amount(input.getAmount())
                                 .timestamp(input.getTimestamp())

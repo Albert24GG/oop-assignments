@@ -59,7 +59,7 @@ public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
                         Collectors.groupingBy(CardPaymentLog::getMerchant,
                                 Collectors.summingDouble(CardPaymentLog::getAmount)))
                 .entrySet().stream()
-                .map(entry -> new MerchantSpending(entry.getKey(), entry.getValue()))
+                .map(entry -> new MerchantSpending(entry.getKey().getName(), entry.getValue()))
                 .sorted(Comparator.comparing(MerchantSpending::merchant))
                 .toList();
 

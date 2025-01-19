@@ -26,12 +26,12 @@ import org.poo.bank.type.IBAN;
 @RequiredArgsConstructor
 public final class TransferRequest extends BankOperation<Void> {
     @NonNull
-    private final IBAN senderAccount;
+    private final IBAN senderIban;
     /**
      * The IBAN or account alias of the receiver
      */
     @NonNull
-    private final String receiverAccount;
+    private final String receiverIdentifier;
     @NonNull
     private final String description;
     @NonNull
@@ -43,27 +43,28 @@ public final class TransferRequest extends BankOperation<Void> {
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
 
-        BankAccount sender = BankOperationUtils.getBankAccountByIban(context, senderAccount);
-        UserAccount userAccount = BankOperationUtils.getUserByEmail(context, userEmail);
+        BankAccount senderAccount = BankOperationUtils.getBankAccountByIban(context, senderIban);
+        UserAccount senderUserAccount = BankOperationUtils.getUserByEmail(context, userEmail);
 
         Merchant merchant = null;
-        BankAccount receiver = null;
+        BankAccount receiverAccount = null;
 
         // Check if the receiver is a merchant or a user
         try {
             merchant =
-                    BankOperationUtils.getMerchantByIban(context, IBAN.of(receiverAccount));
+                    BankOperationUtils.getMerchantByIban(context, IBAN.of(receiverIdentifier));
         } catch (BankOperationException e) {
-            receiver =
-                    BankOperationUtils.getBankAccountByAliasOrIban(context, receiverAccount);
+            receiverAccount =
+                    BankOperationUtils.getBankAccountByAliasOrIban(context, receiverIdentifier);
         }
 
         double amountWithCommission =
-                BankOperationUtils.calculateAmountWithCommission(context, sender, amount,
-                        sender.getCurrency());
+                BankOperationUtils.calculateAmountWithCommission(context, senderAccount, amount,
+                        senderAccount.getCurrency());
         // Validate the permissions of the user in case of a business account
-        if (sender.getType() == BankAccountType.BUSINESS) {
-            BankOperationUtils.validatePermissions(context, (BusinessAccount) sender, userAccount,
+        if (senderAccount.getType() == BankAccountType.BUSINESS) {
+            BankOperationUtils.validatePermissions(context, (BusinessAccount) senderAccount,
+                    senderUserAccount,
                     new BusinessOperation.Transfer(amountWithCommission));
         }
 
@@ -71,43 +72,47 @@ public final class TransferRequest extends BankOperation<Void> {
         BankOperationResult<Void> result;
 
         try {
-            BankOperationUtils.validateFunds(context, sender, amountWithCommission);
-            BankOperationUtils.removeFunds(context, sender, amountWithCommission);
+            BankOperationUtils.validateFunds(context, senderAccount, amountWithCommission);
+            BankOperationUtils.removeFunds(context, senderAccount, amountWithCommission);
 
             IBAN receiverIban;
-            // Handle the transfer depending on the receiver type
+            // Handle the transfer depending on the receiverAccount type
 
             TransactionEvent transactionEvent;
-            if (receiver != null) {
-                transferToUser(context, sender, receiver);
-                receiverIban = receiver.getIban();
+            if (receiverAccount != null) {
+                transferToUser(context, senderAccount, senderUserAccount, receiverAccount);
+                receiverIban = receiverAccount.getIban();
                 transactionEvent =
-                        new TransactionEvent(sender, receiver, amount, sender.getCurrency());
+                        new TransactionEvent(senderAccount, receiverAccount, amount,
+                                senderAccount.getCurrency());
             } else {
                 receiverIban = merchant.getAccountIban();
                 transactionEvent =
-                        new TransactionEvent(sender, merchant, amount, sender.getCurrency());
+                        new TransactionEvent(senderAccount, merchant, amount,
+                                senderAccount.getCurrency());
             }
 
             sendAuditLog = TransferLog.builder()
                     .timestamp(timestamp)
                     .logStatus(AuditLogStatus.SUCCESS)
+                    .initiatingUser(senderUserAccount)
+                    .merchant(merchant)
                     .logType(AuditLogType.TRANSFER)
                     .description(description)
-                    .senderIBAN(sender.getIban())
+                    .senderIBAN(senderAccount.getIban())
                     .receiverIBAN(receiverIban)
                     .amount(amount)
-                    .currency(sender.getCurrency())
-                    .transferType("sent")
+                    .currency(senderAccount.getCurrency())
+                    .transferType(TransferLog.TransferType.SENT)
                     .build();
-            BankOperationUtils.recordLog(context, sender, sendAuditLog);
+            BankOperationUtils.recordLog(context, senderAccount, sendAuditLog);
 
             // Trigger the transaction event
             context.eventService().post(transactionEvent);
 
             result = BankOperationResult.success();
         } catch (BankOperationException e) {
-            BankOperationUtils.logFailedOperation(context, sender, timestamp,
+            BankOperationUtils.logFailedOperation(context, senderAccount, timestamp,
                     AuditLogType.TRANSFER, e);
             result = BankOperationResult.silentError(e.getErrorType());
         }
@@ -116,23 +121,25 @@ public final class TransferRequest extends BankOperation<Void> {
     }
 
     private void transferToUser(final BankOperationContext context,
-                                final BankAccount sender,
-                                final BankAccount receiver) {
+                                final BankAccount senderAccount,
+                                final UserAccount senderUserAccount,
+                                final BankAccount receiverAccount) {
         double receivedAmount = context.currencyExchangeService()
-                .convert(sender.getCurrency(), receiver.getCurrency(), amount);
-        BankOperationUtils.addFunds(context, receiver, receivedAmount);
+                .convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amount);
+        BankOperationUtils.addFunds(context, receiverAccount, receivedAmount);
 
         AuditLog receiveAuditLog = TransferLog.builder()
                 .timestamp(timestamp)
                 .logStatus(AuditLogStatus.SUCCESS)
+                .initiatingUser(senderUserAccount)
                 .logType(AuditLogType.TRANSFER)
                 .description(description)
-                .senderIBAN(sender.getIban())
-                .receiverIBAN(receiver.getIban())
+                .senderIBAN(senderAccount.getIban())
+                .receiverIBAN(receiverAccount.getIban())
                 .amount(receivedAmount)
-                .currency(receiver.getCurrency())
-                .transferType("received")
+                .currency(receiverAccount.getCurrency())
+                .transferType(TransferLog.TransferType.RECEIVED)
                 .build();
-        BankOperationUtils.recordLog(context, receiver, receiveAuditLog);
+        BankOperationUtils.recordLog(context, receiverAccount, receiveAuditLog);
     }
 }

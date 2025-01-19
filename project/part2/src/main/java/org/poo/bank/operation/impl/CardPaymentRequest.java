@@ -90,7 +90,7 @@ public final class CardPaymentRequest extends BankOperation<Void> {
                     .logType(AuditLogType.CARD_PAYMENT)
                     .description("Card payment")
                     .amount(convertedAmount)
-                    .merchant(merchantName)
+                    .merchant(merchant)
                     .userAccount(userAccount)
                     .build();
             BankOperationUtils.recordLog(context, bankAccount, auditLog);

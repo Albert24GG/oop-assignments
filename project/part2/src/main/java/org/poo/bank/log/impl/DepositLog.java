@@ -8,6 +8,8 @@ import org.poo.bank.account.UserAccount;
 import org.poo.bank.log.AuditLog;
 import org.poo.bank.log.interfaces.UserTransactionLog;
 
+import java.util.Optional;
+
 @Getter
 @SuperBuilder(toBuilder = true)
 public final class DepositLog extends AuditLog implements UserTransactionLog {
@@ -19,8 +21,8 @@ public final class DepositLog extends AuditLog implements UserTransactionLog {
     private final UserAccount userAccount;
 
     @Override
-    public UserAccount getUserAccount() {
-        return userAccount;
+    public Optional<UserAccount> getSenderUserAccount() {
+        return Optional.of(userAccount);
     }
 
     @Override
