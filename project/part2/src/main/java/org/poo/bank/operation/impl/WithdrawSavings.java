@@ -92,6 +92,8 @@ public final class WithdrawSavings extends BankOperation<Void> {
                 .classicAccountIBAN(destinationAccount.getIban())
                 .savingsAccountIBAN(savingsAccount.getIban())
                 .build();
+        // ??? For some reason, the log is recorded twice in the refs
+        BankOperationUtils.recordLog(context, savingsAccount.getIban(), auditLog);
         BankOperationUtils.recordLog(context, savingsAccount.getIban(), auditLog);
 
         return BankOperationResult.success();
