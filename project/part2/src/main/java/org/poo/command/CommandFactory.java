@@ -36,6 +36,7 @@ import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
+import org.poo.bank.report.TransactionsReport;
 import org.poo.bank.report.business.BusinessReport;
 import org.poo.bank.report.business.BusinessReportType;
 import org.poo.bank.splitPayment.SplitPaymentType;
@@ -209,7 +210,16 @@ public final class CommandFactory {
                         return new CommandWitError<>(input, operation, "description");
                     }),
 
-                    Map.entry("report", ReportCmd::new),
+                    Map.entry("report", input -> {
+                        BankOperation<TransactionsReport> operation =
+                                TransactionsReportQuery.builder()
+                                        .accountIban(IBAN.of(input.getAccount()))
+                                        .startTimestamp(input.getStartTimestamp())
+                                        .endTimestamp(input.getEndTimestamp())
+                                        .build();
+
+                        return new CommandWithResult<>(input, operation);
+                    }),
 
                     Map.entry("spendingsReport", SpendingsReportCmd::new),
 
@@ -413,40 +423,6 @@ public final class CommandFactory {
                             .timestamp(input.getTimestamp())
                             .output(output)
                             .build());
-        }
-    }
-
-    private static final class ReportCmd extends Command {
-        private ReportCmd(final CommandInput input) {
-            super(input);
-        }
-
-        @Override
-        public Optional<CommandOutput> execute(final Bank bank) {
-            CommandInput input = getInput();
-            var result = TransactionsReportQuery.builder()
-                    .accountIban(IBAN.of(input.getAccount()))
-                    .startTimestamp(input.getStartTimestamp())
-                    .endTimestamp(input.getEndTimestamp())
-                    .build()
-                    .processBy(bank);
-
-            return Optional.of(
-                    Optional.of(result.isSuccess())
-                            .flatMap(success -> success ? result.getPayload() : Optional.empty())
-                            .map(payload -> CommandOutput.builder()
-                                    .command(getInput().getCommand())
-                                    .timestamp(getInput().getTimestamp())
-                                    .output(MAPPER.valueToTree(payload))
-                                    .build())
-                            .orElseGet(() ->
-                                    CommandOutput.builder()
-                                            .command(getInput().getCommand())
-                                            .timestamp(getInput().getTimestamp())
-                                            .output(MAPPER.createObjectNode()
-                                                    .put("description", result.getMessage().get())
-                                                    .put("timestamp", getInput().getTimestamp()))
-                                            .build()));
         }
     }
 
