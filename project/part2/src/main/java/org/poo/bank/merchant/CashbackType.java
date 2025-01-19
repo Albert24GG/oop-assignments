@@ -8,7 +8,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public enum CashbackType {
     TRANSACTION_BASED(Merchant.TransactionBasedCashback::create),
-    SPENDING_BASED(Merchant.SpendingBasedCashback::create);
+    SPENDING_BASED(merchant -> new Merchant.SpendingBasedCashback());
 
     private final Function<Merchant, CashbackStrategy> strategyClass;
 

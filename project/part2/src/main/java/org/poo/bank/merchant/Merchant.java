@@ -21,17 +21,56 @@ public final class Merchant {
     private final IBAN accountIban;
     @Getter
     private final MerchantType type;
-    private final CashbackStrategy cashbackStrategy;
+    private CashbackStrategy cashbackStrategy;
     private final Map<BankAccount, BankAccountData> bankAccountData = new HashMap<>();
 
+
     @Builder
-    Merchant(final String name, final int id, final IBAN accountIban, final MerchantType type,
-             final CashbackType cashbackType) {
+    private Merchant(final String name, final int id, final IBAN accountIban,
+                     final MerchantType type,
+                     final CashbackStrategy cashbackStrategy) {
         this.name = name;
         this.id = id;
         this.accountIban = accountIban;
         this.type = type;
-        this.cashbackStrategy = cashbackType.createStrategy(this);
+        this.cashbackStrategy = cashbackStrategy;
+    }
+
+    /**
+     * Creates a new builder with the given cashback type.
+     * This is currently used for the transaction-based cashback strategy.
+     *
+     * @param cashbackType the cashback type to be used by the builder
+     * @return a new builder with the given cashback type
+     */
+    static MerchantBuilder builderWithCashbackType(final CashbackType cashbackType) {
+        return new MerchantBuilder() {
+            @Override
+            public Merchant build() {
+                Merchant merchant = super.build();
+                merchant.cashbackStrategy = cashbackType.createStrategy(merchant);
+                return merchant;
+            }
+        };
+    }
+
+    /**
+     * Creates a new builder with the given cashback strategy.
+     * This is currently used for the spending-based cashback strategy.
+     *
+     * @param cashbackStrategy the cashback strategy to be used by the builder
+     * @return a new builder with the given cashback strategy
+     */
+    static MerchantBuilder builderWithCashbackStrategy(
+            final CashbackStrategy cashbackStrategy) {
+        return new MerchantBuilder() {
+            @Override
+            public Merchant build() {
+                Merchant merchant = super.build();
+                merchant.cashbackStrategy = cashbackStrategy;
+                return merchant;
+            }
+        };
     }
 
     private BankAccountData getBankAccountData(final BankAccount bankAccount) {
@@ -98,7 +137,7 @@ public final class Merchant {
     }
 
     @RequiredArgsConstructor
-    final class SpendingBasedCashback implements CashbackStrategy {
+    static final class SpendingBasedCashback implements CashbackStrategy {
         // The thresholds for the spending-based cashback in RON
         private static final List<Double> THRESHOLDS = List.of(100.0, 300.0, 500.0);
         // The cashback rules for each threshold and service plan
@@ -124,14 +163,11 @@ public final class Merchant {
         );
 
         /**
-         * Creates a new instance of the SpendingBasedCashback class.
-         *
-         * @param merchant the merchant for which the cashback strategy is created
-         * @return a new instance of the SpendingBasedCashback class
+         * The spending data for each bank account.
+         * We store this data inside the strategy since the spending-based cashback is common for
+         * all merchants of this type.
          */
-        static SpendingBasedCashback create(final Merchant merchant) {
-            return merchant.new SpendingBasedCashback();
-        }
+        private final Map<BankAccount, Double> accountSpending = new HashMap<>();
 
         static final class SpendingCashback extends Cashback {
             SpendingCashback(final double percentage) {
@@ -152,11 +188,11 @@ public final class Merchant {
         @Override
         public Optional<Cashback> registerTransaction(final BankAccount bankAccount,
                                                       final double amount) {
-            BankAccountData data = getBankAccountData(bankAccount);
-            data.registerTransaction(amount);
+            accountSpending.put(bankAccount,
+                    accountSpending.getOrDefault(bankAccount, 0.0) + amount);
 
             double discountPercentage = THRESHOLDS.stream()
-                    .filter(threshold -> data.totalAmount >= threshold)
+                    .filter(threshold -> accountSpending.get(bankAccount) >= threshold)
                     .reduce((first, second) -> second)
                     .map(threshold ->
                             CASHBACK_RULES.get(threshold)

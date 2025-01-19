@@ -16,6 +16,13 @@ public final class MerchantService {
     private final Map<MerchantType, List<Merchant>> typeMapping = new HashMap<>();
 
     /**
+     * The spending based cashback strategy.
+     * This is shared between all merchants that use the spending based cashback strategy.
+     */
+    private final Merchant.SpendingBasedCashback spendingBasedCashback =
+            new Merchant.SpendingBasedCashback();
+
+    /**
      * Creates a new merchant and adds it to the merchant service.
      *
      * @param name         the name of the merchant
@@ -30,13 +37,22 @@ public final class MerchantService {
             throw new IllegalArgumentException("Merchant already exists");
         }
 
-        Merchant merchant = Merchant.builder()
-                .name(name)
-                .id(id)
-                .accountIban(accountIban)
-                .type(type)
-                .cashbackType(cashbackType)
-                .build();
+        Merchant merchant = switch (cashbackType) {
+            case TRANSACTION_BASED -> Merchant.builderWithCashbackType(cashbackType)
+                    .name(name)
+                    .id(id)
+                    .accountIban(accountIban)
+                    .type(type)
+                    .build();
+
+            case SPENDING_BASED -> Merchant.builderWithCashbackStrategy(spendingBasedCashback)
+                    .name(name)
+                    .id(id)
+                    .accountIban(accountIban)
+                    .type(type)
+                    .build();
+
+        };
 
         ibanMapping.put(accountIban, merchant);
         nameMapping.put(name, merchant);
