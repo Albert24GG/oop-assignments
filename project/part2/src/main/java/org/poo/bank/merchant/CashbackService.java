@@ -33,8 +33,10 @@ final class CashbackService {
                 .reduce(0.0, Double::sum);
 
         // Then update the collections
-        getPendingDiscounts(bankAccount).removeAll(applicableCashbacks);
-        getAppliedDiscounts(bankAccount).addAll(applicableCashbacks);
+        List<Cashback> accountAppliedDiscounts = getAppliedDiscounts(bankAccount);
+        List<Cashback> accountPendingDiscounts = getPendingDiscounts(bankAccount);
+        accountAppliedDiscounts.addAll(applicableCashbacks);
+        accountPendingDiscounts.removeAll(applicableCashbacks);
 
         Optional<Cashback> discountOpt = merchant.registerTransaction(bankAccount, amount);
 
@@ -46,17 +48,20 @@ final class CashbackService {
         Cashback cashback = discountOpt.get();
         // If the discount is one time only, and it has already been applied, ignore it
         if (cashback.isApplicableOneTime()
-                && getAppliedDiscounts(bankAccount).contains(cashback)) {
+                && accountAppliedDiscounts.stream().anyMatch(cashback::equals)) {
             return new PercentageDiscount(totalDiscount);
         }
 
         // If the discount is applicable now, apply it and return the new total discount
         if (cashback.isApplicableNow()) {
-            getAppliedDiscounts(bankAccount).add(cashback);
+            accountAppliedDiscounts.add(cashback);
             return new PercentageDiscount(totalDiscount + cashback.getPercentage());
-        } else {
-            // Otherwise, add it to the pending discounts and return the total discount
-            getPendingDiscounts(bankAccount).add(cashback);
+        } else if (!cashback.isApplicableOneTime()
+                || accountPendingDiscounts.stream().noneMatch(cashback::equals)
+                || accountAppliedDiscounts.stream().anyMatch(cashback::equals)) {
+            // Otherwise, if the discount is not one time only, or it has not been applied yet,
+            // or it is already pending, add it to the pending discounts
+            accountPendingDiscounts.add(cashback);
         }
 
         return new PercentageDiscount(totalDiscount);
