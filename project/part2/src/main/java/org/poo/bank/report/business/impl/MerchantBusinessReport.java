@@ -19,6 +19,7 @@ public final class MerchantBusinessReport extends BusinessReport {
     public static class MerchantReport {
         @JsonProperty("commerciant")
         private final String merchantName;
+        @JsonProperty("total received")
         private final double totalReceived;
         private final List<String> managers;
         private final List<String> employees;
