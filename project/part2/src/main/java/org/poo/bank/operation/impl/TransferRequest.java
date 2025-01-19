@@ -25,8 +25,11 @@ import org.poo.bank.type.IBAN;
 @Builder
 @RequiredArgsConstructor
 public final class TransferRequest extends BankOperation<Void> {
+    /**
+     * The IBAN or account alias of the sender
+     */
     @NonNull
-    private final IBAN senderIban;
+    private final String senderIdentifier;
     /**
      * The IBAN or account alias of the receiver
      */
@@ -42,8 +45,8 @@ public final class TransferRequest extends BankOperation<Void> {
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)
             throws BankOperationException {
-
-        BankAccount senderAccount = BankOperationUtils.getBankAccountByIban(context, senderIban);
+        BankAccount senderAccount =
+                BankOperationUtils.getBankAccountByAliasOrIban(context, senderIdentifier);
         UserAccount senderUserAccount = BankOperationUtils.getUserByEmail(context, userEmail);
 
         Merchant merchant = null;
