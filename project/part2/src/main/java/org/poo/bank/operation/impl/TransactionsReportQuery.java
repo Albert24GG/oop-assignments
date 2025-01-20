@@ -21,8 +21,10 @@ import java.util.List;
 public final class TransactionsReportQuery extends BankOperation<TransactionsReport> {
     @NonNull
     private final IBAN accountIban;
-    private final int startTimestamp;
-    private final int endTimestamp;
+    @NonNull
+    private final Integer startTimestamp;
+    @NonNull
+    private final Integer endTimestamp;
 
     @Override
     protected BankOperationResult<TransactionsReport> internalExecute(

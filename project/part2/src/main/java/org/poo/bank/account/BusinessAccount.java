@@ -16,11 +16,11 @@ public final class BusinessAccount extends BankAccount {
             BusinessAccountRole.EMPLOYEE, new AccountRoleRestrictions(BusinessAccountRole.EMPLOYEE)
     );
 
-    class AccountRoleRestrictions {
+    static class AccountRoleRestrictions {
         private Double spendingLimit = null;
         private Double depositLimit = null;
         @Getter
-        private List<BusinessAccountPermission> permissions;
+        private final List<BusinessAccountPermission> permissions;
 
         AccountRoleRestrictions(final BusinessAccountRole role) {
             // set the default permissions for the role
@@ -50,9 +50,14 @@ public final class BusinessAccount extends BankAccount {
 
 
     public BusinessAccount(final UserAccount owner, final Currency currency) {
-        super(BankAccountType.BUSINESS, currency, owner);
+        super(currency, owner);
 
         accountMembers.put(owner, BusinessAccountRole.OWNER);
+    }
+
+    @Override
+    public BankAccountType getType() {
+        return BankAccountType.BUSINESS;
     }
 
     /**

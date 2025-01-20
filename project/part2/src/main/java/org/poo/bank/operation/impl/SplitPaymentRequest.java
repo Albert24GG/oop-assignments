@@ -30,7 +30,8 @@ public final class SplitPaymentRequest extends BankOperation<Void> {
     private final SplitPaymentType type;
     @NonNull
     private final List<Double> amountPerAccount;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

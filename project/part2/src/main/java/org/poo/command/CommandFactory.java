@@ -36,6 +36,7 @@ import org.poo.bank.operation.impl.TransactionsReportQuery;
 import org.poo.bank.operation.impl.TransferRequest;
 import org.poo.bank.operation.impl.UpgradeServicePlan;
 import org.poo.bank.operation.impl.WithdrawSavings;
+import org.poo.bank.report.SpendingsReport;
 import org.poo.bank.report.TransactionsReport;
 import org.poo.bank.report.business.BusinessReport;
 import org.poo.bank.report.business.BusinessReportType;
@@ -339,7 +340,8 @@ public final class CommandFactory {
                             .command(getInput().getCommand())
                             .timestamp(getInput().getTimestamp())
                             .output(MAPPER.createObjectNode()
-                                    .put(errorFieldName, result.getMessage().get())
+                                    .put(errorFieldName, result.getMessage()
+                                            .orElseGet(() -> "Encountered an error"))
                                     .put("timestamp", getInput().getTimestamp()))
                             .build());
         }
@@ -382,11 +384,11 @@ public final class CommandFactory {
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             BankOperationResult<R> result = bank.processOperation(operation);
-            return Optional.of(
-                    CommandOutput.builder()
+            return result.getPayload()
+                    .map(payload -> CommandOutput.builder()
                             .command(getInput().getCommand())
                             .timestamp(getInput().getTimestamp())
-                            .output(MAPPER.valueToTree(result.getPayload().get()))
+                            .output(MAPPER.valueToTree(payload))
                             .build());
         }
     }
@@ -404,7 +406,7 @@ public final class CommandFactory {
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
             ObjectNode output = MAPPER.createObjectNode();
-            var result = DeleteBankAccount.builder()
+            BankOperationResult<Void> result = DeleteBankAccount.builder()
                     .ownerEmail(Email.of(input.getEmail()))
                     .accountIban(IBAN.of(input.getAccount()))
                     .timestamp(input.getTimestamp())
@@ -414,7 +416,7 @@ public final class CommandFactory {
                 output.put("success", "Account deleted")
                         .put("timestamp", input.getTimestamp());
             } else {
-                output.put("error", result.getMessage().get())
+                output.put("error", result.getMessage().orElse("Encountered an error"))
                         .put("timestamp", input.getTimestamp());
             }
             return Optional.of(
@@ -434,7 +436,7 @@ public final class CommandFactory {
         @Override
         public Optional<CommandOutput> execute(final Bank bank) {
             CommandInput input = getInput();
-            var result = SpendingsReportQuery.builder()
+            BankOperationResult<SpendingsReport> result = SpendingsReportQuery.builder()
                     .accountIban(IBAN.of(input.getAccount()))
                     .startTimestamp(input.getStartTimestamp())
                     .endTimestamp(input.getEndTimestamp())
@@ -446,23 +448,19 @@ public final class CommandFactory {
                             .command(getInput().getCommand())
                             .timestamp(getInput().getTimestamp());
 
-            return Optional.of(
-                    Optional.of(result.isSuccess())
-                            .flatMap(success -> success ? result.getPayload() : Optional.empty())
-                            .map(payload -> commandOutputBuilder.output(
-                                    MAPPER.valueToTree(payload)))
-                            .orElseGet(() -> {
-                                if (result.getErrorType() == BankErrorType.INVALID_OPERATION) {
-                                    return commandOutputBuilder.output(MAPPER.createObjectNode()
-                                            .put("error", result.getMessage().get()));
-                                } else {
-                                    return commandOutputBuilder.output(MAPPER.createObjectNode()
-                                            .put("description", result.getMessage().get())
-                                            .put("timestamp", getInput().getTimestamp()));
-                                }
-                            })
-                            .build()
-            );
+            return Optional.of(result.getPayload()
+                    .map(payload -> commandOutputBuilder.output(MAPPER.valueToTree(payload)))
+                    .orElseGet(() -> {
+                        if (result.getErrorType() == BankErrorType.INVALID_OPERATION) {
+                            return commandOutputBuilder.output(MAPPER.createObjectNode()
+                                    .put("error", result.getMessage().get()));
+                        } else {
+                            return commandOutputBuilder.output(MAPPER.createObjectNode()
+                                    .put("description", result.getMessage().get())
+                                    .put("timestamp", getInput().getTimestamp()));
+                        }
+                    })
+                    .build());
         }
     }
 }

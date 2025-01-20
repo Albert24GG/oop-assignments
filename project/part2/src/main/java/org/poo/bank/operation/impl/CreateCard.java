@@ -31,7 +31,8 @@ public final class CreateCard extends BankOperation<Void> {
     private final IBAN accountIban;
     @NonNull
     private final CardType type;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

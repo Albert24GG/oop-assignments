@@ -27,8 +27,10 @@ public final class AddFunds extends BankOperation<Void> {
     private final IBAN accountIban;
     @NonNull
     private final Email userEmail;
-    private final double amount;
-    private final int timestamp;
+    @NonNull
+    private final Double amount;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

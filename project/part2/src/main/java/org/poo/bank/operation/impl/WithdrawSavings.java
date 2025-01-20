@@ -29,10 +29,12 @@ public final class WithdrawSavings extends BankOperation<Void> {
 
     @NonNull
     private final IBAN accountIban;
-    private final double amount;
+    @NonNull
+    private final Double amount;
     @NonNull
     private final Currency currency;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

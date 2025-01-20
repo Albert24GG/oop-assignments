@@ -27,7 +27,8 @@ public final class ChangeSpendingLimit extends BankOperation<Void> {
     private final Double newLimit;
     @NonNull
     private final Email userEmail;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

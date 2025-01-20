@@ -15,7 +15,7 @@ public abstract class BusinessOperation {
      *
      * @return a list of permissions required to perform this operation
      */
-    public abstract List<BusinessAccountPermission> getRequiredPermissions();
+    protected abstract List<BusinessAccountPermission> getRequiredPermissions();
 
     /**
      * Check if the user has the required permissions to perform this operation
@@ -37,7 +37,7 @@ public abstract class BusinessOperation {
         private final double amount;
 
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.DEPOSIT);
         }
 
@@ -58,7 +58,7 @@ public abstract class BusinessOperation {
 
     public static final class AddCard extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.CARD_CREATION);
         }
     }
@@ -66,35 +66,35 @@ public abstract class BusinessOperation {
 
     public static final class RemoveCardSameOwner extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.CARD_DELETION_SAME_OWNER);
         }
     }
 
     public static final class RemoveCardDifferentOwner extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.CARD_DELETION_DIFFERENT_OWNER);
         }
     }
 
     public static final class SetSpendingLimit extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.SET_SPENDING_LIMIT);
         }
     }
 
     public static final class SetDepositLimit extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.SET_DEPOSIT_LIMIT);
         }
     }
 
     public static final class SetMinimumBalance extends BusinessOperation {
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.SET_MINIMUM_BALANCE);
         }
     }
@@ -113,7 +113,7 @@ public abstract class BusinessOperation {
         private final double amount;
 
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.CARD_PAYMENT);
         }
 
@@ -134,7 +134,7 @@ public abstract class BusinessOperation {
         private final double amount;
 
         @Override
-        public List<BusinessAccountPermission> getRequiredPermissions() {
+        protected List<BusinessAccountPermission> getRequiredPermissions() {
             return List.of(BusinessAccountPermission.TRANSFER);
         }
 

@@ -24,7 +24,8 @@ public final class DeleteBankAccount extends BankOperation<Void> {
     private final Email ownerEmail;
     @NonNull
     private final IBAN accountIban;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

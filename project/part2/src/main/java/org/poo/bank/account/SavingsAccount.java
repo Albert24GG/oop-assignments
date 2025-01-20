@@ -7,8 +7,13 @@ public final class SavingsAccount extends BankAccount {
 
     public SavingsAccount(final UserAccount owner, final Currency currency,
                           final double interestRate) {
-        super(BankAccountType.SAVINGS, currency, owner);
+        super(currency, owner);
         this.interestRate = interestRate;
+    }
+
+    @Override
+    public BankAccountType getType() {
+        return BankAccountType.SAVINGS;
     }
 
     void changeInterestRate(final double interestRate) {

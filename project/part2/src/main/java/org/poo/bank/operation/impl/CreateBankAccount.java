@@ -30,8 +30,10 @@ public final class CreateBankAccount extends BankOperation<Void> {
     private final Currency currency;
     @NonNull
     private final BankAccountType type;
-    private final double interestRate;
-    private final int timestamp;
+    @NonNull
+    private final Double interestRate;
+    @NonNull
+    private final Integer timestamp;
 
     // Default values for business accounts employee spending and deposit limits (in RON)
     private static final double BUSINESS_EMPLOYEE_DEFAULT_SPENDING_LIMIT = 500.0;

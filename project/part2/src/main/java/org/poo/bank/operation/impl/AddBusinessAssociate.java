@@ -26,7 +26,8 @@ public final class AddBusinessAssociate extends BankOperation<Void> {
     private final BusinessAccountRole role;
     @NonNull
     private final Email userEmail;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

@@ -16,7 +16,8 @@ import org.poo.bank.type.IBAN;
 public final class SetAccountMinBalance extends BankOperation<Void> {
     @NonNull
     private final IBAN accountIban;
-    private final double minBalance;
+    @NonNull
+    private final Double minBalance;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

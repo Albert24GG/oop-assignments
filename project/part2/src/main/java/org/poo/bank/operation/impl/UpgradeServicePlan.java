@@ -27,7 +27,8 @@ public final class UpgradeServicePlan extends BankOperation<Void> {
     private final ServicePlanType newPlan;
     @NonNull
     private final IBAN accountIban;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

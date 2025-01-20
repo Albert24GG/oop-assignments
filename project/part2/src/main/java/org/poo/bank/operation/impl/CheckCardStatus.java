@@ -19,7 +19,8 @@ import org.poo.bank.type.CardNumber;
 public final class CheckCardStatus extends BankOperation<Void> {
     @NonNull
     private final CardNumber cardNumber;
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

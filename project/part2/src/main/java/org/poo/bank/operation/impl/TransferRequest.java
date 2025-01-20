@@ -39,8 +39,10 @@ public final class TransferRequest extends BankOperation<Void> {
     private final String description;
     @NonNull
     private final Email userEmail;
-    private final double amount;
-    private final int timestamp;
+    @NonNull
+    private final Double amount;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

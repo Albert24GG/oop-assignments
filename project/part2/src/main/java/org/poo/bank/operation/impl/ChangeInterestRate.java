@@ -22,8 +22,10 @@ import org.poo.bank.type.IBAN;
 public final class ChangeInterestRate extends BankOperation<Void> {
     @NonNull
     private final IBAN accountIban;
-    private final double newInterestRate;
-    private final int timestamp;
+    @NonNull
+    private final Double newInterestRate;
+    @NonNull
+    private final Integer timestamp;
 
     @Override
     protected BankOperationResult<Void> internalExecute(final BankOperationContext context)

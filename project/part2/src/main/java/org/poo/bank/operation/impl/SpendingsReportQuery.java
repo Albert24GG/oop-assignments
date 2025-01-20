@@ -28,8 +28,10 @@ import java.util.stream.Collectors;
 public final class SpendingsReportQuery extends BankOperation<SpendingsReport> {
     @NonNull
     private final IBAN accountIban;
-    private final int startTimestamp;
-    private final int endTimestamp;
+    @NonNull
+    private final Integer startTimestamp;
+    @NonNull
+    private final Integer endTimestamp;
 
     @Override
     protected BankOperationResult<SpendingsReport> internalExecute(

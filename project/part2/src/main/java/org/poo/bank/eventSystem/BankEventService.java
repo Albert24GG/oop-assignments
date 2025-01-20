@@ -14,7 +14,7 @@ public final class BankEventService {
      *
      * @param listener the listener to subscribe
      */
-    public <T> void subscribe(final BankEventListener<?> listener) {
+    public void subscribe(final BankEventListener<?> listener) {
         Class<?> eventClass = listener.getEventClass();
 
         eventListeners.computeIfAbsent(eventClass, k -> new ArrayList<>())

@@ -21,7 +21,6 @@ public abstract class BankAccount {
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
     private String alias;
-    private final BankAccountType type;
     private final Currency currency;
     private final UserAccount owner;
     @EqualsAndHashCode.Exclude
@@ -30,6 +29,12 @@ public abstract class BankAccount {
     private double balance = 0.0;
     private double minBalance = 0.0;
 
+    /**
+     * Gets the type of the account
+     *
+     * @return the type of the account
+     */
+    public abstract BankAccountType getType();
 
     /**
      * Creates a new bank account

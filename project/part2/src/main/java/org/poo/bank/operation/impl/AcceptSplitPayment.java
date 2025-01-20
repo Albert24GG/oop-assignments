@@ -15,7 +15,8 @@ import org.poo.bank.type.Email;
 @Builder
 @RequiredArgsConstructor
 public final class AcceptSplitPayment extends BankOperation<Void> {
-    private final int timestamp;
+    @NonNull
+    private final Integer timestamp;
     @NonNull
     private final Email ownerEmail;
     @NonNull
